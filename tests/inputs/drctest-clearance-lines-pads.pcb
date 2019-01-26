@@ -786,14 +786,14 @@ Symbol['~' 12.00mil]
 )
 Attribute("PCB::grid::unit" "mil")
 Attribute("PCB::grid::size" "1.00mil")
-Via[150.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" "selected"]
-Via[350.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" "selected"]
-Via[550.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" "selected"]
-Via[750.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" "selected"]
+Via[150.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[350.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[550.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[750.00mil 200.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
 
-Element["selected" "" "" "" 170.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 170.00mil 235.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -801,9 +801,9 @@ Element["selected" "" "" "" 170.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 169.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 169.00mil 310.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -811,9 +811,9 @@ Element["selected" "" "" "" 169.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 168.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 168.00mil 385.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -821,9 +821,9 @@ Element["selected" "" "" "" 168.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 167.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 167.00mil 460.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -831,9 +831,9 @@ Element["selected" "" "" "" 167.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 166.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 166.00mil 535.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -841,9 +841,9 @@ Element["selected" "" "" "" 166.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 165.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 165.00mil 610.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -851,9 +851,9 @@ Element["selected" "" "" "" 165.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 164.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 164.00mil 685.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -861,9 +861,9 @@ Element["selected" "" "" "" 164.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 163.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 163.00mil 760.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -871,9 +871,9 @@ Element["selected" "" "" "" 163.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 162.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 162.00mil 835.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -881,9 +881,9 @@ Element["selected" "" "" "" 162.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 161.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 161.00mil 910.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -891,9 +891,9 @@ Element["selected" "" "" "" 161.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 360.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 360.00mil 235.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -901,9 +901,9 @@ Element["selected" "" "" "" 360.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 359.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 359.00mil 310.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -911,9 +911,9 @@ Element["selected" "" "" "" 359.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 358.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 358.00mil 385.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -921,9 +921,9 @@ Element["selected" "" "" "" 358.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 357.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 357.00mil 460.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -931,9 +931,9 @@ Element["selected" "" "" "" 357.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 356.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 356.00mil 535.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -941,9 +941,9 @@ Element["selected" "" "" "" 356.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 355.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 355.00mil 610.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -951,9 +951,9 @@ Element["selected" "" "" "" 355.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 354.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 354.00mil 685.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -961,9 +961,9 @@ Element["selected" "" "" "" 354.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 353.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 353.00mil 760.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -971,9 +971,9 @@ Element["selected" "" "" "" 353.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 351.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 351.00mil 910.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -981,9 +981,9 @@ Element["selected" "" "" "" 351.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 352.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 352.00mil 835.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -991,9 +991,9 @@ Element["selected" "" "" "" 352.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 570.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 570.00mil 235.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1001,9 +1001,9 @@ Element["selected" "" "" "" 570.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 569.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 569.00mil 310.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1011,9 +1011,9 @@ Element["selected" "" "" "" 569.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 568.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 568.00mil 385.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1021,9 +1021,9 @@ Element["selected" "" "" "" 568.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 567.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 567.00mil 460.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1031,9 +1031,9 @@ Element["selected" "" "" "" 567.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 566.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 566.00mil 535.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1041,9 +1041,9 @@ Element["selected" "" "" "" 566.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 565.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 565.00mil 610.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1051,9 +1051,9 @@ Element["selected" "" "" "" 565.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 564.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 564.00mil 685.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1061,9 +1061,9 @@ Element["selected" "" "" "" 564.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 563.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 563.00mil 760.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1071,9 +1071,9 @@ Element["selected" "" "" "" 563.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 562.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 562.00mil 835.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1081,9 +1081,9 @@ Element["selected" "" "" "" 562.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 561.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 561.00mil 910.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1091,9 +1091,9 @@ Element["selected" "" "" "" 561.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 760.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 760.00mil 235.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1101,9 +1101,9 @@ Element["selected" "" "" "" 760.00mil 235.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 759.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 759.00mil 310.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1111,9 +1111,9 @@ Element["selected" "" "" "" 759.00mil 310.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 758.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 758.00mil 385.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1121,9 +1121,9 @@ Element["selected" "" "" "" 758.00mil 385.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 757.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 757.00mil 460.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1131,9 +1131,9 @@ Element["selected" "" "" "" 757.00mil 460.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 756.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 756.00mil 535.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1141,9 +1141,9 @@ Element["selected" "" "" "" 756.00mil 535.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 755.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 755.00mil 610.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1151,9 +1151,9 @@ Element["selected" "" "" "" 755.00mil 610.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 754.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 754.00mil 685.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1161,9 +1161,9 @@ Element["selected" "" "" "" 754.00mil 685.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 753.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 753.00mil 760.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1171,9 +1171,9 @@ Element["selected" "" "" "" 753.00mil 760.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 751.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 751.00mil 910.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1181,9 +1181,9 @@ Element["selected" "" "" "" 751.00mil 910.00mil 0.0000 0.0000 0 100 "selected"]
 
 	)
 
-Element["selected" "" "" "" 752.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
+Element["" "" "" "" 752.00mil 835.00mil 0.0000 0.0000 0 100 ""]
 (
-	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" "selected"]
+	Pad[0.0000 0.0000 0.0000 30.00mil 10.00mil 20.00mil 30.00mil "" "1" ""]
 	ElementLine [-10.00mil -10.00mil 10.00mil -10.00mil 6.00mil]
 	ElementLine [10.00mil -10.00mil 10.00mil 40.00mil 6.00mil]
 	ElementLine [10.00mil 40.00mil -10.00mil 40.00mil 6.00mil]
@@ -1192,17 +1192,17 @@ Element["selected" "" "" "" 752.00mil 835.00mil 0.0000 0.0000 0 100 "selected"]
 	)
 Layer(1 "top" "copper")
 (
-	Line[150.00mil 200.00mil 150.00mil 965.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[350.00mil 200.00mil 350.00mil 965.00mil 10.00mil 20.00mil "clearline,selected"]
+	Line[150.00mil 200.00mil 150.00mil 965.00mil 10.00mil 20.00mil "clearline"]
+	Line[350.00mil 200.00mil 350.00mil 965.00mil 10.00mil 20.00mil "clearline"]
 )
 Layer(2 "ground" "copper")
 (
-	Line[230.00mil 250.00mil 230.00mil 950.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[430.00mil 250.00mil 430.00mil 950.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[630.00mil 250.00mil 630.00mil 950.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[830.00mil 250.00mil 830.00mil 950.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[550.00mil 200.00mil 550.00mil 965.00mil 10.00mil 20.00mil "clearline,selected"]
-	Line[750.00mil 200.00mil 750.00mil 965.00mil 10.00mil 20.00mil "clearline,selected"]
+	Line[230.00mil 250.00mil 230.00mil 950.00mil 10.00mil 20.00mil "clearline"]
+	Line[430.00mil 250.00mil 430.00mil 950.00mil 10.00mil 20.00mil "clearline"]
+	Line[630.00mil 250.00mil 630.00mil 950.00mil 10.00mil 20.00mil "clearline"]
+	Line[830.00mil 250.00mil 830.00mil 950.00mil 10.00mil 20.00mil "clearline"]
+	Line[550.00mil 200.00mil 550.00mil 965.00mil 10.00mil 20.00mil "clearline"]
+	Line[750.00mil 200.00mil 750.00mil 965.00mil 10.00mil 20.00mil "clearline"]
 )
 Layer(3 "signal2" "copper")
 (
@@ -1231,46 +1231,46 @@ Layer(10 "top silk" "silk")
 	Text[813.00mil 73.00mil 0 50 "Bloat: 5 mil" "clearline"]
 	Text[813.00mil 112.00mil 0 50 "Shrink: 5 mil" "clearline"]
 	Text[7.00mil 59.00mil 0 122 "Lines" "clearline"]
-	Text[57.00mil 143.00mil 0 49 "Line-to-pad clearance" "clearline,selected"]
-	Text[232.00mil 238.00mil 0 49 "10 mil" "clearline,selected"]
-	Text[432.00mil 233.00mil 0 49 "0 mil" "clearline,selected"]
-	Text[432.00mil 310.00mil 0 49 "-1 mil" "clearline,selected"]
-	Text[432.00mil 385.00mil 0 49 "-2 mil" "clearline,selected"]
-	Text[432.00mil 460.00mil 0 49 "-3 mil" "clearline,selected"]
-	Text[432.00mil 535.00mil 0 49 "-4 mil" "clearline,selected"]
-	Text[432.00mil 611.00mil 0 49 "-5 mil" "clearline,selected"]
-	Text[432.00mil 685.00mil 0 49 "-6 mil" "clearline,selected"]
-	Text[432.00mil 760.00mil 0 49 "-7 mil" "clearline,selected"]
-	Text[432.00mil 835.00mil 0 49 "-8 mil" "clearline,selected"]
-	Text[432.00mil 909.00mil 0 49 "-9 mil" "clearline,selected"]
-	Text[232.00mil 309.00mil 0 49 "9 mil" "clearline,selected"]
-	Text[232.00mil 384.00mil 0 49 "8 mil" "clearline,selected"]
-	Text[232.00mil 459.00mil 0 49 "7 mil" "clearline,selected"]
-	Text[232.00mil 535.00mil 0 49 "6 mil" "clearline,selected"]
-	Text[232.00mil 610.00mil 0 49 "5 mil" "clearline,selected"]
-	Text[232.00mil 685.00mil 0 49 "4 mil" "clearline,selected"]
-	Text[232.00mil 760.00mil 0 49 "3 mil" "clearline,selected"]
-	Text[232.00mil 836.00mil 0 49 "2 mil" "clearline,selected"]
-	Text[232.00mil 909.00mil 0 49 "1 mil" "clearline,selected"]
-	Text[457.00mil 143.00mil 0 49 "Line-to-pad clearance (different layer)" "clearline,selected"]
-	Text[632.00mil 238.00mil 0 49 "10 mil" "clearline,selected"]
-	Text[832.00mil 233.00mil 0 49 "0 mil" "clearline,selected"]
-	Text[832.00mil 310.00mil 0 49 "-1 mil" "clearline,selected"]
-	Text[832.00mil 385.00mil 0 49 "-2 mil" "clearline,selected"]
-	Text[832.00mil 460.00mil 0 49 "-3 mil" "clearline,selected"]
-	Text[832.00mil 535.00mil 0 49 "-4 mil" "clearline,selected"]
-	Text[832.00mil 611.00mil 0 49 "-5 mil" "clearline,selected"]
-	Text[832.00mil 685.00mil 0 49 "-6 mil" "clearline,selected"]
-	Text[832.00mil 760.00mil 0 49 "-7 mil" "clearline,selected"]
-	Text[832.00mil 835.00mil 0 49 "-8 mil" "clearline,selected"]
-	Text[832.00mil 909.00mil 0 49 "-9 mil" "clearline,selected"]
-	Text[632.00mil 309.00mil 0 49 "9 mil" "clearline,selected"]
-	Text[632.00mil 384.00mil 0 49 "8 mil" "clearline,selected"]
-	Text[632.00mil 459.00mil 0 49 "7 mil" "clearline,selected"]
-	Text[632.00mil 535.00mil 0 49 "6 mil" "clearline,selected"]
-	Text[632.00mil 610.00mil 0 49 "5 mil" "clearline,selected"]
-	Text[632.00mil 685.00mil 0 49 "4 mil" "clearline,selected"]
-	Text[632.00mil 760.00mil 0 49 "3 mil" "clearline,selected"]
-	Text[632.00mil 836.00mil 0 49 "2 mil" "clearline,selected"]
-	Text[632.00mil 909.00mil 0 49 "1 mil" "clearline,selected"]
+	Text[57.00mil 143.00mil 0 49 "Line-to-pad clearance" "clearline"]
+	Text[232.00mil 238.00mil 0 49 "10 mil" "clearline"]
+	Text[432.00mil 233.00mil 0 49 "0 mil" "clearline"]
+	Text[432.00mil 310.00mil 0 49 "-1 mil" "clearline"]
+	Text[432.00mil 385.00mil 0 49 "-2 mil" "clearline"]
+	Text[432.00mil 460.00mil 0 49 "-3 mil" "clearline"]
+	Text[432.00mil 535.00mil 0 49 "-4 mil" "clearline"]
+	Text[432.00mil 611.00mil 0 49 "-5 mil" "clearline"]
+	Text[432.00mil 685.00mil 0 49 "-6 mil" "clearline"]
+	Text[432.00mil 760.00mil 0 49 "-7 mil" "clearline"]
+	Text[432.00mil 835.00mil 0 49 "-8 mil" "clearline"]
+	Text[432.00mil 909.00mil 0 49 "-9 mil" "clearline"]
+	Text[232.00mil 309.00mil 0 49 "9 mil" "clearline"]
+	Text[232.00mil 384.00mil 0 49 "8 mil" "clearline"]
+	Text[232.00mil 459.00mil 0 49 "7 mil" "clearline"]
+	Text[232.00mil 535.00mil 0 49 "6 mil" "clearline"]
+	Text[232.00mil 610.00mil 0 49 "5 mil" "clearline"]
+	Text[232.00mil 685.00mil 0 49 "4 mil" "clearline"]
+	Text[232.00mil 760.00mil 0 49 "3 mil" "clearline"]
+	Text[232.00mil 836.00mil 0 49 "2 mil" "clearline"]
+	Text[232.00mil 909.00mil 0 49 "1 mil" "clearline"]
+	Text[457.00mil 143.00mil 0 49 "Line-to-pad clearance (different layer)" "clearline"]
+	Text[632.00mil 238.00mil 0 49 "10 mil" "clearline"]
+	Text[832.00mil 233.00mil 0 49 "0 mil" "clearline"]
+	Text[832.00mil 310.00mil 0 49 "-1 mil" "clearline"]
+	Text[832.00mil 385.00mil 0 49 "-2 mil" "clearline"]
+	Text[832.00mil 460.00mil 0 49 "-3 mil" "clearline"]
+	Text[832.00mil 535.00mil 0 49 "-4 mil" "clearline"]
+	Text[832.00mil 611.00mil 0 49 "-5 mil" "clearline"]
+	Text[832.00mil 685.00mil 0 49 "-6 mil" "clearline"]
+	Text[832.00mil 760.00mil 0 49 "-7 mil" "clearline"]
+	Text[832.00mil 835.00mil 0 49 "-8 mil" "clearline"]
+	Text[832.00mil 909.00mil 0 49 "-9 mil" "clearline"]
+	Text[632.00mil 309.00mil 0 49 "9 mil" "clearline"]
+	Text[632.00mil 384.00mil 0 49 "8 mil" "clearline"]
+	Text[632.00mil 459.00mil 0 49 "7 mil" "clearline"]
+	Text[632.00mil 535.00mil 0 49 "6 mil" "clearline"]
+	Text[632.00mil 610.00mil 0 49 "5 mil" "clearline"]
+	Text[632.00mil 685.00mil 0 49 "4 mil" "clearline"]
+	Text[632.00mil 760.00mil 0 49 "3 mil" "clearline"]
+	Text[632.00mil 836.00mil 0 49 "2 mil" "clearline"]
+	Text[632.00mil 909.00mil 0 49 "1 mil" "clearline"]
 )

@@ -1,9 +1,9 @@
-# release: pcb v4.1.3-gc3caf806
+# release: pcb v4.1.3-gbf4b7f13
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20091103]
 
-PCB["" 5000.00mil 4000.00mil]
+PCB["" 1600.00mil 1300.00mil]
 
 Grid[1.00mil 0.0000 0.0000 1]
 PolyArea[3100.006200]
@@ -12,7 +12,6 @@ DRC[5.00mil 5.00mil 5.00mil 5.00mil 10.00mil 10.00mil]
 Flags("nameonpcb,clearnew,snappin")
 Groups("1,c:2:3:4:5:6,s:7:8")
 Styles["Signal,10.00mil,30.00mil,10.00mil,1.00mil:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,6.00mil,24.02mil,11.81mil,6.00mil"]
-
 Symbol[' ' 18.00mil]
 (
 )
