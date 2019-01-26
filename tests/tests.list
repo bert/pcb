@@ -343,37 +343,37 @@ FileVersions | fileversion.script fileversion-20091103.pcb fileversion-20100606.
 
 RouteStyles | routestyles.script default.pcb | action | | | pcb:zero-apertures-save.pcb pcb:non-zero-apertures-save.pcb pcb:mixed-apertures-save.pcb pcb:zero-apertures-load.pcb pcb:mixed-apertures-load.pcb
 
-drc-minsize-arcs     | drctest.script drctest-minsize-arcs.pcb     | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-minsize-lines    | drctest.script drctest-minsize-lines.pcb    | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-minsize-pads     | drctest.script drctest-minsize-pads.pcb     | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-minsize-pins     | drctest.script drctest-minsize-pins.pcb     | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-minsize-polygons | drctest.script drctest-minsize-polygons.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-minsize-vias     | drctest.script drctest-minsize-vias.pcb     | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-arcs-arcs        | drctest.script drctest-clearance-arcs-arcs.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-arcs-burriedvias | drctest.script drctest-clearance-arcs-burriedvias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-arcs-lines       | drctest.script drctest-clearance-arcs-lines.pcb       | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-arcs-pads        | drctest.script drctest-clearance-arcs-pads.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-arcs-vias        | drctest.script drctest-clearance-arcs-vias.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-burriedvias-burriedvias | drctest.script drctest-clearance-burriedvias-burriedvias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-lines-arcs        | drctest.script drctest-clearance-lines-arcs.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-lines-burriedvias | drctest.script drctest-clearance-lines-burriedvias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-lines-lines       | drctest.script drctest-clearance-lines-lines.pcb       | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-lines-pads        | drctest.script drctest-clearance-lines-pads.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-lines-vias        | drctest.script drctest-clearance-lines-vias.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-misc              | drctest.script drctest-clearance-misc.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-pads-arcs        | drctest.script drctest-clearance-pads-arcs.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-pads-burriedvias | drctest.script drctest-clearance-pads-burriedvias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-pads-lines       | drctest.script drctest-clearance-pads-lines.pcb       | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-pads-pads        | drctest.script drctest-clearance-pads-pads.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-pads-vias        | drctest.script drctest-clearance-pads-vias.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-vias-arcs        | drctest.script drctest-clearance-vias-arcs.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-vias-burriedvias | drctest.script drctest-clearance-vias-burriedvias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-vias-lines       | drctest.script drctest-clearance-vias-lines.pcb       | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-clearance-vias-vias        | drctest.script drctest-clearance-vias-vias.pcb        | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-arcs | drctest.script drctest-polygonclearance-arcs.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-lines | drctest.script drctest-polygonclearance-lines.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-misc | drctest.script drctest-polygonclearance-misc.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-pads | drctest.script drctest-polygonclearance-pads.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-pins | drctest.script drctest-polygonclearance-pins.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
-drc-polygonclearance-vias | drctest.script drctest-polygonclearance-vias.pcb | action | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-arcs     | drctest.script drctest-minsize-arcs.pcb     | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-lines    | drctest.script drctest-minsize-lines.pcb    | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-pads     | drctest.script drctest-minsize-pads.pcb     | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-pins     | drctest.script drctest-minsize-pins.pcb     | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-polygons | drctest.script drctest-minsize-polygons.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-minsize-vias     | drctest.script drctest-minsize-vias.pcb     | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-arcs-arcs        | drctest.script drctest-clearance-arcs-arcs.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-arcs-burriedvias | drctest.script drctest-clearance-arcs-burriedvias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-arcs-lines       | drctest.script drctest-clearance-arcs-lines.pcb       | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-arcs-pads        | drctest.script drctest-clearance-arcs-pads.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-arcs-vias        | drctest.script drctest-clearance-arcs-vias.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-burriedvias-burriedvias | drctest.script drctest-clearance-burriedvias-burriedvias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-lines-arcs        | drctest.script drctest-clearance-lines-arcs.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-lines-burriedvias | drctest.script drctest-clearance-lines-burriedvias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-lines-lines       | drctest.script drctest-clearance-lines-lines.pcb       | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-lines-pads        | drctest.script drctest-clearance-lines-pads.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-lines-vias        | drctest.script drctest-clearance-lines-vias.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-misc              | drctest.script drctest-clearance-misc.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-pads-arcs        | drctest.script drctest-clearance-pads-arcs.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-pads-burriedvias | drctest.script drctest-clearance-pads-burriedvias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-pads-lines       | drctest.script drctest-clearance-pads-lines.pcb       | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-pads-pads        | drctest.script drctest-clearance-pads-pads.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-pads-vias        | drctest.script drctest-clearance-pads-vias.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-vias-arcs        | drctest.script drctest-clearance-vias-arcs.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-vias-burriedvias | drctest.script drctest-clearance-vias-burriedvias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-vias-lines       | drctest.script drctest-clearance-vias-lines.pcb       | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-clearance-vias-vias        | drctest.script drctest-clearance-vias-vias.pcb        | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-arcs | drctest.script drctest-polygonclearance-arcs.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-lines | drctest.script drctest-polygonclearance-lines.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-misc | drctest.script drctest-polygonclearance-misc.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-pads | drctest.script drctest-polygonclearance-pads.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-pins | drctest.script drctest-polygonclearance-pins.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-polygonclearance-vias | drctest.script drctest-polygonclearance-vias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
 
