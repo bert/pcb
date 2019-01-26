@@ -263,9 +263,15 @@ AM_YFLAGS=	-d
 
 all-local: pcbtest.sh ${PCBTEST_BAT}
 
-pcb-menu.res : pcb-menu.res.in
+pcb-menu.res : pcb-menu.res.in Makefile
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res.in DO NOT EDIT */' > $@
+if WITH_TOPOROUTER
 	cat ${srcdir}/pcb-menu.res.in >> $@
+else
+	echo 'removed Toporouter menu item from pcb-menu.res\n';
+	cat ${srcdir}/pcb-menu.res.in >> $@.tmp
+	sed 's/   {"Toporouter" Toporouter()}//' < ${srcdir}/pcb-menu.res.tmp >> $@
+endif
 
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > $@
@@ -273,9 +279,16 @@ pcb-menu.h : pcb-menu.res
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < pcb-menu.res >> $@
 	echo '0};' >> $@
 
-gpcb-menu.res : gpcb-menu.res.in
+gpcb-menu.res : gpcb-menu.res.in Makefile
 	echo '/* AUTOMATICALLY GENERATED FROM gpcb-menu.res.in DO NOT EDIT */' > $@
+	cat ${srcdir}/gpcb-menu.res.in >> $@.tmp
+if WITH_TOPOROUTER
 	cat ${srcdir}/gpcb-menu.res.in >> $@
+else
+	cat ${srcdir}/gpcb-menu.res.in >> $@.tmp
+	echo 'removed Toporouter menu item from gpcb-menu.res\n';
+	sed 's/   {"Toporouter" Toporouter()}//' < ${srcdir}/gpcb-menu.res.tmp >> $@
+endif
 
 gpcb-menu.h : gpcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM gpcb-menu.res DO NOT EDIT */' > $@

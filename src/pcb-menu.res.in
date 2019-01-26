@@ -315,6 +315,7 @@ MainMenu =
    -
    {"Auto-route selected rats" AutoRoute(Selected)}
    {"Auto-route all rats" AutoRoute(AllRats)}
+   {"Toporouter" Toporouter()}
    {"Rip up all auto-routed tracks" RipUp(All)}
    -
    {"Auto-Optimize" djopt(auto)  a={"Shift-=" "Shift<Key>="}}
