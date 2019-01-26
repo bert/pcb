@@ -271,6 +271,7 @@ else
 	echo 'removed Toporouter menu item from pcb-menu.res\n';
 	cat ${srcdir}/pcb-menu.res.in >> $@.tmp
 	sed 's/   {"Toporouter" Toporouter()}//' < ${srcdir}/pcb-menu.res.tmp >> $@
+	rm -f $@.tmp
 endif
 
 pcb-menu.h : pcb-menu.res
@@ -288,6 +289,7 @@ else
 	cat ${srcdir}/gpcb-menu.res.in >> $@.tmp
 	echo 'removed Toporouter menu item from gpcb-menu.res\n';
 	sed 's/   {"Toporouter" Toporouter()}//' < ${srcdir}/gpcb-menu.res.tmp >> $@
+	rm -f $@.tmp
 endif
 
 gpcb-menu.h : gpcb-menu.res
