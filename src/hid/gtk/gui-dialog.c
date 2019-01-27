@@ -361,6 +361,7 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 	  dup_string (path, folder);
 	  g_free (folder);
 	}
+      gtk_recent_manager_add_item (ghidgui->recent_manager, g_filename_to_uri(result, NULL, NULL));
     }
   gtk_widget_destroy (dialog);
 

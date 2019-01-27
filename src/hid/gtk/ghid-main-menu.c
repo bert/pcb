@@ -208,6 +208,81 @@ check_unique_accel (const char *accelerator)
 }
 
 
+#define MAX_RECENT_FILES 10
+
+/*!
+ * \brief Callback-function for the recent-files-menu.
+ *
+ * Calls the load-function depending on the file-mime-type.
+ */
+static void
+recent_chooser_item_activated (GtkRecentChooser *chooser)
+{
+  gchar *uri;
+  gchar *file;
+  GtkRecentInfo *recentInfo;
+
+  uri = gtk_recent_chooser_get_current_uri (chooser);
+  file = g_filename_from_uri (uri, NULL, NULL);
+
+  recentInfo = gtk_recent_chooser_get_current_item (chooser);
+  gtk_recent_manager_add_item (ghidgui->recent_manager, uri);
+
+  if (strcmp (gtk_recent_info_get_mime_type (recentInfo), "application/x-pcb-layout") == 0)
+  {
+    /* Load PCB-Layout */
+    hid_actionl ("LoadFrom", "Layout", file, NULL);
+  }
+
+  if (strcmp (gtk_recent_info_get_mime_type(recentInfo), "application/x-pcb-footprint") == 0)
+  {
+    /* Load footprint */
+    hid_actionl ("LoadFrom", "ElementToBuffer", file, NULL);
+  }
+
+  if (strcmp(gtk_recent_info_get_mime_type(recentInfo), "application/x-pcb-netlist") == 0)
+  {
+    /* Load netlist */
+    hid_actionl ("LoadFrom", "Netlist", file, NULL);
+  }
+  gtk_recent_info_unref (recentInfo);
+  g_free (uri);
+  g_free (file);
+}
+
+/*!
+ * \brief Adds recent-file-list to menu.
+ */
+static void
+add_recent_file_list_to_menue (GtkUIManager *ui)
+{
+  GtkWidget* menuitem_to_append_to;
+  GtkRecentFilter *recent_filter;
+  GtkWidget *menuitem_file_recent_items;
+
+  Message (gtk_ui_manager_get_ui (ui));
+  ghidgui->recent_manager = gtk_recent_manager_get_default ();
+
+  recent_filter = gtk_recent_filter_new ();
+  gtk_recent_filter_add_mime_type (recent_filter, "application/x-pcb-layout");
+  gtk_recent_filter_add_mime_type (recent_filter, "application/x-pcb-footprint");
+  gtk_recent_filter_add_mime_type (recent_filter, "application/x-pcb-netlist");
+
+  menuitem_file_recent_items = gtk_recent_chooser_menu_new_for_manager (ghidgui->recent_manager);
+
+  gtk_recent_chooser_add_filter (GTK_RECENT_CHOOSER (menuitem_file_recent_items), recent_filter);
+  gtk_recent_chooser_set_show_tips (GTK_RECENT_CHOOSER (menuitem_file_recent_items), TRUE);
+  gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (menuitem_file_recent_items),
+                                    GTK_RECENT_SORT_MRU);
+  gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (menuitem_file_recent_items), MAX_RECENT_FILES);
+  gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (menuitem_file_recent_items), FALSE);
+  gtk_recent_chooser_menu_set_show_numbers (GTK_RECENT_CHOOSER_MENU (menuitem_file_recent_items), TRUE);
+  menuitem_to_append_to = gtk_ui_manager_get_widget ((GtkUIManager*) ui, "/MenuBar/MenuItem0/Recentfiles");
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem_to_append_to), menuitem_file_recent_items);
+  g_signal_connect (GTK_OBJECT(menuitem_file_recent_items), "item-activated",
+                    G_CALLBACK(recent_chooser_item_activated), NULL);
+}
+
 /*!
  * \brief Translate a resource tree into a menu structure.
  *
@@ -391,6 +466,12 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               pos = g_list_length (children);
               g_list_free (children);
 
+              if (strcmp (res->v[i].value, "@recentfiles") == 0)
+                {
+                  printf("Add recent files menu item here.\n");
+                  menu->layer_view_shell = shell;
+                  menu->layer_view_pos = pos;
+                }
               if (strcmp (res->v[i].value, "@layerview") == 0)
                 {
                   menu->layer_view_shell = shell;

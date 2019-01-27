@@ -55,6 +55,7 @@ MainMenu =
   {"File" m=F
    {"New" New() a={"Ctrl-N" "Ctrl<Key>n"}}
    {"Open..." Load(Layout) tip="Load a layout from a file"}
+   {"Recent files" @recentfiles}
    -
    {"Save" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
    {"Save As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}

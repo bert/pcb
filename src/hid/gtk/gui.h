@@ -154,6 +154,8 @@ typedef struct
     settings_mode;
 
   bool is_up;
+
+  GtkRecentManager *recent_manager;
 }
 GhidGui;
 

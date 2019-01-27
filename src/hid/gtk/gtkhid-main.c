@@ -1468,6 +1468,8 @@ Save (int argc, char **argv, Coord x, Coord y)
 	  else
 	    hid_actionl ("SaveTo", function, name, NULL);
 	}
+      gtk_recent_manager_add_item (ghidgui->recent_manager,
+        g_filename_to_uri (name, NULL, NULL));
       g_free (name);
     }
   else
