@@ -18,146 +18,6 @@ object types:
 ********************************************************************************
                                   Violation 1
 ********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10668000, 108864400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 66 67 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 2
-********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10655300, 110769400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 72 73 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 3
-********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10642600, 112674400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 78 79 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 4
-********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10629900, 114579400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 84 85 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 5
-********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10617200, 116484400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 90 91 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 6
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5651500, 118389400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 94 95 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 7
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5638800, 120294400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 100 101 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 8
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5626100, 122199400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 106 107 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 9
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5613400, 124104400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 112 113 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 10
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5600700, 126009400), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 118 119 
-object types: 1 1 
-
-********************************************************************************
-                                  Violation 11
-********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
@@ -166,11 +26,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 156 155 
+object IDs: 34 33 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 12
+                                  Violation 2
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -180,11 +40,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 162 161 
+object IDs: 40 39 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 13
+                                  Violation 3
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -194,11 +54,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 168 167 
+object IDs: 46 45 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 14
+                                  Violation 4
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -208,11 +68,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 174 173 
+object IDs: 52 51 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 15
+                                  Violation 5
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -222,11 +82,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 180 179 
+object IDs: 58 57 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 16
+                                  Violation 6
 ********************************************************************************
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
@@ -236,11 +96,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 127 128 
+object IDs: 5 6 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 17
+                                  Violation 7
 ********************************************************************************
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
@@ -250,11 +110,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 133 134 
+object IDs: 11 12 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 18
+                                  Violation 8
 ********************************************************************************
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
@@ -264,11 +124,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 139 140 
+object IDs: 17 18 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 19
+                                  Violation 9
 ********************************************************************************
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
@@ -278,11 +138,11 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 145 146 
+object IDs: 23 24 
 object types: 1 1 
 
 ********************************************************************************
-                                  Violation 20
+                                  Violation 10
 ********************************************************************************
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
@@ -292,6 +152,6 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 151 152 
+object IDs: 29 30 
 object types: 1 1 
 
