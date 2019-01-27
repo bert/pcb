@@ -21,12 +21,12 @@ object types:
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10566023, 10121900), angle = 0.000000
+location: (x, y) = (9741278, 8674100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 136 109 
+object IDs: 137 118 
 object types: 16384 4 
 
 ********************************************************************************
@@ -49,20 +49,6 @@ object types: 16384 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (9741278, 8674100), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 137 118 
-object types: 16384 4 
-
-********************************************************************************
-                                  Violation 4
-********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
 location: (x, y) = (5562223, 15862300), angle = 0.000000
 have_measured: false
 measured value: 0
@@ -72,7 +58,7 @@ object IDs: 145 88
 object types: 16384 4 
 
 ********************************************************************************
-                                  Violation 5
+                                  Violation 4
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -86,7 +72,7 @@ object IDs: 144 82
 object types: 16384 4 
 
 ********************************************************************************
-                                  Violation 6
+                                  Violation 5
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -100,7 +86,7 @@ object IDs: 143 76
 object types: 16384 4 
 
 ********************************************************************************
-                                  Violation 7
+                                  Violation 6
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,

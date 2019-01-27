@@ -1140,6 +1140,9 @@ IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
       ang1 = NormalizeAngle (Arc->StartAngle + Arc->Delta);
       ang2 = NormalizeAngle (Arc->StartAngle);
     }
+  /* This could be the case if one of the angles was negative or > 360
+   * degrees before the call to NormalizeAngles 
+   * */
   if (ang1 > ang2)
     ang2 += 360;
   /* Make sure full circles aren't treated as zero-length arcs */
@@ -1148,7 +1151,13 @@ IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
 
   if (Y > Arc->Y)
     p_ang = -p_ang;
+  /* In pcb, theta = 0 points to the left (-x) */
   p_ang += 180;
+
+  /*If either angle is greater than 360, then we're into the second time
+   * around the circle, so, we need to make sure our target is also. 
+   * */
+  if ((ang2 > 360) && p_ang < ang1) p_ang += 360;
 
   /* Check point is outside arc range, check distance from endpoints */
   if (ang1 >= p_ang || ang2 <= p_ang)

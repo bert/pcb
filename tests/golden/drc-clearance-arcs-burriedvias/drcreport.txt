@@ -119,6 +119,34 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
+location: (x, y) = (3366465, 21437600), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 176 73 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 9
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (3341065, 18567400), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 178 74 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
 location: (x, y) = (4291635, 17119600), angle = 0.000000
 have_measured: false
 measured value: 0
