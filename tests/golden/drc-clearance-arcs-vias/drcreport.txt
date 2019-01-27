@@ -21,27 +21,27 @@ object types:
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (12813713, 9931400), angle = 0.000000
+location: (x, y) = (8522665, 11541445), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 13 101 
-object types: 1 4 
+object IDs: 81 21 
+object types: 16384 1 
 
 ********************************************************************************
                                   Violation 2
 ********************************************************************************
-title: Potential for broken trace
-explanation: Insufficient overlap between objects can lead to broken tracks
-due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (7708313, 21412200), angle = 0.000000
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (9172025, 7947345), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 19 107 
-object types: 1 4 
+object IDs: 81 28 
+object types: 16384 1 
 
 ********************************************************************************
                                   Violation 3
@@ -60,6 +60,90 @@ object types: 1 16384
 ********************************************************************************
                                   Violation 4
 ********************************************************************************
+title: Potential for broken trace
+explanation: Insufficient overlap between objects can lead to broken tracks
+due to registration errors with old wheel style photo-plotters.
+location: (x, y) = (8497265, 12801600), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 22 77 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 5
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (9172025, 16227955), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 69 28 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 6
+********************************************************************************
+title: Potential for broken trace
+explanation: Insufficient overlap between objects can lead to broken tracks
+due to registration errors with old wheel style photo-plotters.
+location: (x, y) = (8471865, 9931400), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 23 79 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 7
+********************************************************************************
+title: Potential for broken trace
+explanation: Insufficient overlap between objects can lead to broken tracks
+due to registration errors with old wheel style photo-plotters.
+location: (x, y) = (9270035, 14224000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 26 76 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 8
+********************************************************************************
+title: Potential for broken trace
+explanation: Insufficient overlap between objects can lead to broken tracks
+due to registration errors with old wheel style photo-plotters.
+location: (x, y) = (9295435, 11353800), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 27 78 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 9
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (9320835, 8483600), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 28 80 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
@@ -72,7 +156,49 @@ object IDs: 29 85
 object types: 1 16384 
 
 ********************************************************************************
-                                  Violation 5
+                                  Violation 11
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (4142825, 12265345), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 94 30 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (4291635, 17119600), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 30 87 
+object types: 1 16384 
+
+********************************************************************************
+                                  Violation 13
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (4117425, 13713145), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 94 29 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 14
 ********************************************************************************
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
@@ -83,5 +209,19 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 82 30 
+object types: 16384 1 
+
+********************************************************************************
+                                  Violation 15
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (4117425, 21993755), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 82 29 
 object types: 16384 1 
 
