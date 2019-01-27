@@ -1586,14 +1586,14 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
           */
          if (layer < max_copper_layer)
          {
+           LayerType * pLayer = LAYER_PTR(layer);
            /* try all new lines */
            position = &lineposition[layer];
            for (; *position < LineList[layer].Number; (*position)++)
            {
              LineType * line = LINELIST_ENTRY (layer, *position);
-             LayerType * pLayer = LAYER_PTR(layer);
              /* Keep track of what item we started from for the drc. */
-             if (drc) SetThing(1, LINE_TYPE, pLayer, line, line);
+             if (drc) SetThing (1, LINE_TYPE, pLayer, line, line);
 
              if (LookupLOConnectionsToLine (line, group, flag, true, AndRats))
                return (true);
@@ -1603,8 +1603,10 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
            position = &arcposition[layer];
            for (; *position < ArcList[layer].Number; (*position)++)
            {
-             if (LookupLOConnectionsToArc
-                    (ARCLIST_ENTRY (layer, *position), group, flag, AndRats))
+             ArcType * arc = ARCLIST_ENTRY(layer, *position);
+             /* Keep track of what item we started from for the drc. */
+             if (drc) SetThing (1, ARC_TYPE, pLayer, arc, arc);
+             if (LookupLOConnectionsToArc (arc, group, flag, AndRats))
                return (true);
            }
 
@@ -1612,8 +1614,10 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
            position = &polyposition[layer];
            for (; *position < PolygonList[layer].Number; (*position)++)
            {
-             if (LookupLOConnectionsToPolygon
-                  (POLYGONLIST_ENTRY (layer, *position), group, flag, AndRats))
+             PolygonType * poly = POLYGONLIST_ENTRY (layer, *position);
+             /* Keep track of what item we started from for the drc. */
+             if (drc) SetThing (1, POLYGON_TYPE, pLayer, poly, poly);
+             if (LookupLOConnectionsToPolygon (poly, group, flag, AndRats))
                return (true);
            }
          }
@@ -1630,8 +1634,10 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
            position = &padposition[layer];
            for (; *position < PadList[layer].Number; (*position)++)
            {
-             if (LookupLOConnectionsToPad
-                   (PADLIST_ENTRY (layer, *position), group, flag, AndRats))
+             PadType * pad = PADLIST_ENTRY (layer, *position);
+             /* Keep track of what item we started from for the drc. */
+             if (drc) SetThing (1, PAD_TYPE, pad->Element, pad, pad);
+             if (LookupLOConnectionsToPad (pad, group, flag, AndRats))
                return (true);
            }
          }
@@ -1923,6 +1929,10 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
           BoxType search_box;
 
           info.line = LINELIST_ENTRY (layer_no, LineList[layer_no].Location);
+
+          /* Keep track of what item we started from for the drc. */
+          if (drc) SetThing(1, LINE_TYPE, LAYER_PTR(layer_no), info.line, info.line);
+          
           search_box = expand_bounds ((BoxType *)info.line);
 
           if (setjmp (info.env) == 0)
@@ -1944,6 +1954,10 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
           BoxType search_box;
 
           info.arc = ARCLIST_ENTRY (layer_no, ArcList[layer_no].Location);
+ 
+          /* Keep track of what item we started from for the drc. */
+          if (drc) SetThing(1, ARC_TYPE, LAYER_PTR(layer_no), info.arc, info.arc);
+ 
           search_box = expand_bounds ((BoxType *)info.arc);
 
           if (setjmp (info.env) == 0)
@@ -1966,6 +1980,10 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
           BoxType search_box;
 
           info.polygon = POLYGONLIST_ENTRY (layer_no, PolygonList[layer_no].Location);
+ 
+          /* Keep track of what item we started from for the drc. */
+          if (drc) SetThing(1, POLYGON_TYPE, LAYER_PTR(layer_no), info.polygon, info.polygon);
+ 
           search_box = expand_bounds ((BoxType *)info.polygon);
 
           if (setjmp (info.env) == 0)
@@ -2001,6 +2019,10 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
 
           info.layer = layer_no;
           info.pad = PADLIST_ENTRY (layer_no, PadList[layer_no].Location);
+ 
+          /* Keep track of what item we started from for the drc. */
+          if (drc)  SetThing(1, PAD_TYPE, info.pad->Element, info.pad, info.pad);
+          
           search_box = expand_bounds ((BoxType *)info.pad);
 
           if (setjmp (info.env) == 0)
@@ -2116,8 +2138,6 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
 
-      /* Keep track of what item we started from for the drc. */
-      if (drc) SetThing(1, ARC_TYPE, layer, info.arc, info.arc);
 
 
       /* handle normal layers */
@@ -2532,9 +2552,7 @@ LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndR
 
   info.flag = flag;
   info.pad = Pad;
-  
-  /* Keep track of what item we started from for the drc. */
-  if (drc) SetThing(1, PAD_TYPE, info.pad->Element, info.pad, info.pad);
+
 
   if (!TEST_FLAG (SQUAREFLAG, Pad))
     return (LookupLOConnectionsToLine ((LineType *) Pad, LayerGroup, flag, false, AndRats));
@@ -2706,10 +2724,6 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
 
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
-
-      /* Keep track of what item we started from for the drc. */
-      if (drc) SetThing(1, POLYGON_TYPE, layer, info.polygon, info.polygon);
-
 
       /* handle normal layers */
       if (layer_no < max_copper_layer)
