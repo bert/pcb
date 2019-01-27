@@ -293,7 +293,11 @@ pcb_drc_violation_update_location (DrcViolationType * v)
   {
     b = (DRCObject*) object_list_get_item(v->objects, 1);
     t2 = (AnyObjectType*)(b->ptr3);
-    box = clip_box(&box, &(t2->BoundingBox));
+    /* Bounding boxes SHOULD always intersect... but just in case there's a
+     * bug, check first.
+     * */
+    if (box_intersect(&box, &(t2->BoundingBox)))
+      box = clip_box(&box, &(t2->BoundingBox));
   }
   
   v->x = (box.X1 + box.X2) / 2;
