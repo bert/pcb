@@ -1,6 +1,10 @@
 #!/bin/bash
 
-tests=`awk -F'|' '/^drc-/ {print $1}' tests.list`
+if [ $# -gt 0 ]; then
+  tests=$*
+else
+  tests=`awk -F'|' '/^drc-/ {print $1}' tests.list`
+fi
 
 for t in $tests;
 do
