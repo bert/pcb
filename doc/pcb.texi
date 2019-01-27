@@ -2957,7 +2957,362 @@ made), which is beyond the scope of this tutorial.
 @node Blinker Board
 @subsection Blinker Board
 
-FIXME
+This next board will introduce some additional concepts in @code{pcb}
+that will help you with more complex board.  It is assumed that you've
+gone through the previous board, and those concepts will not be
+re-explained.  This board will be another single-sided board, but with
+additional components.  We will use a schematic to describe the
+circuit, create some custom symbols and footprints, and learn to use
+the autorouter.
+
+We will begin by creating our custom symbols and footprints.  First,
+we must create local symbols and footprint directories and teach the
+tools to use them.  My preference is to create subdirectories in the
+project directory called @code{symbols} and @code{footprints}:
+
+@center @image{gs/fb-blinker-1,2.25in,0.85in,FIXME,png} @c 338x128px 150dpi
+
+We then create some files to tell @code{gschem} and @code{gsch2pcb} to
+look in these directories.  The first is called @code{gafrc} and
+contains just this one line:
+
+@example
+;; (component-library "./symbols")
+(component-library ".")
+@end example
+
+The second is called @code{gschemrc} and contains just this one line:
+
+@example
+;; (component-library "./symbols")
+(component-library ".")
+@end example
+
+The third is project-specific.  The @code{gsch2pcb} program can read
+its commands from a project file, and we will use this to tell it
+about the @code{footprints} directory.  The file is called
+@code{fb-blinker.prj} and contains:
+
+@example
+elements-dir ./footprints
+schematics fb-blinker-sch.sch
+output-name fb-blinker
+@end example
+
+This project file tells @code{gsch2pcb} where to get element
+descriptions, which schematics to read (we only have one), and what
+base name to use for the various output files.
+
+We must create two custom symbols for this project.  The first is for
+our power jack, and is a purely custom symbol.  Creating such symbols
+is beyond the scope of this tutorial.  Please refer to the
+@code{gschem} documentation for that.  The second symbol uses the
+@code{djboxsym} utility which you can download from the web (see
+@url{http://www.gedasymbols.org/user/dj_delorie/tools/djboxsym.html}).
+
+The first symbol is called @code{symbols/powerjack.sym} and looks like
+this:
+
+@center @image{gs/powerjack,0.60in,0.35in,FIXME,png} @c 60x35px 100dpi
+
+There's a copy of this symbol in the source distribution for this
+documentation.  The second symbol is built from this @code{555.symdef}
+file:
+
+@example
+[labels]
+555
+refdes=U?
+
+[left]
+7 DISCH
+
+6 THRESH
+2 TRIG
+
+[right]
+4 RES
+
+3 OUT
+
+5 CTRL
+
+[top]
+8 VCC
+
+[bottom]
+
+1 GND
+@end example
+
+and looks like this:
+
+@center @image{gs/555,1.51in,1.74in,FIXME,png} @c 151x174px 100dpi
+
+Now, using those symbols, create your schematic, and name it
+@file{fb-blinker-sch.sch}.  There's a copy of the schematic file in
+the source distribution also.  It should look like this:
+
+@center @image{gs/fb-blinker-sch,3.30in,2.56in,FIXME,png} @c 496x384px 150dpi
+
+Using @code{gschem} and/or @code{gattrib}, set the @code{footprint}
+and @code{value} attributes as follows:
+
+@multitable @columnfractions 0.25 0.15 0.15 0.15
+@item @tab @b{refdes} @tab @b{footprint} @tab @b{value}
+@item @tab C1 @tab RCY100 @tab 1uF
+@item @tab J1 @tab pj102.fp @tab PJ102
+@item @tab LED1 @tab RCY100 @tab RED
+@item @tab R1 @tab ACY400 @tab 100k
+@item @tab R2 @tab ACY400 @tab 100k
+@item @tab R3 @tab ACY400 @tab 3.3k
+@item @tab U1 @tab DIP8 @tab LM555CN
+@end multitable
+
+Now we must create the custom footprint for the power jack.  While
+there are various contributed tools that can be used for large
+footprints (like BGAs), for small parts like this the easiest way is
+to create the footprint in @code{pcb} itself.  This is done by
+creating a ``board'' with vias and lines, then converting it to an
+element and saving it.
+
+Change to the footprints subdirectory and start @code{pcb}.  It
+doesn't matter how big the working area is, or the layer stackup.
+Looking at the specs for our power jack, we note that measurements are
+given in tenths of a millimeter, so we'll use a metric grid.  To
+start, set the grid to @b{1mm}, move the crosshairs to the center of
+the board, and press @b{Ctrl-M} to set the mark.  This will be the
+reference point for all our measurements.  By doing this with a large
+grid value, we ensure that it will be easy to click on the same spot
+later on if needed.
+
+Now set the grid to @b{0.1mm}, which we'll use to place all our vias
+and lines.  We're using vias to create pins, so we need to set the via
+size and drill diameter.  Click on the @b{Route Style} button to bring
+up the route styles dialog, and set @b{Via hole} to 1.6mm and @b{Via
+size} to 3.6mm.  While we're here, set @b{Line width} to 0.15mm, we'll
+need that when we draw the outline later.
+
+Now, zoom in enough to see the grid points.  Place one via 3mm to the
+left of the mark, one 3mm to the right, and one 4.7mm above.  Sequence
+is important!  The pins will be numbered in the same order as the via
+creation.  To place a via, select the @b{Via} tool,
+
+@center @image{gs/fb-blinker-2,0.58in,0.53in,FIXME,png} @c 88x79px 150dpi
+
+position the crosshair, and press the left mouse button.
+
+@center @image{gs/fb-blinker-3,0.99in,0.98in,FIXME,png} @c 149x148px 150dpi
+
+Using the line tool, the same tool you used to draw copper traces in
+the first board, we will draw an outline of the jack on the silk
+layer.  Select the line tool, and make the silk layer active.  Draw as
+much of a box as you can which extends 10.7mm to the right of the
+mark, 3.7mm to the left, and 4.5mm above and below.  Be careful not to
+draw on top of your pins, or your board will have ink on the pins.  It
+should look something like this:
+
+@center @image{gs/fb-blinker-4,1.96in,1.30in,FIXME,png} @c 295x195px 150dpi
+
+Now, set the grid back to 1mm so we can easily click on the mark.
+Select everything by using the @emph{Select,Select all visible objects}
+menu button.  Position the crosshair on the mark and press @kbd{Ctrl-C}
+to copy all the objects to the buffer.  Use the @emph{Buffer,Convert
+buffer to element} menu button to convert the buffer to an element.
+You can now click somewhere else on the board to paste a copy of your
+new element for inspection.
+
+The first thing to do is check the pin numbers.  Place the crosshair
+on the mark and press the @kbd{D} key to turn on the pin numbers.
+Check to make sure they're correct, then press @kbd{D} to turn them
+back off again.
+
+@center @image{gs/fb-blinker-5,1.94in,1.34in,FIXME,png} @c 291x201px 150dpi
+
+Now, we're going to set the default position of the label.  Place the
+crosshair on the mark and press the @kbd{N} key.  Change the element
+name to @code{J?}.  By default it shows up at the element's mark.  Use
+the selection tool and @kbd{S} key to position the label as shown
+below.
+
+@center @image{gs/fb-blinker-6,1.78in,1.29in,FIXME,png} @image{gs/fb-blinker-7,1.78in,1.29in,FIXME,png} @c 267x194px 150dpi
+
+Using the selection tool, position the crosshair on the element's mark
+and click on it to select it.  Press @kbd{Ctrl-C} to copy it to the
+buffer, and use @emph{Buffer,Save buffer elements to file} to save your
+new footprint to a file.  Save it as @code{pj102.fp} in the
+footprints directory.  Note that the name of the file must match the
+footprint attribute you used for the power jack in your schematics.
+
+Congratulations!  You've created your first custom footprint.
+
+Now that we have our schematics and custom footprint, we need to
+figure out how to start the board layout.  The tool we will use is
+@code{gsch2pcb}, which reads schematics and can create or update a
+board to match.  Since @code{gsch2pcb} doesn't use the same defaults
+as @code{pcb}, we will create the board in @code{pcb} and only use
+@code{gsch2pcb} in update mode.
+
+When creating a non-trivial board, it's a good idea to start with a
+larger board than your final size.  For this project, the final size
+will be 1.4 inches wide by 0.9 inches high.  However, we'll start with
+2 by 2 inch board to give us some room to move things around.  Run
+@code{pcb} and create your board, setting up the size, layers, and
+styles just like in the last project.  Make sure you set a 100 mil
+grid, since the parts we're using are all designed with 100 mil
+spacing in mind.  Also, make sure @emph{Settings,Crosshair snaps to
+pins and pads} is checked.  Save this empty board as
+@code{fb-blinker.pcb} and exit.
+
+Now we run @code{gsch2pcb}, passing it the name of the project file:
+
+@example
+$ gsch2pcb fb-blinker.prj 
+
+---------------------------------
+gEDA/gnetlist pcbpins Backend
+This backend is EXPERIMENTAL
+Use at your own risk!
+---------------------------------
+
+Using the m4 processor for pcb footprints
+
+----------------------------------
+Done processing.  Work performed:
+1 file elements and 6 m4 elements added to fb-blinker.new.pcb.
+
+Next steps:
+1.  Run pcb on your file fb-blinker.pcb.
+2.  From within PCB, select "File -> Load layout data to paste buffer"
+    and select fb-blinker.new.pcb to load the new footprints into your existing layout.
+3.  From within PCB, select "File -> Load netlist file" and select 
+    fb-blinker.net to load the updated netlist.
+
+4.  From within PCB, enter
+
+           :ExecuteFile(fb-blinker.cmd)
+
+    to update the pin names of all footprints.
+
+@end example
+
+What gsch2pcb does is remove elements from your board that don't exist
+in the schematic, provide new elements that need to be added, generate
+an updated netlist, and create a script that renames all the pins.
+You don't need to use all these - for example, I rarely use the pin
+renaming script - but we will this time, so you can learn how each
+file is used.
+
+We will do as the hints above tell us to do.  Run @code{pcb
+fb-blinker.pcb} to bring up the empty board.  Load the new element
+data, which automatically changes you to the buffer tool.  Click on
+the board to place all those new parts.  They'll all be in the same
+place, but we'll fix that later.  Load the new netlist, and run the
+script.  After closing any dialogs that may have come up, your board
+should look like this:
+
+@center @image{gs/fb-blinker-8,3.36in,2.16in,FIXME,png} @c 504x325px 150dpi
+
+The next step is to separate the elements so we can start laying out
+our board.  Use the @emph{Select,Disperse all elements} menu option,
+which spreads apart the elements.  Then, use the
+@emph{Connect,Optimize rats nest} menu option (or the @kbd{O} key) to
+draw all the rats on the board.  These will help you figure out an
+optimum layout of your elements.  Your board should look something
+like this (yours may vary depending on how the dispersal worked):
+
+@center @image{gs/fb-blinker-9,4.51in,3.78in,FIXME,png} @c 677x567px 150dpi
+
+If you position the crosshair over U1 and press the @kbd{D} key,
+you'll see that the pins are now labelled with the same labels as in
+the schematic.  You can use the @emph{View,Enable Pinout shows
+number} menu checkbox to toggle between the symbolic labels and the
+original pin numbers.
+
+@center @image{gs/fb-blinker-10,1.26in,1.05in,FIXME,png} @c 189x158px 150dpi
+
+Now, as before, we want to rearrange the elements to minimise and
+simplify the connections.  This is where the rats come in handy.  As
+you rearrange the elements, the rats follow, so you can see how
+rotating and moving elements affect the layout.  As you move elements
+around, press the @kbd{O} key to tell @code{pcb} to figure out the
+best way of connecting everything in their new locations.
+
+As you move the elements around, remember to pick up the power jack by
+its mark, as the power jack's pins have metric spacing.  The other
+elements should be picked up by their pins, since they have inch
+spacing.  By picking up elements by their pins, you ensure that their
+pins end up on the grid points when you put them down.
+
+Rearrange your elements so that they look like this, somewhere near
+the center of your board.  Note that the rats nest will tell you when
+you have the resistors backwards, since they don't have ``polarity''
+like the LED or IC have.
+
+@center @image{gs/fb-blinker-11,2.99in,2.08in,FIXME,png} @c 449x313px 150dpi
+
+As before, we want to move the refdes labels around so that they're
+both visible and out of the way.  To make this easier, use the
+@emph{Settings,Only Names} option to keep the tools from
+accidentally selecting elements or rat lines.  Shut off the grid, and
+use the selection and rotate tools, and the @kbd{S} size key, to make
+the labels like this:
+
+@center @image{gs/fb-blinker-12,2.84in,1.88in,FIXME,png} @c 427x282px 150dpi
+
+Now use @emph{Settings,Lock Names} to keep from accidentally moving
+our labels later.  We're still using our over-sized board.  Now is the
+time to reduce it to the final size.  First, we have to move the
+elements to the upper left corner of the board.  Set the grid back to
+100 mil, @emph{Select,Select all visible objects}, grab one of the
+pins, and move everything up to the corner, as close as you can get
+without touching the edges:
+
+@center @image{gs/fb-blinker-13,3.33in,2.18in,FIXME,png} @c 500x327px 150dpi
+
+Click to de-select and change the board size to 1400 mils wide by 900
+mils high.  Don't forget to save often!
+
+Again, we're planning on hand-soldering this board, so select
+everything and make all the pins 10 mils bigger than the default.
+
+Rather than route all the traces by hand, for this board we will use
+the autorouter.  There are a few key things you need to keep in mind
+when using the autorouter.  First, the autorouter will use all
+available layers, so we must disable the layers we don't want it to
+route on.  To do this, click on the @b{component} button to disable
+that layer:
+
+@center @image{gs/fb-blinker-14,0.99in,0.96in,FIXME,png} @c 149x145px 150dpi
+
+The autorouter also uses whatever the default style is, so select the
+@b{Fat} style:
+
+@center @image{gs/fb-blinker-15,0.93in,1.02in,FIXME,png} @c 139x154px 150dpi
+
+The autorouter uses the rats nest to determine what connections will
+be autorouted, so press @kbd{O} now to make sure all the rats are
+present and reflect the latest position of the elements.  To do the
+autorouting, simply select the @emph{Connects,Autoroute all rats}
+menu option.
+
+@center @image{gs/fb-blinker-16,6.70in,4.87in,FIXME,png} @c 1005x731px 150dpi
+
+In theory, you could consider your board ``done'' now, but to make it
+look more professional, we will do two more steps.  Use the
+@emph{Connects,Optimize routed tracks,Auto-Optimize} menu option
+twice (or until no further changes happen) to clean up the traces left
+by the autorouter:
+
+@center @image{gs/fb-blinker-17,6.70in,4.87in,FIXME,png} @c 1005x731px 150dpi
+
+And finally, select @emph{Connects,Optimize routed tracks,Miter}
+to miter the sharp corners:
+
+@center @image{gs/fb-blinker-18,6.70in,4.87in,FIXME,png} @c 1005x731px 150dpi
+
+Your board is done.  As before, you can print your design or produce
+Gerber files, according to how you're going to have your board made.
 
 @node SMT Blinker
 @subsection SMT Blinker

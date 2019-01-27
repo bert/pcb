@@ -184,7 +184,28 @@ images= \
 	gs/fb-led-40.eps \
 	gs/fb-led-41.eps \
 	gs/fb-led-42.eps \
-	gs/fb-led-43.eps
+	gs/fb-led-43.eps \
+	gs/fb-blinker-1.eps \
+	gs/fb-blinker-2.eps \
+	gs/fb-blinker-3.eps \
+	gs/fb-blinker-4.eps \
+	gs/fb-blinker-5.eps \
+	gs/fb-blinker-6.eps \
+	gs/fb-blinker-7.eps \
+	gs/fb-blinker-8.eps \
+	gs/fb-blinker-9.eps \
+	gs/fb-blinker-10.eps \
+	gs/fb-blinker-11.eps \
+	gs/fb-blinker-12.eps \
+	gs/fb-blinker-13.eps \
+	gs/fb-blinker-14.eps \
+	gs/fb-blinker-15.eps \
+	gs/fb-blinker-16.eps \
+	gs/fb-blinker-17.eps \
+	gs/fb-blinker-18.eps \
+	gs/powerjack.eps \
+	gs/555.eps \
+	gs/fb-blinker-sch.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
