@@ -205,7 +205,35 @@ images= \
 	gs/fb-blinker-18.eps \
 	gs/powerjack.eps \
 	gs/555.eps \
-	gs/fb-blinker-sch.eps
+	gs/fb-blinker-sch.eps \
+	gs/fb-smt-1.eps \
+	gs/fb-smt-2.eps \
+	gs/fb-smt-3.eps \
+	gs/fb-smt-4.eps \
+	gs/fb-smt-5.eps \
+	gs/fb-smt-6.eps \
+	gs/fb-smt-7.eps \
+	gs/fb-smt-8.eps \
+	gs/fb-smt-9.eps \
+	gs/fb-smt-10.eps \
+	gs/fb-smt-11.eps \
+	gs/fb-smt-12.eps \
+	gs/fb-smt-13.eps \
+	gs/fb-smt-14.eps \
+	gs/fb-smt-15.eps \
+	gs/fb-smt-16.eps \
+	gs/fb-smt-17.eps \
+	gs/fb-smt-18.eps \
+	gs/fb-smt-19.eps \
+	gs/fb-smt-20.eps \
+	gs/fb-smt-21.eps \
+	gs/fb-smt-22.eps \
+	gs/fb-smt-23.eps \
+	gs/fb-smt-24.eps \
+	gs/fb-smt-25.eps \
+	gs/fb-smt-26.eps \
+	gs/fb-smt-top.eps \
+	gs/fb-smt-bottom.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}

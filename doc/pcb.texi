@@ -3317,7 +3317,221 @@ Gerber files, according to how you're going to have your board made.
 @node SMT Blinker
 @subsection SMT Blinker
 
-FIXME
+The third and final board in the ``first board'' series will teach you
+about multi-layer boards, vias, and SMT components.  Again, we assume
+you've done the other two boards, and will not re-explain concepts
+taught there.  We will be using the same circuit as the last board,
+but to make things interesting, we will be adding some constraints.
+The board must be as small as possible, EMI-proof, and able to handle
+rework.  Ok, I'm making this up, but what it means is that we will be
+using the smallest components a hobbyist can expect to use, a
+four-layer board, and more vias than would otherwise be needed.  We do
+this to give us the opportunity to learn these techniques, without
+spending undue time due to an overly large schematic.
+
+We begin with the same schematic as before.  To assist us in assigning
+power planes, we need to name the power rails in the schematic.  See
+the @code{gschem} documentation for details, but what you want is to
+name the ground net @code{GND} and the power net @code{Vdd}.  Set up a
+new @code{fb-smt.prj} project file as before.  Use @code{gattrib} to
+set the footprint attributes as follows:
+
+@multitable @columnfractions 0.25 0.15 0.15 0.15
+@item @tab @b{refdes} @tab @b{footprint} @tab @b{value}
+@item @tab C1 @tab 0402 @tab 1uF
+@item @tab J1 @tab pj102.fp @tab PJ102
+@item @tab LED1 @tab 0402 @tab RED
+@item @tab R1 @tab 0201 @tab 100k
+@item @tab R2 @tab 0201 @tab 100k
+@item @tab R3 @tab 0201 @tab 3.3k
+@item @tab U1 @tab MSOP8 @tab LMC555CMM
+@end multitable
+
+Run @code{pcb} and set up your blank board.  Put ``component'' and
+``component side'' in group 1.  Put ``GND'' in group 2, ``power'' in
+group 3, and ``solder'' and ``solder side'' in group 4.  Switch to the
+@emph{Change} tab, select the solder layer in the main window, and
+move the solder layer down under the power layer.
+
+@center @image{gs/fb-smt-1,3.03in,1.88in,FIXME,png} @c 455x283px 150dpi
+
+Set the board size to 50 mm by 50 mm.  To set a metric size, use the
+@emph{View,Grid units,mm} menu option.  Then, the @emph{Sizes}
+preference will use millimeters.  Set the DRC values to 0.35 mm (about
+13.5 mil) for drill and 0.15mm (about 6 mil) for everything else.
+Save your board, exit @code{pcb}, and run @code{gsch2pcb fb-smt.prj}.
+Go back to @code{pcb}, import and disperse the new elements, and load
+the netlist.
+
+As before, move the labels out of the way and size them accordingly.
+You should end up with something like this:
+
+@center @image{gs/fb-smt-2,6.39in,3.48in,FIXME,png} @c 959x522px 150dpi
+
+The final size of our board will be 12.5mm wide by 18 mm high, not
+much bigger than the power jack.  Start by rotating the power jack to
+face down, and put its mark at 5.5mm by 7mm.  The LED goes just above
+it, with R3 to the right of the LED.  The rest of the elements will go
+on the other side of the board.  Here's how:
+
+For each element that needs to go on the other side of the board,
+place the crosshair over the element and press the @kbd{B} key
+
+@center @image{gs/fb-smt-3,1.58in,1.18in,FIXME,png} @image{gs/fb-smt-4,1.58in,1.18in,FIXME,png} @c 2x 238x178px 150dpi
+
+The element shows as a light gray because it's now on the ``far side''
+of the board (Note that one of the layer buttons says @emph{far side}
+on it).  You can flip the board over (making the far side the near
+side, and visa-versa) by pressing the @kbd{Tab} key.  Since the
+elements we need to place are on the far side, now, flip the board
+over.  Note that this is an up-down flip, so the power jack now
+appears in the lower left corner instead of the upper left.  There are
+other types of flips you can do by using @kbd{Shift-Tab} (left-right
+flip), @kbd{Ctrl-Tab} (180 degree rotation), or
+@kbd{Ctrl-Shift-Tab} (nothing moves, sort of an X-Ray view).
+
+Anyway, move the remaining elements around so that they look like
+this:
+
+@center @image{gs/fb-smt-5,1.78in,2.70in,FIXME,png} @c 268x406px 150dpi
+
+When routing a multi-layer board, I find it best to start with the
+power and ground planes.  First, resize the board to be 12.5 mm wide
+by 18 mm high, and flip it so you've viewing the component side (the
+side with the power jack).  If your version of @code{pcb} does not
+permit sizes this small (some versions have a one inch minimum, others
+0.6 inch), save the file, exit @code{pcb}, and edit @code{fb-smt.pcb}
+in a text editor so that the @code{PCB} line looks like this:
+
+@example
+PCB["" 49213 70866]
+@end example
+
+When you run @code{pcb} again, the board will have the right size.
+Set your grid to 0.5 mm and make sure it's visible.  There are two
+ways to create a ``plane layer'', which means a layer that's mostly
+copper.  Such layers are often used for power and ground planes.  The
+first way is to use the polygon tool; the second is to use the
+rectangle tool, which is just a shortcut for the polygon tool.
+
+Make the GND layer the current layer and select the POLY tool:
+
+@center @image{gs/fb-smt-6,0.87in,1.42in,FIXME,png} @c 131x214px 150dpi
+
+The polygon tool works by clicking on each corner of the polygon, in
+sequence.  You complete the polygon by either clicking on your start
+point again, or by pressing @kbd{Shift-P}.  We will create a polygon
+that's 0.5mm away from the board edge.  In these images, we start at
+the lower left corner and work our way around clockwise.  When we
+click on the lower left corner again, the polygon is created:
+
+@center @image{gs/fb-smt-7,1.47in,2.12in,FIXME,png} @image{gs/fb-smt-8,1.47in,2.12in,FIXME,png} @image{gs/fb-smt-9,1.47in,2.12in,FIXME,png} @image{gs/fb-smt-10,1.47in,2.12in,FIXME,png} @c 4x 221x318px 150dpi
+
+@center @image{gs/fb-smt-11,1.47in,2.12in,FIXME,png} @c 221x318px 150dpi
+
+In this case, we're just drawing a rectangle, but if you need any
+other shape, just click on the corners as needed.  As a shortcut, you
+can create a rectangle with the rectangle tool, which creates
+rectangle-shaped polygons.  Make the power layer the current layer and
+select the RECT tool:
+
+@center @image{gs/fb-smt-12,0.89in,1.40in,FIXME,png} @c 134x211px 150dpi
+
+Like the polygon tool, the rectangle tool works by clicking on
+corners.  However, you only have to click on two diagonally opposite
+corners, like this:
+
+@center @image{gs/fb-smt-13,1.47in,2.12in,FIXME,png} @image{gs/fb-smt-14,1.47in,2.12in,FIXME,png} @c 2x 221x318px 150dpi
+
+If the color difference is too subtle for you, you can choose other
+colors through the @emph{File,Preferences} menu option.  We will set
+the GND layer to green and the power layer to red for the remainder of
+this tutorial.
+
+@center @image{gs/fb-smt-15,6.37in,4.18in,FIXME,png} @c 956x627px 150dpi
+
+To connect the ground and power planes to their respective nets, we'll
+use a thermal to connect the power jack's pins to them.  We could also
+just draw a line from the pin to the polygon, but thermals are better
+suited to this task.  Select the THRM tool:
+
+@center @image{gs/fb-smt-16,0.92in,1.41in,FIXME,png} @c 139x212px 150dpi
+
+What the thermal tool does is connect (or disconnect) thermal fingers
+between pins or vias, and the polygons around them.  Each time you
+click on a pin or via, the thermal fingers are connected to the
+current layer.  We want to find the pin on the power jack that's
+connected to ground in the schematic, and connect it to ground on the
+board.  We use the netlist dialog to do so.  First, optimize the rats
+net with @kbd{O} and make the GND layer current.  If the netlist
+dialog isn't shown, use @emph{Window,Netlist} to show it.  Select the
+GND net and click on @emph{Find}:
+
+@center @image{gs/fb-smt-17,4.35in,3.53in,FIXME,png} @c 653x530px 150dpi
+
+Notice that one of the pins on the power jack has been highlighted.
+That's the one that is supposed to be connected to the ground plane.
+Click on it to create a thermal:
+
+@center @image{gs/fb-smt-18,2.47in,3.53in,FIXME,png} @c 371x530px 150dpi
+
+If you optimize the rats nest again, the rats won't connect to that
+pin any more, and the other pins and pads that need to connect to the
+ground plane are now marked with circles, meaning ``these need to be
+connected to a plane''.  Anyway, make the power plane the current
+plane, find the VDD net in the netlist and create its thermal on the
+found power jack pin.  Note that the green GND thermal fingers on the
+other pin show through the gap in the red power plane - thermals are
+created on a specific layer, not on all layers.
+
+@center @image{gs/fb-smt-19,2.47in,3.53in,FIXME,png} @c 371x530px 150dpi
+
+If you tried to autoroute the board at this point, it would just
+connect all those power and ground pins to the power and ground pins
+on the power jack.  So, we will first tie all the power and ground
+pins to their planes manually, using vias.  We're doing this mostly to
+demonstrate how to do it, of course.  The first step is to place the
+vias.  Select the VIA tool from the left panel:
+
+@center @image{gs/fb-smt-20,0.82in,0.70in,FIXME,png} @c 124x105px 150dpi
+
+Click on the @b{Route Style} button to bring up the route styles
+dialog, and set @b{Via hole} to 0.4mm and @b{Via size} to 0.8mm.  Also
+set @b{Line width} to 0.25mm.  Create vias near the pins that are
+connected to the planes, as such:
+
+@center @image{gs/fb-smt-21,3.02in,4.31in,FIXME,png} @c 453x647px 150dpi
+
+Note that I've shut off the ground and power planes, as well as rat
+lines, to help you see where the vias should go.  Shut off the GND
+plane and ``find'' the VDD net again, to highlight which rat circles
+(and thus their vias) need to connect to the power plane.  Like you
+did with the power jack's pins, use the thermal tool to connect the
+relevent vias to the power plane.  Repeat for the GND plane.
+
+@center @image{gs/fb-smt-22,3.00in,4.29in,FIXME,png} @image{gs/fb-smt-23,2.98in,4.28in,FIXME,png} @c 451x644px and 447x642px 150dpi
+
+Now you have to connect the vias to the pins that need them.  For the
+LED it's easy, that trace goes on the top.  Make the component layer
+the current layer and use the LINE tool like you've done before to
+draw a line from the via next to the LED, to the pad on the LED that's
+connected to VDD.  For the other connections, you'll want to flip the
+board over, so use the @kbd{Tab} key to flip the board over, make the
+solder layer the current layer, and connect the rest of the power/gnd
+pins to their vias.  If you press @kbd{O} now, you'll see that all the
+rat-circles have gone away:
+
+@center @image{gs/fb-smt-24,2.98in,4.28in,FIXME,png} @image{gs/fb-smt-25,2.98in,4.28in,FIXME,png} @c 2x 447x642px 150dpi
+
+The last step is autorouting.  Hide all the power, ground, and silk
+layers, optimize the rats nest (@kbd{O}), and run the autorouter,
+optimizer, and miterer.  Done!  Here's what the board looks like with
+the ``thin draw polygons'' setting checked, to only draw outlines for
+the power and ground planes, along with some photo-quality prints:
+
+@center @image{gs/fb-smt-26,2.97in,4.28in,FIXME,png} @c 446x642px 150dpi
+
+@center @image{gs/fb-smt-top,2.95in,4.25in,FIXME,png} @image{gs/fb-smt-bottom,2.95in,4.25in,FIXME,png} @c 2x 443x638px 150dpi
 
 
 @c ---- Autorouter chapter ----
