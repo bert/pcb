@@ -1,4 +1,4 @@
-# release: pcb v4.1.3-gbf4b7f13
+# release: pcb v4.1.3-g585be9db
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20170218]
@@ -794,7 +794,7 @@ Via[765.00mil 1448.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[767.00mil 1335.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[532.00mil 1843.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[530.00mil 1730.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
-Via[528.00mil 1617.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" "found"]
+Via[528.00mil 1617.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[526.00mil 1504.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[524.00mil 1391.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
 Via[569.00mil 1787.00mil 40.00mil 20.00mil 0.0000 20.00mil 1 5 "" ""]
@@ -1002,7 +1002,7 @@ Layer(10 "top silk" "silk")
 	Text[7.00mil -5.00mil 0 122 "DRC Test: Object Clearance" "clearline"]
 	Text[814.00mil 71.00mil 0 50 "Bloat: 5 mil" "clearline"]
 	Text[814.00mil 110.00mil 0 50 "Shrink: 5 mil" "clearline"]
-	Text[7.00mil 59.00mil 0 122 "Arcs to burried vias" "clearline"]
+	Text[7.00mil 59.00mil 0 122 "Arcs to buried vias" "clearline"]
 	Text[608.00mil 1604.00mil 0 49 "> -25 mil" "clearline"]
 	Text[608.00mil 1490.00mil 0 49 "> -23 mil" "clearline"]
 	Text[610.00mil 1376.00mil 0 49 "> -21 mil" "clearline"]
@@ -1039,7 +1039,7 @@ Layer(10 "top silk" "silk")
 	Text[202.00mil 1546.00mil 0 49 "> 6 mil" "clearline"]
 	Text[202.00mil 1432.00mil 0 49 "> 8 mil" "clearline"]
 	Text[202.00mil 1318.00mil 0 49 "> 10 mil" "clearline"]
-	Text[57.00mil 1193.00mil 0 49 "Arc-to-burried via clearance (non-intersecting layer)" "clearline"]
+	Text[57.00mil 1193.00mil 0 49 "Arc-to-buried via clearance (non-intersecting layer)" "clearline"]
 	Text[608.00mil 604.00mil 0 49 "> -25 mil" "clearline"]
 	Text[608.00mil 490.00mil 0 49 "> -23 mil" "clearline"]
 	Text[610.00mil 376.00mil 0 49 "> -21 mil" "clearline"]
@@ -1076,5 +1076,5 @@ Layer(10 "top silk" "silk")
 	Text[202.00mil 546.00mil 0 49 "> 6 mil" "clearline"]
 	Text[202.00mil 432.00mil 0 49 "> 8 mil" "clearline"]
 	Text[202.00mil 318.00mil 0 49 "> 10 mil" "clearline"]
-	Text[57.00mil 193.00mil 0 49 "Arc-to-burried via clearance (intersecting layer)" "clearline"]
+	Text[57.00mil 193.00mil 0 49 "Arc-to-buried via clearance (intersecting layer)" "clearline"]
 )

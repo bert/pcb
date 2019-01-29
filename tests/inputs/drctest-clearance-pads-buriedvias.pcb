@@ -1,4 +1,4 @@
-# release: pcb v4.1.3-gbf4b7f13
+# release: pcb v4.1.3-g585be9db
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20170218]
@@ -1614,7 +1614,7 @@ Layer(10 "top silk" "silk")
 	Text[7.00mil -5.00mil 0 122 "DRC Test: Object Clearance" "clearline"]
 	Text[848.00mil 68.00mil 0 50 "Bloat: 5 mil" "clearline"]
 	Text[848.00mil 107.00mil 0 50 "Shrink: 5 mil" "clearline"]
-	Text[7.00mil 56.00mil 0 122 "Pads to burried vias" "clearline"]
+	Text[7.00mil 56.00mil 0 122 "Pads to buried vias" "clearline"]
 	Text[232.00mil 323.00mil 0 49 "10 mil" "clearline"]
 	Text[432.00mil 318.00mil 0 49 "0 mil" "clearline"]
 	Text[432.00mil 395.00mil 0 49 "-1 mil" "clearline"]
@@ -1635,7 +1635,7 @@ Layer(10 "top silk" "silk")
 	Text[232.00mil 845.00mil 0 49 "3 mil" "clearline"]
 	Text[232.00mil 921.00mil 0 49 "2 mil" "clearline"]
 	Text[232.00mil 994.00mil 0 49 "1 mil" "clearline"]
-	Text[66.00mil 190.00mil 0 49 "Pad-to-burried via clearance (intersecting layer)" "clearline"]
+	Text[66.00mil 190.00mil 0 49 "Pad-to-buried via clearance (intersecting layer)" "clearline"]
 	Text[632.00mil 323.00mil 0 49 "-10 mil" "clearline"]
 	Text[832.00mil 318.00mil 0 49 "-20 mil" "clearline"]
 	Text[832.00mil 395.00mil 0 49 "-21 mil" "clearline"]
@@ -1672,7 +1672,7 @@ Layer(10 "top silk" "silk")
 	Text[232.00mil 1845.00mil 0 49 "3 mil" "clearline"]
 	Text[232.00mil 1921.00mil 0 49 "2 mil" "clearline"]
 	Text[232.00mil 1994.00mil 0 49 "1 mil" "clearline"]
-	Text[66.00mil 1190.00mil 0 49 "Pad-to-burried via clearance (non-intersecting layer)" "clearline"]
+	Text[66.00mil 1190.00mil 0 49 "Pad-to-buried via clearance (non-intersecting layer)" "clearline"]
 	Text[632.00mil 1323.00mil 0 49 "-10 mil" "clearline"]
 	Text[832.00mil 1318.00mil 0 49 "-20 mil" "clearline"]
 	Text[832.00mil 1395.00mil 0 49 "-21 mil" "clearline"]
