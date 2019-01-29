@@ -144,6 +144,15 @@ square_therm (PinType *pin, Cardinal style)
   switch (style)
     {
     case 1:
+      /* This is the style where the thermals come out of the corners of the
+       * square. We create this by removing four trapezoids from the polygon.
+       *
+       * The d variable is the offset from the corner of the pad/cutout required
+       * to produce the diagonal line of the appropriate thickness. If you draw
+       * a hypotenuse of length (clearance * thermscale) in the corner of the
+       * square, you create a 1:1:sqrt(2) triangle. The length of the "1" sides
+       * is the width of the line divided by the sqrt(2).
+       * */
       d = pcb->ThermScale * pin->Clearance * M_SQRT1_2;
       out = (pin->Thickness + pin->Clearance) / 2;
       in = pin->Thickness / 2;
@@ -210,6 +219,10 @@ square_therm (PinType *pin, Cardinal style)
       return p;
     case 4:
       {
+        /* This version has four lines coming out of the corners, but the edges
+         * are all rounded. It's created by subtracting four lines from the
+         * polygon that run along the edge pin.
+         * */
         LineType l;
         l.Flags = NoFlags ();
         d = pin->Thickness / 2 - pcb->ThermScale * pin->Clearance;
@@ -246,18 +259,30 @@ square_therm (PinType *pin, Cardinal style)
         return p;
       }
     default:                   /* style 2 and 5 */
+      /* These styles have the fingers coming out the top, bottom and sides. We
+       * create these by carving out contours around the corners. If we're doing
+       * style 5, the corners are square, and if we're doing style 2, the
+       * corners are round.
+       * */
       d = 0.5 * pcb->ThermScale * pin->Clearance;
       if (style == 5)
         d += d;
       out = (pin->Thickness + pin->Clearance) / 2;
       in = pin->Thickness / 2;
-      /* topright */
+      /* "top" right */
+      /* Start at the lower right hand corner of the pin. */
       v[0] = pin->X + in;
       v[1] = pin->Y + in;
       if ((c = poly_NewContour (v)) == NULL)
         return NULL;
+      /* Move up to the point where the bottom of the right finger meets the
+       * pin. If we're doing round corners, d is bigger to account for the arc
+       * */
       v[1] = pin->Y + d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      /* Either go straight or arc over to the point where the lower edge of the
+       * right finger meets the bulk of the polygon.
+       * */
       if (style == 2)
         {
           v[0] = pin->X + out;
@@ -265,12 +290,21 @@ square_therm (PinType *pin, Cardinal style)
         }
       else
         frac_circle (c, v[0] + pin->Clearance / 4, v[1], v, 2);
+      /* Move to the bottom right corner. Both styles use arcs around the outer
+       * corners, so, arc around to the bottom edge. */
       v[1] = pin->Y + in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       /* pivot 1/4 circle to next point */
       frac_circle (c, pin->X + in, pin->Y + in, v, 4);
+      /* The corner where the right side of the bottom finger meets the bulk of
+       * the polygon. If we're doing the rounded style, this has already been
+       * adjusted for the raidus of the arc.
+       * */
       v[0] = pin->X + d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      /* Either straight, or arc to the point where the right side of the bottom
+       * finger meets the pad.
+       * */
       if (style == 2)
         {
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
@@ -279,8 +313,13 @@ square_therm (PinType *pin, Cardinal style)
         }
       else
         frac_circle (c, v[0], v[1] - pin->Clearance / 4, v, 2);
+      /* We don't have to add the starting vertext a second time, so, we're
+       * done!
+       */
       p = ContourToPoly (c);
-      /* bottom right */
+      /* Now do the other three corners...
+       */
+      /* "bottom" right */
       v[0] = pin->X + in;
       v[1] = pin->Y - d;
       if ((c = poly_NewContour (v)) == NULL)
@@ -307,7 +346,7 @@ square_therm (PinType *pin, Cardinal style)
       p2 = ContourToPoly (c);
       p->f = p2;
       p2->b = p;
-      /* bottom left */
+      /* "bottom" left */
       v[0] = pin->X - d;
       v[1] = pin->Y - in;
       if ((c = poly_NewContour (v)) == NULL)
@@ -334,7 +373,7 @@ square_therm (PinType *pin, Cardinal style)
       p2 = ContourToPoly (c);
       p->f->f = p2;
       p2->b = p->f;
-      /* top left */
+      /* "top" left */
       v[0] = pin->X - d;
       v[1] = pin->Y + out;
       if ((c = poly_NewContour (v)) == NULL)
