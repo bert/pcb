@@ -1,4 +1,94 @@
 ========================================================================
+Release notes for pcb-4.2.0
+========================================================================
+
+Dear Users,
+
+This release introduces a file format change.
+
+This is required by the improved routing style feature.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to this release:
+- Charles Parker
+- Rob Spanton
+- Peter Clifton
+- DJ Delorie
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- Improved routing styles.
+- Improved DRC testing.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- Footprint attributes can now be added to the Bill of Materials [BOM]
+  in a similar way as with gschem by defining attributes in a input
+  file.
+- XY output for Pick-and-Place now has proper values for non mm and mil
+  units.
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- Batch has become the default UI (non-GUI) for 'make distcheck' in
+  order to run regression tests without a GUI being in the way.
+- Added regression tests.
+
+
+Notes for packagers
+-------------------
+- For building packages with a GTK UI or a Lesstif UI, configure with
+  the --with-gui=gtk or --with-gui=lesstif option (as usual).
+
+
+Changed dependencies
+--------------------
+- none.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#699234   DRC misses odd trace/poly clearance error.
+#699245   DRC "minspace between pad and polygon" not triggered !
+#699445   Allow disabling of minimum overlap DRC checking.
+#1394630  Locked object can be selected by the DRC operation.
+#1539882  Cannot create a via with a copper annulus less than 0.0508 mm.
+#1744832  Vias tented.
+#1780674  DRC HID.
+#1784755  DRC Tests.
+#1800707  License check.
+#1800230  Violating silk lines selected after running DRC.
+#1804564  make check always builds and uses the gtkhid.
+#1806044  Pick and place (xy) file export in dmil unit.
+#1808656  Tests that create new files may fail.
+#1808733  BOM HID Attributes.
+#1809332  run_tests.sh enhancements.
+
+
+========================================================================
 Release notes for pcb-4.1.3
 ========================================================================
 
