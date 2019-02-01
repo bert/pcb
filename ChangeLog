@@ -1,6 +1,876 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2019-02-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated appdata for pcb-4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated NEWS for pcb-4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Update the User Manual for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb.dox: Update pcb.dox for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac: Update configure.ac for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tests.list: More "burried" corrections.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/thermal.c: [thermals] Add comments to thermal.c Added comments to clarify what's happening, and how the clearances
+	are built.
+
+2019-01-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/Makefile.am,
+	tests/golden/drc-clearance-arcs-buriedvias/drcreport.txt,
+	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-buriedvias-buriedvias/drcreport.txt,
+	tests/golden/drc-clearance-burriedvias-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-lines-buriedvias/drcreport.txt,
+	tests/golden/drc-clearance-lines-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-pads-buriedvias/drcreport.txt,
+	tests/golden/drc-clearance-pads-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-vias-buriedvias/drcreport.txt,
+	tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
+	tests/inputs/drctest-clearance-arcs-buriedvias.pcb,
+	tests/inputs/drctest-clearance-arcs-burriedvias.pcb,
+	tests/inputs/drctest-clearance-arcs-vias.pcb,
+	tests/inputs/drctest-clearance-buriedvias-buriedvias.pcb,
+	tests/inputs/drctest-clearance-burriedvias-burriedvias.pcb,
+	tests/inputs/drctest-clearance-lines-buriedvias.pcb,
+	tests/inputs/drctest-clearance-lines-burriedvias.pcb,
+	tests/inputs/drctest-clearance-pads-buriedvias.pcb,
+	tests/inputs/drctest-clearance-pads-burriedvias.pcb,
+	tests/inputs/drctest-clearance-vias-buriedvias.pcb,
+	tests/inputs/drctest-clearance-vias-burriedvias.pcb: [bugfix]
+	Correct spelling errors.  It's buried, not burried.
+
+2019-01-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
+	tests/inputs/drctest-clearance-vias-burriedvias.pcb: [tests] Remove
+	off board parts from DRC test.
+
+2019-01-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/search.c,
+	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-arcs-lines/drcreport.txt,
+	tests/golden/drc-clearance-arcs-pads/drcreport.txt,
+	tests/golden/drc-clearance-arcs-vias/drcreport.txt: [search.c]
+	Adjust point angle in IsPointOnArc This fixes a bug where the arc angles being tested against may have
+	been adjusted such that one or both are > 360 degrees. In this case,
+	it may also be necessary to increase the angle of the vector to the
+	point by 360 degrees.
+
+2019-01-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c,
+	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-arcs-vias/drcreport.txt: [DRC] Refactor
+	the setting of thing1 Put them all into one of the first four functions.  Also fills in
+	some missed cases that were causing spurious violations.
+
+2019-01-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc_violation.c: [DRC] Check that bounding boxes overlap
+	before calculating intersection They always should if there's a DRC error, however, some bugs were
+	present that resulted in false errors. The assertion kills execution
+	making it difficult to debug.
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/tools/regen_drctest.sh: [tests] regen_drctest.sh: allow
+	specific tests Update this script so that a list of tests to regenerate can be
+	passed as arguments. This is still better than running run_tests.sh
+	manually because this script removes temp files that we don't want
+	to commit to the repository.
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/golden/drc-clearance-arcs-vias/drcreport.txt,
+	tests/inputs/drctest-clearance-arcs-vias.pcb: [tests] bugfix: Remove
+	guidelines creating false violations
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c, tests/golden/drc-clearance-arcs-pads/drcreport.txt,
+	tests/golden/drc-clearance-lines-pads/drcreport.txt,
+	tests/golden/drc-clearance-pads-arcs/drcreport.txt,
+	tests/golden/drc-clearance-pads-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-pads-lines/drcreport.txt,
+	tests/golden/drc-clearance-pads-pads/drcreport.txt,
+	tests/golden/drc-clearance-pads-vias/drcreport.txt: [DRC] bugfix:
+	Keep track of pad types for rounded pads.  Rounded pads use the line code, so, the type for pads was being
+	reset to LINE_TYPE. This sets the type in the calling function
+	instead of in LookupLOConnectionsToLine.
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c,
+	tests/golden/drc-clearance-arcs-arcs/drcreport.txt,
+	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-arcs-lines/drcreport.txt,
+	tests/golden/drc-clearance-arcs-pads/drcreport.txt,
+	tests/golden/drc-clearance-lines-arcs/drcreport.txt,
+	tests/golden/drc-clearance-lines-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-lines-lines/drcreport.txt,
+	tests/golden/drc-clearance-lines-pads/drcreport.txt,
+	tests/golden/drc-clearance-lines-vias/drcreport.txt,
+	tests/golden/drc-clearance-misc/drcreport.txt,
+	tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-vias-vias/drcreport.txt: [DRC] Detect
+	multiple copper too close violations for lines and arcs.  This fixes a bug that prevented the connection lookup code from
+	detecting multiple copper too close violations. After DRC find flags
+	the first one, it highlights the rest of the encroaching net so that
+	it's not reported again. However, this resets the connection lookup
+	lists, which means that the lookup has to start over from scratch.
+	The flags were not being properly reset to allow for this, and so on
+	the next pass, it would see the very first item, see the flags, not
+	add it to the new list, and then think it's done because there's
+	nothing left in the list.  The affected tests are primarily the lines and arcs to lines and
+	arcs, however, the order in which some of the violations are found
+	in the other tests also changes, so, more files are affected than
+	might be expected.
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/inputs/drctest-clearance-arcs-burriedvias.pcb,
+	tests/inputs/drctest-clearance-arcs-pads.pcb,
+	tests/inputs/drctest-clearance-lines-pads.pcb,
+	tests/inputs/drctest-clearance-lines-vias.pcb,
+	tests/inputs/drctest-clearance-vias-arcs.pcb,
+	tests/inputs/drctest-polygonclearance-lines.pcb: [tests] Fix board
+	size and flag states of some DRC test input files.
+
+2019-01-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/golden/drc-clearance-arcs-lines/drcreport.txt,
+	tests/golden/drc-clearance-arcs-pads/drcreport.txt,
+	tests/golden/drc-clearance-lines-arcs/drcreport.txt,
+	tests/golden/drc-clearance-misc/drcreport.txt,
+	tests/golden/drc-clearance-pads-arcs/drcreport.txt,
+	tests/tests.list: bugfix: number of fields in drc tests in
+	tests.list Also, some of the golden files didn't get regenerated correctly.
+
+2019-01-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/Makefile.am,
+	tests/golden/DRCTests/drctest-clearance-arcs.txt,
+	tests/golden/DRCTests/drctest-clearance-lines.txt,
+	tests/golden/DRCTests/drctest-clearance-pads.txt,
+	tests/golden/DRCTests/drctest-clearance-vias.txt,
+	tests/golden/DRCTests/drctest-minsize-arcs.txt,
+	tests/golden/DRCTests/drctest-minsize-lines.txt,
+	tests/golden/DRCTests/drctest-minsize-pads.txt,
+	tests/golden/DRCTests/drctest-minsize-pins.txt,
+	tests/golden/DRCTests/drctest-minsize-polygons.txt,
+	tests/golden/DRCTests/drctest-minsize-vias.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt,
+	tests/golden/drc-clearance-arcs-arcs/drcreport.txt,
+	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-arcs-lines/drcreport.txt,
+	tests/golden/drc-clearance-arcs-pads/drcreport.txt,
+	tests/golden/drc-clearance-arcs-vias/drcreport.txt,
+	tests/golden/drc-clearance-burriedvias-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-lines-arcs/drcreport.txt,
+	tests/golden/drc-clearance-lines-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-lines-lines/drcreport.txt,
+	tests/golden/drc-clearance-lines-pads/drcreport.txt,
+	tests/golden/drc-clearance-lines-vias/drcreport.txt,
+	tests/golden/drc-clearance-misc/drcreport.txt,
+	tests/golden/drc-clearance-pads-arcs/drcreport.txt,
+	tests/golden/drc-clearance-pads-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-pads-lines/drcreport.txt,
+	tests/golden/drc-clearance-pads-pads/drcreport.txt,
+	tests/golden/drc-clearance-pads-vias/drcreport.txt,
+	tests/golden/drc-clearance-vias-arcs/drcreport.txt,
+	tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
+	tests/golden/drc-clearance-vias-lines/drcreport.txt,
+	tests/golden/drc-clearance-vias-vias/drcreport.txt,
+	tests/golden/drc-minsize-arcs/drcreport.txt,
+	tests/golden/drc-minsize-lines/drcreport.txt,
+	tests/golden/drc-minsize-pads/drcreport.txt,
+	tests/golden/drc-minsize-pins/drcreport.txt,
+	tests/golden/drc-minsize-polygons/drcreport.txt,
+	tests/golden/drc-minsize-vias/drcreport.txt,
+	tests/golden/drc-polygonclearance-arcs/drcreport.txt,
+	tests/golden/drc-polygonclearance-lines/drcreport.txt,
+	tests/golden/drc-polygonclearance-misc/drcreport.txt,
+	tests/golden/drc-polygonclearance-pads/drcreport.txt,
+	tests/golden/drc-polygonclearance-pins/drcreport.txt,
+	tests/golden/drc-polygonclearance-vias/drcreport.txt,
+	tests/inputs/drctest-clearance-arcs-arcs.pcb,
+	tests/inputs/drctest-clearance-arcs-burriedvias.pcb,
+	tests/inputs/drctest-clearance-arcs-lines.pcb,
+	tests/inputs/drctest-clearance-arcs-pads.pcb,
+	tests/inputs/drctest-clearance-arcs-vias.pcb,
+	tests/inputs/drctest-clearance-arcs.pcb,
+	tests/inputs/drctest-clearance-burriedvias-burriedvias.pcb,
+	tests/inputs/drctest-clearance-lines-arcs.pcb,
+	tests/inputs/drctest-clearance-lines-burriedvias.pcb,
+	tests/inputs/drctest-clearance-lines-lines.pcb,
+	tests/inputs/drctest-clearance-lines-pads.pcb,
+	tests/inputs/drctest-clearance-lines-vias.pcb,
+	tests/inputs/drctest-clearance-lines.pcb,
+	tests/inputs/drctest-clearance-pads-arcs.pcb,
+	tests/inputs/drctest-clearance-pads-burriedvias.pcb,
+	tests/inputs/drctest-clearance-pads-lines.pcb,
+	tests/inputs/drctest-clearance-pads-pads.pcb,
+	tests/inputs/drctest-clearance-pads-vias.pcb,
+	tests/inputs/drctest-clearance-pads.pcb,
+	tests/inputs/drctest-clearance-vias-arcs.pcb,
+	tests/inputs/drctest-clearance-vias-burriedvias.pcb,
+	tests/inputs/drctest-clearance-vias-lines.pcb,
+	tests/inputs/drctest-clearance-vias-vias.pcb,
+	tests/inputs/drctest-clearance-vias.pcb,
+	tests/inputs/drctest.script, tests/tests.list,
+	tests/tools/regen_drctest.sh: [tests] Split the DRC tests into
+	pieces.  One benefit of this is that the object IDs listed in the DRC report
+	files will now correspond to the object IDs the objects get when
+	opening the file directly. Another benefit is that it will be much
+	less overwhelming of a task to review the smaller files for
+	accuracy.
+
+2019-01-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, tests/golden/DRCTests/drctest-minsize-arcs.txt,
+	tests/golden/DRCTests/drctest-minsize-lines.txt,
+	tests/golden/DRCTests/drctest-minsize-pads.txt: [DRC] Throw a
+	warning if objects have thickness < 2 * PCB->Shrink In this case, objects can violate the minimum copper overlap rule
+	and not be flagged. This commit generates a warning if any such
+	objects are detected.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [find.c] Make shrunk arc behavior consistent with
+	other objects.  When an object's thickness is < 2 * PCB->Shrink, all tests now treat
+	the shrunk object as if it has a thickness of zero. The arc tests
+	previously rejected this case outright.  Note that this behavior misses minimum copper overlap violations if
+	thickness < 2 * PCB->Shrink and the center line of the object
+	overlaps with the second object.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/undo.c: [undo.c] more doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-12   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c: [DRC] Check if an object is inside a polygon before
+	flagging violations
+
+2019-01-12   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/polyarea.h, src/polygon.c, src/polygon.h, src/polygon1.c: 
+	[polygons] Add tons of comments
+
+2019-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/buffer.c, src/create.c, src/macro.h,
+	src/netlist.c, src/set.c, src/smartdisperse.c: Globalize ARG(n)
+	macro in macro.h.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/golden/hid_bom10/bom_attribs.bom,
+	tests/inputs/bom.attrs, tests/inputs/bom_attribs.pcb,
+	tests/run_tests.sh, tests/tests.list: [BOM] Added a regression test
+	for attributes.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/bom/bom.c: [BOM] More elaborate description of the
+	attribute file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/bom/bom.c: [BOM] Allow an input file for the definition of
+	attributes.   Reported-by: DJ Delorie * dj AT delorie dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/drc/drc_violation.c, src/drc/drc_violation.h,
+	tests/golden/DRCTests/drctest-clearance-arcs.txt,
+	tests/golden/DRCTests/drctest-clearance-lines.txt,
+	tests/golden/DRCTests/drctest-clearance-pads.txt,
+	tests/golden/DRCTests/drctest-clearance-vias.txt,
+	tests/golden/DRCTests/drctest-minsize-arcs.txt,
+	tests/golden/DRCTests/drctest-minsize-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [DRC]
+	Improve error localization Instead of using just the center of the first object, use the center
+	of the intersection of their bounding boxes. This provides a much
+	better localization that lies somewhere between the two objects.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [DRC]
+	Bugfix: Set the type of thing2 correctly when polygon
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c: [DRC] Vias with zero polygon clearance are allowed.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/run_tests.sh: [tests] Redirect stderr to avoid GTK spew in
+	log messages.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/drc/drc_violation.c,
+	tests/golden/DRCTests/drctest-clearance-arcs.txt,
+	tests/golden/DRCTests/drctest-clearance-lines.txt,
+	tests/golden/DRCTests/drctest-clearance-pads.txt,
+	tests/golden/DRCTests/drctest-clearance-vias.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt: [DRC] Don't
+	generate duplicate violations We add a compare operation for the drc violation list, and check to
+	see if an identical violation is already in the list before adding
+	the current one. Violations are defined as equal if they have the
+	same title string and reference the same objects.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object_list]
+	object_list_find_item Iterate through the list looking for an item equal to the one
+	provided.  This test uses the compare_objects function of the
+	object_operations structure.
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object_list] rename the
+	storage variable and add a pointer list list->data now points to the memory where objects are copied.
+	list->items is now a list of pointers that point to the different
+	items in the data block.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/tools/pcb.py: [tests] A python module for generating pcb
+	files This is to facilitate the generation of the DRC tests
+	programmatically. It's currently pretty bare bones, but it's a
+	useful start.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/tools/regen_drctest.sh: [tests] Add a script for
+	regenerating the DRC tests It deletes all the unnecessary stuff so that it's easier to put the
+	changes into git.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* .gitignore: Tell git to ignore backup/temp files.
+
+2019-01-06   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gsvit/gsvit.c: [gsvit] Increase char buffer size gcc now produces warnings when writing strings that are the same
+	size as the buffer being written to, since this can potentially mean
+	that there isn't a byte for the null terminator.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/bom/bom.c, tests/Makefile.am,
+	tests/golden/hid_bom3/bom_general.bom, tests/golden/hid_bom3/mm.xy,
+	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom4/bom_general.bom,
+	tests/golden/hid_bom4/bom_general.xy,
+	tests/golden/hid_bom4/inches.xy, tests/golden/hid_bom5/mil.xy,
+	tests/golden/hid_bom6/dmil.xy, tests/golden/hid_bom7/cmil.xy,
+	tests/golden/hid_bom8/cm.xy, tests/golden/hid_bom9/um.xy,
+	tests/inputs/bom_general.pcb, tests/tests.list: [bom] Fix dmil
+	output, add tests for some other output units.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [DRC] Sort
+	out some issues with the polygon clearance tests.  These have been reworked, and I think they actually work now!
+
+2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c, src/find.h: [find.c] Add a IsPinInPolygon function Also, have DoIt set Bloat = 0 when it's finished so that it's state
+	doesn't screw up anything else that wants to use functions from
+	find.c.
+
+2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/search.c: [debug] Limit ID search failure spew to debugging
+	output.
+
+2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt: [DRC]
+	Bloat lines the right amount when testing polygon clearance.  And update tests.
+
+2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* po/POTFILES.skip, src/drc/drc.c,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [DRC] Add
+	clearance measurement to polygon clearance violations.  And update DRC tests.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [find.c] Remove an extra bloat when testing arcs
+	against rectangles.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/create.c, src/file.c: [debug] Reduce spew by making required
+	defines more specific.  Change #ifdef DEBUG to #ifdef #DEBUG_CREATE_C or #DEBUG_FILE_C.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-config.c: [gtk] Allow 0 to be entered for min
+	copper overlap.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c, src/search.c: Add comments to some of the arc geometry
+	tests.
+
+2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/find.c: [DRC] Bugfix: Things should keep track
+	of layers, not layer groups.
+
+2018-12-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* Makefile.am: [tests] Use the batch HID for distcheck.
+
+2018-12-30   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/drc/drc.h, src/find.c,
+	tests/golden/DRCTests/drctest-clearance-arcs.txt,
+	tests/golden/DRCTests/drctest-clearance-lines.txt,
+	tests/golden/DRCTests/drctest-clearance-pads.txt,
+	tests/golden/DRCTests/drctest-clearance-vias.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [DRC] Keep
+	track of all violating objects.  Setup two global "things" to keep track of violating objects.  The
+	connection lookup routines will set "thing1" to be the seed object
+	when searching for additional connections and "thing2" to be the
+	newly connected object.  Also, reworked the tests in drc.c to use thing1 and thing2.
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt: [DRC]
+	Remove IsPadInPolygon test This test was added deliberately in commit bc48a574 to fix the DRC
+	of slanted pads. However, it breaks the DRC for pads that have
+	non-zero insufficient clearance. A quick test suggests that the test
+	is no longer necessary.  Note: We'll need to add some tests for slanted pads to the polygon
+	clearance tests.
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
+	tests/golden/DRCTests/drctest-polygonclearance-vias.txt: [tests]
+	Update DRC tests
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c: [DRC] Add "Polygon not connected" violation Also use functions to create the violations instead of the dirty
+	goto...
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/polygon.c: [DRC] Check for plow if object doesn't have
+	CLEARLINEFLAG set When testing if a line/arc/text plows a polygon, there was an early
+	test of the CLEARLINEFLAG to avoid expensive r_searches if the line
+	is supposed to connect to the polygon. The problem is that the DRC
+	still needs to check objects that don't have this flag set as such
+	objects can still create violations when coupled with the clearance
+	of other objects.  This will be a performance hit, but I expect it to be negligible on
+	modern desktops.  This solution was identified by Luis de Arquer.
+
+2018-12-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/pcb-menu.res.in: [lesstif] Use the DRCReview action after DRC
+	checking.
+
+2018-12-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/drc/drc_violation.c, src/drc/drc_violation.h: 
+	[DRC] Move pcb_drc_violation_prompt to drc_violation.c
+
+2018-12-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c: [DRC] Remove the interactivity from the main DRC
+	function.  The user can use the DRCReview action to simulate that function
+	after a DRC() has been executed.
+
+2018-12-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/drc/drc.c, src/drc/drc_violation.c, src/drc/drc_violation.h,
+	src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-drc-window.h: [DRC]
+	Restructure to use object_list + misc updates Restructured the DRC to keep lists of violating objects in an
+	object_list instead of the arrays of object IDs and types. A couple
+	of other updates happened in the process:   * set_flag_on_violating_objects added to drc_violation   * GhidDrcViolation reworked to use DrcViolation instead of
+	    duplicating the structure.    * Added DRCReview action. This will mimic the lesstif HID behavior
+	    and iterate through all of the DRC violations using a pop-up
+	    dialog. A DRC must be executed first to populate the violation list
+	    before this can be done. The point here is that next I'm going to
+	    make the DRC less interactive, but I need to preserve the lesstif
+	    behavior.  This will remove many of the complications with flags and
+	    undo behavior, and also allow the DRC to be executed using the batch
+	    HID (without prompting the user for every error!).  There are a few housekeeping items still to attend to. There are
+	some stray functions that can be removed, probably some variables
+	that no longer used, headers that can go... that kind of stuff.  The next task on the list is to remove the user interaction from the
+	DRC and use the DRCReview action for that instead.
+
+2018-11-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/undo.c, src/undo.h: [undo] Add function MergeUndoSerialRange This new function will merge a range of undo serial numbers into one
+	so that multiple operations can be undone by a single undo call.  [Increment,Save,Restore]UndoSerialNumber now return the current undo
+	serial number after they have performed their operations.
+
+2018-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [find.c] Reorganize file and add comments (no code
+	changes) The file is reorganized to group related definitions and functions.
+	All of the functions related to the object lists are grouped, all
+	the geometry functions are grouped, then the connection lookup
+	functions, and finally the entry points.  The hope is that this will help to minimize the amount of time spent
+	scrolling around when working on the code.
+
+2018-11-22   Charles Parker * parker dot charles AT gmail dot com *
+
+	* po/POTFILES.in, src/Makefile.am, src/action.c, src/drc.c,
+	src/drc.h, src/drc/drc.c, src/drc/drc.h, src/drc/drc_object.h,
+	src/drc/drc_violation.c, src/drc/drc_violation.h, src/find.c,
+	src/find.h, src/hid.h: [DRC] Remove DRC functions from find.c They're exploding into files in the drc/ directory so that different
+	functions can be better isolated.  DRCObject.h was created primarily to avoid a circular dependency,
+	but it could also form the basis for a more generic "pcb object".  This also contains a number of whitespace/readability updates.
+
+2018-11-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [find.c] Eliminate the User variable This was a global state variable used to indicate that an operation
+	should be marked as undoable. Now, operations are undoable by
+	default.  To prevent an operation from being registered with the
+	undo system, the undo system is locked.  Note, there are some potential conflict issues with the way the undo
+	locks work. There are no checks in place to ensure that a function
+	doesn't unlock the system if the calling function locked it. For
+	now, the API isn't used anywhere else, but this should get sorted
+	out before we start to rely on it too much.
+
+2018-11-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [find.c] Added comments.
+
+2018-11-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/drc.c: Move DRC action to drc.c
+
+2018-11-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/find.c, src/flags.c, src/flags.h,
+	src/hid/gsvit/gsvit.c, src/hid/gtk/gui-drc-window.c,
+	src/hid/ipcd356/ipcd356.c, src/hid/lesstif/netlist.c, src/rats.c,
+	src/report.c, src/select.c, src/set.c: [flags] Decouple drawing and
+	change call signature Removed the andDraw parameter from the ClearFlagsOnX functions, and
+	got rid of the drawing infrastructure. The call signature is changed
+	so that the flag is the first parameter, and the second is now
+	"undoable" which indicates that the changes should be added or not
+	to the undo system.
+
+2018-09-23   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [DRC] Make "bloat" and "is_drc" parameters of DoIt Several other places in the code base use this function. I think
+	most of them should call it with bloat = 0, but it's probably worth
+	double checking that.
+
+2016-12-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/search.c: Fixup SearchObjectByLocation not to use negative
+	layer numbers Peter's branches also had searchable soldermask layers. These lines
+	have been commented out so that the patch can apply to mainline, but
+	should be uncommented if merged with peterc_layers.
+
+2018-08-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [DRC] Add lots of comments and update white space.  # Conflicts: #	src/find.c
+
+2017-02-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: The User varaible needs to die...  Reduce its usage to where absolutely necessary... oh, what a
+	surprise, another variable passing state down into
+	add_object_to_list ()
+
+2017-02-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: Add the bloat and drc flags as a parameters Ok, this is nasty.. I'm obscuring setting of the global varaibles...
+	be careful!
+
+2017-02-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Refactor some common sequences into a helper
+	function
+
+2018-12-30   Charles Parker * parker dot charles AT gmail dot com *
+
+	* Makefile.am: [tests] Disable OpenGL when executing make distcheck This has been shown to cause crashes on some systems.
+
+2018-12-30   Charles Parker * parker dot charles AT gmail dot com *
+
+	* : [DRC] Add DRC tests
+
+2018-12-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* globalconst.h, src/change.c, src/create.c,
+	src/hid/gtk/ghid-route-style-selector.c, src/parse_y.y, src/set.c,
+	src/vendor.c: Allow via copper to be the same size as the drill (0
+	annular ring)  Reported-by: Rob Spanton * rob AT robspanton dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-08-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* po/POTFILES.in, src/Makefile.am, src/action.c, src/drc.c,
+	src/drc.h, src/find.c, src/global.h, src/hid.h: [DRC] New files
+	drc.[c,h] These new files are for collecting all of the DRC related functions.
+	Eventually, everything DRC should be in here.   * Moved all of the DrcViolationType definitions to these new files.   * Added a drc_violation_list that keeps a list of DrcViolationType    objects.   * Added an action "DRCReport" that iterates over the
+	   drc_violation_list and writes the DrcViolationType data to a file,
+	or stdout.
+
+2018-12-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object list] Add copy
+	constructor.  Since right now the list owns its data, it copies the data too.
+
+2018-12-23   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object_list] Add
+	compare_objects operation, and update the unit tests
+
+2018-12-23   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object_list] Add copyright
+	and license to files.
+
+2018-08-30   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/Makefile.am, src/main-test.c: Add object_list unit tests to
+	the test suite.
+
+2018-08-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c, src/object_list.h: [object_list] Unit tests
+
+2018-08-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/Makefile.am, src/hid/gtk/gui-drc-window.c, src/object_list.c,
+	src/object_list.h: [object_list] New container type.  object_list is a container type that keeps copies of objects.  Note: there is a collision with an "object_list" type defined in the
+	gtkhid. This has been renamed ghid_drc_object_list.
+
+2018-12-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/dialogs.c: [lesstif] Force a redraw of the main
+	window when dialogs close.  This fixes a bug where something inside XtManageChild hangs
+	indefinitely if the dialog hasn't been erased yet.
+
+2018-12-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/dialogs.c: [lesstif] Add comments to confirm
+	dialog fns.
+
+2018-11-08   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-drc-window.h: Add comments
+
+2018-10-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/run_tests.sh: [tests] Add ascii and diff output comparison
+	options.  The ascii option compares a generated ascii file with a golden ascii
+	file. The diff option compares *two* generated ascii files.
+
+2018-10-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/run_tests.sh: [tests] Upgrade run_tests.sh to allow for
+	continued lines This change runs the tests.list file through a sed filter first to
+	remove any escaped newlines. This allows tests with lots of files to
+	be written more gracefully.
+
+2018-10-07   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/flags.c: [flags] Add the DumpFlags action.  DumpFlags writes to a file a line for each object to a file with
+	it's flags.
+
+2018-10-07   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/search.c: [search] Use bit logic instead of equality to choose
+	search types.  Presently "SearchObjectByID" takes a type as a parameter. Why?
+	Anyway This commit changes (type == SOME_TYPE) to (type &&
+	SOME_TYPE) so that a search can be performed to look for multiple
+	types of objects instead of just one.
+
+2018-10-21   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/autoroute.c, src/buffer.c, src/copy.c,
+	src/flags.c, src/flags.h, src/misc.c, src/misc.h, src/parse_y.y,
+	src/toporouter.c, src/undo.c: [flags] Move flag functions from
+	misc.c to flags.c
+
+2018-09-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c, src/find.h, src/flags.c, src/flags.h,
+	src/hid/gsvit/gsvit.c, src/hid/gtk/gui-drc-window.c,
+	src/hid/gtk/gui-netlist-window.c, src/hid/ipcd356/ipcd356.c,
+	src/hid/lesstif/netlist.c, src/rats.c, src/report.c, src/select.c,
+	src/set.c: [flags] Move flag clearing functions from find.c to
+	flags.c I think I've updated all of the files that use these functions with
+	the flags.h header. In basically all cases the code was compiling
+	without them, so, it's clearly being included by something else. I
+	did not check to see if the find.h header could be removed from any
+	of these files.
+
+2018-12-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/Makefile.am,
+	tests/golden/RouteStyles/mixed-apertures-load.pcb,
+	tests/golden/RouteStyles/mixed-apertures-save.pcb,
+	tests/golden/RouteStyles/non-zero-apertures-save.pcb,
+	tests/golden/RouteStyles/zero-apertures-load.pcb,
+	tests/golden/RouteStyles/zero-apertures-save.pcb,
+	tests/inputs/default.pcb, tests/inputs/routestyles.script,
+	tests/tests.list: [tests] Update route styles tests Use default.pcb instead of the one that's generated from user
+	preferences. Added lots of comments describing how to evaluate the
+	golden files when they're regenerated.
+
+2018-12-09   Charles Parker * parker dot charles AT gmail dot com *
+
+	* : Add via soldermask clearance to the route styles.  This allows the aperture of the soldermask to be specified for vias
+	using the route styles dialogues.  This adds a field to the format strings, so, if any style has a
+	non-zero mask aperture, it will save a file that is not backwards
+	compatible. If all styles have 0 specified for the mask aperture,
+	the file will be saved in the older format that is backwards
+	compatible. There is no problem loading older files. They load with
+	the mask aperture set to 0, which results in a tented via.
+
+2018-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tests.list: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/run_tests.sh: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/png_diff.sh: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-library-window.c: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* globalconst.h: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/texinfo.tex: Corrected the FSF address.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/relocate.c: Added license text.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-11-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/set.c: [route styles] Add SetupRouteStyles action.  This changes the route style data in the PCB->RouteStyle structure.
+	It doesn't update the gui widgets though.
+
+2018-11-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/misc.c: [route styles] Allow loading fewer than NUM_STYLES
+	styles.
+
+2018-11-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/create.c: [create.c] Add an action to create vias.
+
+2018-11-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/parse_y.y: Update the documentation with the new style
+	parameter.
+
+2018-06-17   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/global.h,
+	src/hid/gtk/ghid-route-style-selector.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/styles.c, src/main.c, src/set.c: Change terminology
+	to "Mask aperture"
+
+2018-03-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/styles.c, src/set.h: Add via solder mask clearance
+	to the lesstif styles selector.
+
+2018-03-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/ghid-route-style-selector.c,
+	src/hid/gtk/ghid-route-style-selector.h, src/hid/gtk/gtkhid-main.c: 
+	Add via solder mask clearance to the gtk route styles selector
+
+2018-03-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/file.c, src/file.h, src/global.h, src/main.c,
+	src/misc.c, src/set.c: Add via solder mask clearance to core
+	structures.  This changes the file format (route style strings), so, the file
+	version is bumped.
+
+2018-11-12   Peter Clifton * pcjc AT xev-power dot com *
+
+	* src/rats.c: Lengthen ratname string to avoid compiler warning
+	(possible overflow)
+
+2018-10-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/find.c: [DRC] Don't leave violating silk lines selected
+
+2018-10-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog: Updated the ChangeLog for pcb-4.1.3.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2018-10-03   bert * bert dot timmerman AT xs4all dot nl *
 
 	* data/pcb.appdata.xml.in: Updated appdata for pcb-4.1.3.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
@@ -12,10 +882,6 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2018-09-30   bert * bert dot timmerman AT xs4all dot nl *
 
 	* doc/pcb.texi: Updated the User Manual for pcb-4.1.3.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2018-09-30   bert * bert dot timmerman AT xs4all dot nl *
-
-	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.1.3.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2018-09-30   Charles Parker * parker dot charles AT gmail dot com *
 
