@@ -184,7 +184,7 @@ int
 object_list_remove(object_list * list, int n)
 {
   int nItemsToMove;
-  void * nptr;
+  void * nptr, *temp;
   if(n >= list->count) return -1; // object not in list
   
   /* move all items after the specified position up one position */
@@ -195,8 +195,18 @@ object_list_remove(object_list * list, int n)
     list->ops->clear_object(nptr);
   } 
   /* no point in a memcpy condition since we're about to overwrite it anyway */
-
-  memcpy(nptr, nptr+list->item_size, list->item_size*nItemsToMove);
+  
+  /* Copying to an intermediate location appears to be necessary for 32-bit
+   * platforms.
+   *
+   * TODO: Some profiling should be done to see if it's faster to do the
+   *       malloc/free move, or to execute a for loop an move one item at a
+   *       time, which would not require a memory allocation.
+   */
+  temp = malloc(list->item_size*nItemsToMove);
+  memcpy(temp, nptr+list->item_size, list->item_size*nItemsToMove);
+  memcpy(nptr, temp, list->item_size*nItemsToMove);
+  free(temp);
   
   /* decrement the list count */
   list->count--;
