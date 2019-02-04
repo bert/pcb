@@ -180,11 +180,10 @@ pcb_drc_violation_print(FILE* fp, DrcViolationType * violation)
   if (fp == NULL) fp = stdout;
   fprintf(fp, "title: %s\n", violation->title);
   fprintf(fp, "explanation: %s\n", violation->explanation);
-  fprintf(fp, "location: (x, y) = (%ld, %ld), angle = %f\n",
-                  violation->x, violation->y, violation->angle);
+  fprintf(fp, "location: (x, y) = (%lld, %lld), angle = %f\n", (long long int) violation->x, (long long int) violation->y, violation->angle);
   fprintf(fp, "have_measured: %s\n",
                   violation->have_measured ? "true":"false");
-  fprintf(fp, "measured value: %ld\n", violation->measured_value);
+  fprintf(fp, "measured value: %lld\n", (long long int) violation->measured_value);
   fprintf(fp, "required value: %ld\n", violation->required_value);
   fprintf(fp, "object count: %d\n", violation->objects->count);
   fprintf(fp, "object IDs: ");
