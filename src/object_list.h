@@ -1,4 +1,4 @@
-/*
+/*!
  * \file src/object_list.h
  *
  * \brief object_list header
@@ -68,45 +68,49 @@
 #ifndef object_list_h
 #define object_list_h
 
-/* Object operations structure.
+/*!
+ * \brief Object operations structure.
+ *
  * This is a virtuial function table of functions that operate on whatever type
  * of object the list happens to contain. They must be written for any complex
  * object type this class stores.
  */
 typedef struct object_operations
 {
-  /* Create a new copy of the object.
+  void (*copy_object)(void * a, void * b);
+  /*!< Create a new copy of the object.
    * If the object contains its own memory allocations, then this function
    * needs to make a copy of those also.
    */
-  void (*copy_object)(void * a, void * b);
 
-  /* Clear an object.
+  void (*clear_object)(void * a);
+  /*!< Clear an object.
    * This doesn't free the memory for the object itself, but, it should free any
    * memory that the object owns.
    */
-  void (*clear_object)(void * a);
 
-  /* Compare objects
+  int (*compare_objects)(void *a, void *b);
+  /*!< Compare objects
    * Return 0 if the objects are "equal", < 0 if the first object is "less"
    * than the second object and > 0 if the first object is "greater" than
    * the second object.
    */
-  int (*compare_objects)(void *a, void *b);
 } object_operations;
 
-/* Object list structure
+/*!
+ * \brief Object list structure.
+ *
  * This is the metadata structure. The actual data is stored in a block of
  * memory somewhere outside of this structure.
  */
 typedef struct object_list
 {
-  int count; /* number of items in the list */
-  int size; /* number of items the list can hold */
-  int item_size; /* the size of the items the list contains */
-  void ** items; /* array of pointers to objects */
-  void * data; /* pointer to the memory where the objects are stored */
-  object_operations * ops; /* pointer to the function table of object ops */
+  int count; /*!< number of items in the list. */
+  int size; /*!< number of items the list can hold. */
+  int item_size; /*!< the size of the items the list contains. */
+  void ** items; /*!< array of pointers to objects. */
+  void * data; /*!< pointer to the memory where the objects are stored. */
+  object_operations * ops; /*!< pointer to the function table of object ops. */
 } object_list;
 
 /*

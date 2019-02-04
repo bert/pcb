@@ -1,4 +1,4 @@
-/*
+/*!
  * \file src/object_list.c
  *
  * \brief object_list core code
@@ -45,6 +45,9 @@ __FILE__, __LINE__, __func__, ##args)
 
 static void * object_list_position_pointer(object_list * list, int n);
 
+/*!
+ * \brief Create a new object list with n items of size item_size.
+ */
 object_list * 
 object_list_new (int n, unsigned item_size)
 {
@@ -60,6 +63,9 @@ object_list_new (int n, unsigned item_size)
   return list;
 }
 
+/*!
+ * \brief Copy constructor, copies data too.
+ */
 object_list * 
 object_list_duplicate (object_list * list)
 {
@@ -75,6 +81,9 @@ object_list_duplicate (object_list * list)
   return new_list;
 }
 
+/*!
+ * \brief Delete an object list.
+ */
 void 
 object_list_delete (object_list * list)
 {
@@ -84,6 +93,9 @@ object_list_delete (object_list * list)
   free(list);
 }
 
+/*!
+ * \brief Delete the data in an object list.
+ */
 int 
 object_list_clear (object_list * list)
 {
@@ -105,6 +117,9 @@ object_list_clear (object_list * list)
   return 0; /* success */
 }
 
+/*!
+ * \brief Make the object list bigger by n items.
+ */
 int
 object_list_expand (object_list * list, int n)
 {
@@ -125,6 +140,9 @@ object_list_expand (object_list * list, int n)
   return 0; /* success */
 }
 
+/*!
+ * \brief Print the list information.
+ */
 void 
 object_list_describe (object_list * list)
 {
@@ -132,6 +150,9 @@ object_list_describe (object_list * list)
          list, list->count, list->size, list->item_size);
 }
 
+/*!
+ * \brief Insert an object into the list at position n.
+ */
 int 
 object_list_insert (object_list * list, int n, void * item)
 {
@@ -180,6 +201,9 @@ object_list_insert (object_list * list, int n, void * item)
   return 0; /* success */
 }
 
+/*!
+ * \brief Remove the object at position n from the list.
+ */
 int 
 object_list_remove(object_list * list, int n)
 {
@@ -216,6 +240,9 @@ object_list_remove(object_list * list, int n)
   return 0; /* success */
 }
 
+/*!
+ * \brief Add an objet to the end of the list.
+ */
 int 
 object_list_append (object_list * list, void * item)
 {
@@ -223,6 +250,9 @@ object_list_append (object_list * list, void * item)
   return object_list_insert (list, list->count, item);
 }
 
+/*!
+ * \brief Get a pointer to the object at position n in the list.
+ */
 /* would be nice to allow for negative indexing */
 void * 
 object_list_get_item (object_list * list, int n)
@@ -238,6 +268,11 @@ object_list_position_pointer (object_list * list, int n)
   return list->data + list->item_size*n;
 }
 
+/*!
+ * \brief Search the list for something equal to item.
+ *
+ * \note This returns the first match.
+ */
 void * object_list_find_item (object_list * list, void * item)
 {
   void * list_item;
@@ -257,9 +292,11 @@ void * object_list_find_item (object_list * list, void * item)
   return 0;
 }
 
-/*******************************************************************************
+/*
+ ******************************************************************************
                                     Tests
-*******************************************************************************/
+ ******************************************************************************
+ */
 #ifdef PCB_UNIT_TEST
 #include <glib.h>
 
