@@ -1078,11 +1078,11 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
 
 error:
   fprintf(stderr, "error parsing route string: %s\n", orig_s);
-  fprintf(stderr, "parsed %ld characters.\n", s - orig_s);
+  fprintf(stderr, "parsed %d characters.\n", (int) (s - orig_s));
   fprintf(stderr, "on style number %d\n", style+1);
   fprintf(stderr, "character that caused the error: %c\n", *s);
   fprintf(stderr, "values of current struct: \n");
-  for (n=0; n < 5; n++) fprintf(stderr, "%d: %ld ", n, *style_items[n]);
+  for (n=0; n < 5; n++) fprintf(stderr, "%d: %lld ", n, (long long int) *style_items[n]);
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   return (1);
 }
