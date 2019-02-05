@@ -122,7 +122,13 @@ pcb_files=	\
 	vianudge.pcb \
 	vianudge.out.pcb \
 	viatrim.pcb \
-	viatrim.out.pcb
+	viatrim.out.pcb \
+	gs/fb-blinker_parts.pcb \
+	gs/fb-blinker_auto.pcb \
+	gs/fb-blinker_auto_optimize.pcb \
+	gs/fb-blinker_auto_optimize_teardrops.pcb \
+	gs/fb-blinker_auto_miter.pcb \
+	gs/fb-blinker_auto_miter_teardrops.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -143,6 +149,12 @@ images= \
 	gcode_control_img.eps \
 	gcode_tool_path.eps \
 	td_ex1.eps \
+	gs/fb-blinker_parts.eps \
+	gs/fb-blinker_auto.eps \
+	gs/fb-blinker_auto_optimize.eps \
+	gs/fb-blinker_auto_optimize_teardrops.eps \
+	gs/fb-blinker_auto_miter.eps \
+	gs/fb-blinker_auto_miter_teardrops.eps \
 	gs/fb-led-1.eps \
 	gs/fb-led-2.eps \
 	gs/fb-led-3.eps \
