@@ -3705,17 +3705,35 @@ into the layout and placed, and the connectivity netlist must be loaded.
 Once the elements have been placed and the netlist loaded, the following
 steps will route your design:
 
+Toporouter is an experimental code, so remember to save your design
+before calling @emph{Toporouter}.
+
 @enumerate
+@item Again we take the layout from @ref{Blinker Board} as an example:
+
+@center @image{gs/fb-blinker_parts,2.88in,1.96in,FIXME,png}
+
 @item Turn off visibility of any layers that you don't want the router
 to use.
 
 @item Set the current routing style to whatever you'd like the router to
 use for any nets not having a defined route style in the netlist.
 
+@item Choose @emph{Toporouter} in the @emph{Connection} menu.
+
+@item Resulting in the layout below:
+
+@center @image{gs/fb-blinker_topo,2.88in,1.96in,FIXME,png}
+
 @end enumerate
 
-Toporouter is an experimental code, so remember to save your design
-before calling Toporouter.
+An example of @emph{Toporouter} in combination with the @emph{Teardrops}
+plugin:
+
+@center @image{gs/fb-blinker_topo_teardrops,2.88in,1.96in,FIXME,png}
+
+Note that @emph{Teardrops} are placed only where sufficient trace length
+is available.
 
 
 @c ---- User Commands chapter ----

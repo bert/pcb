@@ -128,7 +128,9 @@ pcb_files=	\
 	gs/fb-blinker_auto_optimize.pcb \
 	gs/fb-blinker_auto_optimize_teardrops.pcb \
 	gs/fb-blinker_auto_miter.pcb \
-	gs/fb-blinker_auto_miter_teardrops.pcb
+	gs/fb-blinker_auto_miter_teardrops.pcb \
+	gs/fb-blinker_topo.pcb \
+	gs/fb-blinker_topo_teardrops.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -155,6 +157,8 @@ images= \
 	gs/fb-blinker_auto_optimize_teardrops.eps \
 	gs/fb-blinker_auto_miter.eps \
 	gs/fb-blinker_auto_miter_teardrops.eps \
+	gs/fb-blinker_topo.eps \
+	gs/fb-blinker_topo_teardrops.eps \
 	gs/fb-led-1.eps \
 	gs/fb-led-2.eps \
 	gs/fb-led-3.eps \
