@@ -3557,9 +3557,10 @@ steps will autoroute your design.
 
 @enumerate
 
-@item As an example let's take the parts from the @ref{Blinker Board}:
+@item As an example let's take the the layout from @ref{Blinker Board},
+and remove any copper traces until the layout looks like this:
 
-@center @image{gs/fb-blinker_parts,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+@center @image{gs/fb-blinker_parts,2.88in,1.96in,FIXME,png}
 
 @item Turn off visibility of any layers that you don't want the router
 to use.
@@ -3600,11 +3601,11 @@ new vias.
 @item Select ``show autorouter trials'' in the settings menu if you want
    to watch what's happening.
 
-@item Choose ``autoroute all rats'' in the connection menu.
+@item Choose @emph{Autoroute all rats} in the @emph{Connection} menu.
 
 @item Resulting in the layout below:
 
-@center @image{gs/fb-blinker_auto,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+@center @image{gs/fb-blinker_auto,2.88in,1.96in,FIXME,png}
 
 @item If you really want to muck with the router because you have a
    special design, e.g. all through-hole components you can mess with
@@ -3622,23 +3623,38 @@ the trace optimizer.
 
 An example of the @emph{Auto-optimize} option:
 
-@center @image{gs/fb-blinker_auto_optimize,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+@center @image{gs/fb-blinker_auto_optimize,2.88in,1.96in,FIXME,png}
 
-An example of @emph{Auto-Optimize} in combination with the @emph{Teardrops} plugin:
+To reinforce the connection of a trace to a pin (or pad) a @emph{Teardrop}
+can be added.
 
-@center @image{gs/fb-blinker_auto_optimize_teardrops,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+The @emph{Teardrop} plugin can be invoked with the @emph{:teardrops()}
+command on the command line. See section @ref{User Commands} for more
+information on the usage of the command line.
 
-Note that @emph{Teardrops} are placed only when sufficient trace length is available.
+An example of @emph{Auto-Optimize} in combination with the @emph{Teardrops}
+plugin:
+
+@center @image{gs/fb-blinker_auto_optimize_teardrops,2.88in,1.96in,FIXME,png}
+
+Note that @emph{Teardrops} are placed only where sufficient trace length
+is available.
+
+Beware that @emph{Teardrops} adds a lot of small copper traces near pins
+and pads, and editing the layout after running the plugin can make
+@pcb{} become less responsive.
 
 An example of the @emph{Miter} option:
 
-@center @image{gs/fb-blinker_auto_miter,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+@center @image{gs/fb-blinker_auto_miter,2.88in,1.96in,FIXME,png}
 
-An example of @emph{Miter} in combination with the @emph{Teardrops} plugin:
+An example of @emph{Miter} in combination with the @emph{Teardrops}
+plugin:
 
-@center @image{gs/fb-blinker_auto_miter_teardrops,2.88in,1.96in,FIXME,png} @c 108x74px 38 dpi
+@center @image{gs/fb-blinker_auto_miter_teardrops,2.88in,1.96in,FIXME,png}
 
-Note that @emph{Teardrops} are placed only when sufficient trace length is available.
+Note that @emph{Teardrops} are placed only where sufficient trace length
+is available.
 
 @c ---- Topological router chapter ----
 @node Toporouter
