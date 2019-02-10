@@ -381,6 +381,7 @@ When set, element names are not drawn.
 #define ARCPOINT_TYPE		0x40000
 
 #define PIN_TYPES     (VIA_TYPE | PIN_TYPE)
+#define THERMAL_TYPES (VIA_TYPE | PIN_TYPE | PAD_TYPE)
 #define LOCK_TYPES    (VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE | ELEMENT_TYPE \
                       | TEXT_TYPE | ELEMENTNAME_TYPE | LOCKED_TYPE)
 
