@@ -1187,7 +1187,7 @@ NotifyMode (void)
       {
 	if (((type
 	      =
-	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
+	      SearchScreen (Note.X, Note.Y, THERMAL_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
 	    && !TEST_FLAG (HOLEFLAG, (PinType *) ptr3))
 	  {
