@@ -894,34 +894,23 @@ SubtractText (TextType * text, PolygonType * p)
 }
 
 static int
-SubtractPad (DataType * d, PadType * pad, LayerType * l, PolygonType * p)
+SubtractPad (PadType * pad, PolygonType * p)
 {
   POLYAREA *np = NULL;
-  Cardinal i;
 
   if (pad->Clearance == 0)
     return 0;
-  i = GetLayerNumber (d, l);
-  if (TEST_THERM (i, pad))
+  if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      np = ThermPolyPad ((PCBType *) (d->pcb), pad, i);
-      if (!np)
-        return 0;
+      if (!
+          (np = SquarePadPoly (pad, pad->Thickness + pad->Clearance)))
+        return -1;
     }
   else
     {
-    if (TEST_FLAG (SQUAREFLAG, pad))
-      {
-        if (!
-            (np = SquarePadPoly (pad, pad->Thickness + pad->Clearance)))
-          return -1;
-      }
-    else
-      {
-        if (!
-            (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
-          return -1;
-      }
+      if (!
+          (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
+        return -1;
     }
   return Subtract (np, p, true);
 }
@@ -1027,7 +1016,7 @@ pad_sub_callback (const BoxType * b, void *cl)
   polygon = info->polygon;
   if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), !info->bottom))
     {
-      if (SubtractPad (info->data, pad, info->layer, polygon) < 0)
+      if (SubtractPad (pad, polygon) < 0)
         longjmp (info->env, 1);
       return 1;
     }
@@ -1577,7 +1566,7 @@ subtract_plow (DataType *Data, LayerType *Layer, PolygonType *Polygon,
       Polygon->NoHolesValid = 0;
       return 1;
     case PAD_TYPE:
-      SubtractPad (Data, (PadType *) ptr2, Layer, Polygon);
+      SubtractPad ((PadType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     case TEXT_TYPE:
