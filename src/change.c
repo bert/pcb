@@ -387,9 +387,11 @@ ChangePinThermal (ElementType *element, PinType *Pin)
   DrawPin (Pin);
   return Pin;
 }
-/* ---------------------------------------------------------------------------
- * changes the thermal on a pad
- * returns TRUE if changed
+
+/*!
+ * \brief Changes the thermal on a pad.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePadThermal (ElementType * element, PadType * Pad)

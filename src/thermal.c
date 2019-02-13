@@ -548,10 +548,12 @@ ThermPoly (PCBType *p, PinType *pin, Cardinal laynum)
     }
 }
 
-/* ThermPolyPad returns a POLYAREA having all of the clearance that when
- * subtracted from the plane create the desired thermal fingers.
- * Usually this is 4 disjoint regions.
+/*!
+ * \brief ThermPolyPad returns a POLYAREA having all of the clearance
+ * that when subtracted from the plane create the desired thermal
+ * fingers.
  *
+ * Usually this is 4 disjoint regions.
  */
 POLYAREA *
 ThermPolyPad (PCBType * p, PadType * pad, Cardinal laynum)
