@@ -1,0 +1,125 @@
+
+Prepare the build environment
+=============================
+
+Download msys2-x86-64 installer from from https://www.msys2.org/
+
+After installation start the MSYS console (MSYS2 MSYS in the Start Menu) and update the MSYS2:
+- update the base system:
+	pacman --noconfirm -Syu
+- forcibly close the console and start MSYS console again
+- update the rest of the system:
+	pacman --noconfirm -Su
+
+Install all dependencies
+========================
+
+In the MSYS console (MSYS2 MSYS in the Start Menu) install all required dependencies:
+
+# pacman -S --noconfirm mingw-w64-x86_64-gcc intltool bison make tar \
+mingw-w64-x86_64-desktop-file-utils \
+mingw-w64-x86_64-pkg-config \
+mingw-w64-x86_64-gtk2 \
+mingw-w64-x86_64-gtkglext \
+mingw-w64-x86_64-gd \
+mingw-w64-x86_64-libwebp
+
+If you plan to build the version from GIT, install additional dependencies:
+
+# pacman -S --noconfirm git automake-wrapper autoconf
+
+
+Download and install source tree
+================================
+
+Download the source package from SourceForge (https://sourceforge.net/projects/pcb/files/pcb/)
+and copy it in user home directory:
+
+C:\msys64\home\<username>
+
+Now start the Mingw64 console (MSYS2 Mingw 64-bit in the Start Menu) - all remaining steps will be performed
+in this console.
+
+Unpack the source code:
+
+# tar xzf pcb-<version>.tar.gz
+
+
+Heal the source tree
+====================
+
+The source code contains constant definitions which conflicts with the definitions from windows headers.
+Simple renaming them makes the trick:
+
+# cd pcb-<version>
+# find ./ -type f -name "*.[ch]"  | xargs sed -i  's/ELEMENT_TYPE/ELEMENT_GENERIC_TYPE/g'
+
+
+Build and install to default location
+=====================================
+
+# ./configure --disable-doc --disable-dbus
+# make && make install
+
+Now you can run the PCB from standard mingw location under your windows system, for example:
+
+C:\msys64\mingw64\bin\pcb
+
+Build and install to custom location
+====================================
+
+If you want to make pcb innstallation independent from the MSYS2, you need to install it 
+on custom location and copy all used libraries from MSYS2 to the same directory where 
+pcb.exe is located
+
+# ./configure --disable-doc --disable-dbus --prefix=<instdir>
+# make && make install
+
+Application is installed in directory relative to mingw root, i.e.:
+  C:\msys64\<instdir>
+
+If installation fails with error (it happens in case of repeated installation):
+
+    /mingw64/bin/update-desktop-database "<instdir>/share/applications"
+    The databases in [C:/msys64/<instdir>/share/applications] could not be updated.
+
+just remove the cache file:
+
+# rm <instdir>/share/applications/mimeinfo.cache
+
+and run the "make install" again"
+
+The last step is to copy necessary libraries:
+
+# mkdir <instdir>/lib/
+# cp -r /mingw64/lib/gdk-pixbuf-2.0  <instdir>/lib/
+
+# ( cd /mingw64/bin ; cp gdk-pixbuf-query-loaders.exe libatk-1.0-0.dll libbz2-1.dll libcairo-2.dll libcairo-gobject-2.dll libcairo-script-interpreter-2.dll \
+libdatrie-1.dll libexpat-1.dll libffi-6.dll libfontconfig-1.dll libfreetype-6.dll libfribidi-0.dll libgcc_s_seh-1.dll libgd-3.dll libgdk_pixbuf-2.0-0.dll \
+libgdkglext-win32-1.0-0.dll libgdk-win32-2.0-0.dll libgio-2.0-0.dll libglib-2.0-0.dll libgmodule-2.0-0.dll libgobject-2.0-0.dll libgraphite2.dll \
+libgtkglext-win32-1.0-0.dll libgtk-win32-2.0-0.dll libharfbuzz-0.dll libiconv-2.dll libintl-8.dll libjpeg-8.dll liblzma-5.dll libpango-1.0-0.dll \
+libpangocairo-1.0-0.dll libpangoft2-1.0-0.dll libpangowin32-1.0-0.dll libpcre-1.dll libpcre16-0.dll libpcre32-0.dll libpixman-1-0.dll libpng16-16.dll \
+libstdc++-6.dll libthai-0.dll libtiff-5.dll libwebp-7.dll libwinpthread-1.dll libXpm-noX4.dll libzstd.dll zlib1.dll \
+<instdir>/bin/ )
+
+Now you can pack and/or move the whole installation directory C:\msys64\<instdir>.
+
+
+
+Build the GIT version
+=====================
+
+Ensure that git, autoconf and automake are installed (described in "Install all dependencies")
+
+Obtain the source tree grpm GIT:
+
+# git clone git://git.geda-project.org/pcb.git
+
+The source tree is cloned into "pcb" directory. Now prepare the source tree:
+
+# cd pcb
+# ./autogen.sh
+
+
+Now you can heal the source tree, configure, build, install and use application as described above.
+
