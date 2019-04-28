@@ -97,8 +97,8 @@ MainMenu =
     a={"Ctrl-C" "Ctrl<Key>c"}}
    {"Paste buffer" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
    -
-   {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
-   {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
+   {"Unselect all" Unselect(All) a={"Shift-Ctrl-A" "Shift Ctrl<Key>a"}}
+   {"Select all visible" Select(All) a={"Ctrl-A" "Ctrl<Key>a"}}
    -
    {"Edit name of"
      {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
@@ -437,14 +437,14 @@ MainMenu =
     {"ChangeSquare Object" a={"Q" "<Key>q"} ChangeSquare(ToggleObject)}
     {"ChangeSize +" a={"S" "<Key>s"} ChangeSize(Object,+)}
     {"ChangeSize -" a={"Shift-S" "Shift<Key>s"} ChangeSize(Object,-)}
-    {"ChangeDrill +5 mil" a={"Alt-S" "Alt<Key>s"} ChangeDrillSize(Object,+5,mil)}
-    {"ChangeDrill -5 mil" a={"Alt-Shift-S" "Alt Shift<Key>s"} ChangeDrillSize(Object,-5,mil)}
+    {"ChangeDrill +5 mil" a={"Ctrl-D" "Ctrl<Key>d"} ChangeDrillSize(Object,+5,mil)}
+    {"ChangeDrill -5 mil" a={"Ctrl-Shift-D" "Ctrl Shift<Key>d"} ChangeDrillSize(Object,-5,mil)}
     {"Text Tool scale +10 mil" a={"T" "<Key>t"} SetValue(TextScale,+10,mil)}
     {"Text Tool scale -10 mil" a={"Shift-T" "Shift<Key>t"} SetValue(TextScale,-10,mil)}
     {"Via Tool size +5 mil" a={"Shift-V" "Shift<Key>v"} SetValue(ViaSize,+5,mil)}
     {"Via Tool size -5 mil" a={"Shift-Ctrl-V" "Shift Ctrl<Key>v"} SetValue(ViaSize,-5,mil)}
-    {"Via Tool drill +5 mil" a={"Alt-V" "Alt<Key>v"} SetValue(ViaDrillingHole,+5,mil)}
-    {"Via Tool drill -5 mil" a={"Alt-Shift-V" "Alt Shift<Key>v"} SetValue(ViaDrillingHole,-5,mil)}
+    {"Via Tool drill +5 mil" a={"Ctrl-L" "Ctrl<Key>l"} SetValue(ViaDrillingHole,+5,mil)}
+    {"Via Tool drill -5 mil" a={"Ctrl-Shift-L" "Ctrl Shift<Key>l"} SetValue(ViaDrillingHole,-5,mil)}
     {"AddRats Selected" a={"Shift-W" "Shift<Key>w"} AddRats(SelectedRats)}
     {"Add All Rats" a={"W" "<Key>w"} AddRats(AllRats)}
     {"Cycle Clip" a={"/" "<Key>/"} Display(CycleClip)}
