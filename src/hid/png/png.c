@@ -689,6 +689,9 @@ blend (color_struct *dest, double a_amount, color_struct *a, color_struct *b)
   dest->b = a->b * a_amount + b->b * (1 - a_amount);
 }
 
+/*!
+ * \brief Multiply two colors.
+ */
 static void
 multiply (color_struct *dest, color_struct *a, color_struct *b)
 {
