@@ -307,6 +307,7 @@ hid_ps2 | buried.pcb | ps | --psfile buried.ps | | ps:buried.ps
 hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
 hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
+hid_png101 | gerber_oneline.pcb | png | --format GIF | | png:gerber_oneline.gif
 #
 ######################################################################
 # ---------------------------------------------
