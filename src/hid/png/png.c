@@ -733,6 +733,16 @@ add (color_struct *dest, double a_amount, const color_struct *a, double b_amount
   clip (dest, dest);
 }
 
+/*!
+ * \brief Subtract two colors.
+ *
+ * \param a color.
+ * \param b color.
+ * \param a_amount weighing value for color \c a.
+ * \param b_amount weighing value for color \c b.
+ * 
+ * The result is clipped.
+ */
 static void
 subtract (color_struct *dest, double a_amount, const color_struct *a, double b_amount, const color_struct *b)
 {
