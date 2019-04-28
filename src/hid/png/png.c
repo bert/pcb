@@ -753,6 +753,14 @@ subtract (color_struct *dest, double a_amount, const color_struct *a, double b_a
   clip (dest, dest);
 }
 
+/*!
+ * \brief Store RGB values in a color struct.
+ *
+ * \param dest pointer to a color struct.
+ * \param r Red value.
+ * \param g Green value.
+ * \param b Blue value.
+ */
 static void
 rgb (color_struct *dest, int r, int g, int b)
 {
