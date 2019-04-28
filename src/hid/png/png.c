@@ -662,6 +662,11 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   Settings.ShowBottomSide = saved_show_bottom_side;
 }
 
+/*!
+ * \brief Clip RGB values.
+ *
+ * Red, Green and Blue values are clipped to a maximum value of 255. 
+ */
 static void
 clip (color_struct *dest, color_struct *source)
 {
