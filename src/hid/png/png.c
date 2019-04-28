@@ -710,6 +710,16 @@ multiply (color_struct *dest, color_struct *a, color_struct *b)
   dest->b = (a->b * b->b) / 255;
 }
 
+/*!
+ * \brief Add two colors.
+ *
+ * \param a color.
+ * \param b color.
+ * \param a_amount weighing value for color \c a.
+ * \param b_amount weighing value for color \c b.
+ * 
+ * The result is clipped.
+ */
 static void
 add (color_struct *dest, double a_amount, const color_struct *a, double b_amount, const color_struct *b)
 {
