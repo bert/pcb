@@ -681,6 +681,16 @@ clip (color_struct *dest, color_struct *source)
 #undef CLIP
 }
 
+/*!
+ * \brief Blend two colors.
+ *
+ * \param a color.
+ * \param b color.
+ * \param a_amount weighing value for color \c a.
+ *
+ * The weighing value for color \c b is the complement of \c a_amount
+ * ( 1 - a_amount).
+ */
 static void
 blend (color_struct *dest, double a_amount, color_struct *a, color_struct *b)
 {
