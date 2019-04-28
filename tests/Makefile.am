@@ -252,6 +252,7 @@ EXTRA_DIST = \
   golden/hid_png101/gerber_oneline.gif \
   golden/hid_png102/myfile.gif \
   golden/hid_png201/gerber_oneline.jpg \
+  golden/hid_png202/myfile.jpg \
   golden/hid_ps1/circles.ps \
   golden/hid_ps2/buried.ps \
   golden/MinMaskGap/minmaskgap.pcb \
