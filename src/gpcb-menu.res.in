@@ -87,7 +87,7 @@ MainMenu =
   {"Edit" m=E
    {"Undo" Undo() a={"U" "<Key>u"}}
    {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
-   #{"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
+   {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
    -
    {"Cut to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
