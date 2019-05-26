@@ -193,10 +193,8 @@ hid_gerber4 | buried.pcb | gerber | --gerberfile buried | | gbx:buried.bottom.gb
 #
 # Produces one XML file and a png file for every layer group.
 #
-hid_gsvit1 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | png:gsvit_board.top.png
-hid_gsvit2 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | png:gsvit_board.bottom.png
-hid_gsvit3 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | png:gsvit_board.outline.png
-hid_gsvit4 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | xem:gsvit_board.xem
+hid_gsvit1 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | png:gsvit_board.top.png png:gsvit_board.bottom.png png:gsvit_board.outline.png xem:gsvit_board.xem
+
 #
 ######################################################################
 # ---------------------------------------------
@@ -268,10 +266,8 @@ hid_ipcd35616 | ipcd356_smt_3.pcb | IPC-D-356 | --netlistfile ipcd356_smt_3.net 
 #
 # Produces one em file and a png file for every layer group.
 #
-hid_nelma1 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.top.png
-hid_nelma2 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.bottom.png
-hid_nelma3 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.outline.png
-hid_nelma4 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | em:nelma_board.em
+hid_nelma1 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.top.png png:nelma_board.bottom.png png:nelma_board.outline.png em:nelma_board.em
+
 #
 ######################################################################
 # ---------------------------------------------
