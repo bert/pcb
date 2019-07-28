@@ -23,7 +23,7 @@ endif
 
 # Instead of recursing into each of the many subdirectories, simply define
 # the relevant files here in one place. This is considerably faster and makes
-# changes to top level configure.ac unneccessary when adding new tests.
+# changes to top level configure.ac unnecessary when adding new tests.
 EXTRA_DIST = \
   ${RUN_TESTS} \
   tests.list \
@@ -229,9 +229,6 @@ EXTRA_DIST = \
   golden/hid_gcode11/gcode_oneline-outline.gcode \
   golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode \
   golden/hid_gsvit1/gsvit_board.top.png \
-  golden/hid_gsvit2/gsvit_board.bottom.png \
-  golden/hid_gsvit3/gsvit_board.outline.png \
-  golden/hid_gsvit4/gsvit_board.xem \
   golden/hid_ipcd3561/ipcd356_board.net \
   golden/hid_ipcd3562/ipcd356_cust0.net \
   golden/hid_ipcd3563/ipcd356_cust1.net \
@@ -249,9 +246,6 @@ EXTRA_DIST = \
   golden/hid_ipcd35615/ipcd356_smt_2.net \
   golden/hid_ipcd35616/ipcd356_smt_3.net \
   golden/hid_nelma1/nelma_board.top.png \
-  golden/hid_nelma2/nelma_board.bottom.png \
-  golden/hid_nelma3/nelma_board.outline.png \
-  golden/hid_nelma4/nelma_board.em \
   golden/hid_png1/gerber_oneline.png \
   golden/hid_png2/myfile.png \
   golden/hid_png3/gerber_oneline.png \

@@ -10,7 +10,7 @@ INTLTOOL_FILES = intltool-extract.in intltool-merge.in  intltool-update.in
 
 EXTRA_DIST=	config.rpath globalconst.h README.git README.w32 README.win32 icon-theme-installer $(INTLTOOL_FILES)
 
-DISTCLEANFILES= configure.lineno intltool-extract intltool-merge intltool-update po/.intltool-merge-cache
+DISTCLEANFILES= configure.lineno intltool-extract intltool-merge intltool-update po/.intltool-merge-cache src/gpcb-menu.res.tmp src/pcb-menu.res.tmp
 
 MAINTAINERCLEANFILES= $(INTLTOOL_FILES)
 
