@@ -315,6 +315,7 @@ hid_png104 | gerber_oneline.pcb | png | --dpi 600 --format GIF --monochrome | | 
 hid_png201 | gerber_oneline.pcb | png | --format JPEG | | png:gerber_oneline.jpg
 hid_png202 | gerber_oneline.pcb | png | --outfile myfile.jpg --format JPEG | | png:myfile.jpg
 hid_png203 | gerber_oneline.pcb | png | --dpi 600 --format JPEG | | png:gerber_oneline.jpg
+hid_png204 | gerber_oneline.pcb | png | --dpi 600 --format JPEG --monochrome | | png:gerber_oneline.jpg
 #
 ######################################################################
 # ---------------------------------------------
