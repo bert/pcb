@@ -97,6 +97,7 @@ EXTRA_DIST = \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   inputs/nelma_board.pcb \
+  inputs/only_visible.pcb \
   inputs/routestyles.script \
   inputs/screen_layer_order.pcb \
   golden/ChangeClearSize-Sel/clearance-min.pcb \
@@ -252,6 +253,7 @@ EXTRA_DIST = \
   golden/hid_png3/gerber_oneline.png \
   golden/hid_png4/gerber_oneline.png \
   golden/hid_png5/screen_layer_order.png \
+  golden/hid_png6/only_visible.png \
   golden/hid_png101/gerber_oneline.gif \
   golden/hid_png102/myfile.gif \
   golden/hid_png103/gerber_oneline.gif \
