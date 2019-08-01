@@ -310,6 +310,7 @@ hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 hid_png4 | gerber_oneline.pcb | png | --dpi 600 --monochrome | | png:gerber_oneline.png
 hid_png5 | screen_layer_order.pcb | png | --dpi 600 --screen-layer-order | | png:screen_layer_order.png
 hid_png6 | only_visible.pcb | png | --dpi 600 --screen-layer-order --only-visible | | png:only_visible.png
+hid_png7 | gerber_oneline.pcb | png | --dpi 600 --use-alpha | | png:gerber_oneline.png
 hid_png101 | gerber_oneline.pcb | png | --format GIF | | png:gerber_oneline.gif
 hid_png102 | gerber_oneline.pcb | png | --outfile myfile.gif --format GIF | | png:myfile.gif
 hid_png103 | gerber_oneline.pcb | png | --dpi 600 --format GIF | | png:gerber_oneline.gif
