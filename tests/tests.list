@@ -324,6 +324,7 @@ hid_png203 | gerber_oneline.pcb | png | --dpi 600 --format JPEG | | png:gerber_o
 hid_png204 | gerber_oneline.pcb | png | --dpi 600 --format JPEG --monochrome | | png:gerber_oneline.jpg
 hid_png205 | screen_layer_order.pcb | png | --dpi 600 --format JPEG --screen-layer-order | | png:screen_layer_order.jpg
 hid_png206 | only_visible.pcb | png | --dpi 600 --format JPEG --screen-layer-order --only-visible | | png:only_visible.jpg
+hid_png207 | gerber_oneline.pcb | png | --dpi 600 --format JPEG --use-alpha | | png:gerber_oneline.jpg
 #
 ######################################################################
 # ---------------------------------------------
