@@ -296,7 +296,7 @@ hid_ps2 | buried.pcb | ps | --psfile buried.ps | | ps:buried.ps
 #   --as-shown                     Export layers as shown on screen
 #   --monochrome                   Convert to monochrome
 #   --only-visible                 Limit the bounds of the PNG file to the visible items
-#   --use-alpha                    Make the bottomground and any holes transparent
+#   --use-alpha                    Make the background and any holes transparent
 #   --format <GIF|JPEG|PNG>        Graphics file format
 #   --photo-mode                   Photo-realistic mode
 #   --photo-flip-x                 Show reverse side of the board, left-right flip
