@@ -256,6 +256,7 @@ EXTRA_DIST = \
   golden/hid_png6/only_visible.png \
   golden/hid_png7/gerber_oneline.png \
   golden/hid_png8/gerber_oneline.png \
+  golden/hid_png9/gsvit_board.png \
   golden/hid_png101/gerber_oneline.gif \
   golden/hid_png102/myfile.gif \
   golden/hid_png103/gerber_oneline.gif \
