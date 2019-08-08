@@ -330,6 +330,7 @@ hid_png205 | screen_layer_order.pcb | png | --dpi 600 --format JPEG --screen-lay
 hid_png206 | only_visible.pcb | png | --dpi 600 --format JPEG --screen-layer-order --only-visible | | png:only_visible.jpg
 hid_png207 | gerber_oneline.pcb | png | --dpi 600 --format JPEG --use-alpha | | png:gerber_oneline.jpg
 hid_png208 | gerber_oneline.pcb | png | --dpi 600 --format JPEG --photo-mode | | png:gerber_oneline.jpg
+hid_png209 | gsvit_board.pcb | png | --dpi 600 --format JPEG --photo-mode --photo-mask-colour purple --photo-plating gold --photo-silk-colour yellow | | png:gsvit_board.jpg
 #
 ######################################################################
 # ---------------------------------------------
