@@ -301,6 +301,9 @@ hid_ps2 | buried.pcb | ps | --psfile buried.ps | | ps:buried.ps
 #   --photo-mode                   Photo-realistic mode
 #   --photo-flip-x                 Show reverse side of the board, left-right flip
 #   --photo-flip-y                 Show reverse side of the board, up-down flip
+#   --photo-mask-colour <colour>   In photo-realistic mode, export the solder mask as this colour
+#   --photo-plating <colour>       In photo-realistic mode, export the exposed copper as though it has this type of plating
+#   --photo-silk-colour <colour>   In photo-realistic mode, export the silk screen as this colour
 #
 # Produces GIF/JPEG/PNG (image) files
 #
