@@ -213,7 +213,7 @@ ghid_make_gc (void)
   return rv;
 }
 
-static void
+void
 ghid_draw_grid (BoxType *drawn_area)
 {
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
@@ -609,7 +609,7 @@ ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 }
 
 void
-ghid_invalidate_lr (int left, int right, int top, int bottom)
+ghid_invalidate_lr (Coord left, Coord right, Coord top, Coord bottom)
 {
   ghid_invalidate_all ();
 }
@@ -1016,7 +1016,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   hid_expose_callback (&ghid_hid, &region, 0);
   hidgl_flush_triangles (&buffer);
 
-  ghid_draw_grid (&region);
+  ghid_graphics.draw_grid (&region);
 
   ghid_invalidate_current_gc ();
 

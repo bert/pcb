@@ -59,6 +59,7 @@ src/hid/ps/ps.c
 src/hid/png/png.c
 src/hid/gtk/gui-trackball.c
 src/layerflags.c
+src/lessgtkpcb-menu.res.h
 src/main.c
 src/misc.c
 src/move.c

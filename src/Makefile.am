@@ -259,8 +259,10 @@ EXTRA_DIST= \
 	$(srcdir)/hid/gsvit/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	gpcb-menu.res.in \
+	lessgtkpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
+	lessgtkpcb-menu.res.h \
 	pcb-menu.res.h \
 	pcbtest.sh.in \
 	dbus.xml
@@ -306,7 +308,15 @@ gpcb-menu.h : gpcb-menu.res
 
 lessgtkpcb-menu.res : lessgtkpcb-menu.res.in
 	echo '/* AUTOMATICALLY GENERATED FROM lessgtkpcb-menu.res.in DO NOT EDIT */' > $@
+	cat ${srcdir}/lessgtkpcb-menu.res.in >> $@.tmp
+if WITH_TOPOROUTER
 	cat ${srcdir}/lessgtkpcb-menu.res.in >> $@
+else
+	cat ${srcdir}/lessgtkpcb-menu.res.in >> $@.tmp
+	echo 'removed Toporouter menu item from lessgtkpcb-menu.res\n';
+	sed 's/   {"Toporouter" Toporouter()}//' < ${srcdir}/lessgtkpcb-menu.res.tmp >> $@
+	rm -f $@.tmp
+endif
 
 lessgtkpcb-menu.h : lessgtkpcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM lessgtkpcb-menu.res DO NOT EDIT */' > $@

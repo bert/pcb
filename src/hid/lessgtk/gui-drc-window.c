@@ -31,7 +31,11 @@
 #include "error.h"
 #include "search.h"
 #include "draw.h"
+#include "drc/drc_object.h"
+#include "drc/drc_violation.h"
 #include "find.h"
+#include "flags.h"
+#include "object_list.h"
 #include "pcb-printf.h"
 #include "undo.h"
 #include "set.h"
@@ -96,12 +100,12 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 {
   GtkTreeModel *model;
   GtkTreeIter iter;
-  GhidDrcViolation *violation;
+  GhidDrcViolation *gviolation;
   int i;
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     {
-      if (ClearFlagOnAllObjects (true, FOUNDFLAG))
+      if (ClearFlagOnAllObjects (FOUNDFLAG, true))
         {
           IncrementUndoSerialNumber ();
           Draw ();
@@ -113,45 +117,19 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
   if (gtk_tree_model_iter_has_child (model, &iter))
     return;
 
-  gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &violation, -1);
+  gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &gviolation, -1);
 
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG, true);
 
-  if (violation == NULL)
+  if (gviolation == NULL)
     return;
 
   /* Flag the objects listed against this DRC violation */
-  for (i = 0; i < violation->object_count; i++)
-    {
-      int object_id = violation->object_id_list[i];
-      int object_type = violation->object_type_list[i];
-      int found_type;
-      void *ptr1, *ptr2, *ptr3;
-
-      found_type = SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3,
-				     object_id, object_type);
-      if (found_type == NO_TYPE)
-	{
-	  Message (_("Object ID %i identified during DRC was not found. Stale DRC window?\n"),
-		   object_id);
-	  continue;
-	}
-      AddObjectToFlagUndoList (object_type, ptr1, ptr2, ptr3);
-      SET_FLAG (FOUNDFLAG, (AnyObjectType *)ptr2);
-      switch (violation->object_type_list[i])
-	{
-	case LINE_TYPE:
-	case ARC_TYPE:
-	case POLYGON_TYPE:
-	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerType *) ptr1), true, true);
-	}
-      DrawObject (object_type, ptr1, ptr2);
-    }
-  SetChangedFlag (true);
+  set_flag_on_violating_objects(gviolation->v, FOUNDFLAG);
   IncrementUndoSerialNumber ();
-  Draw();
+  Draw ();
 
-  CenterDisplay (violation->x_coord, violation->y_coord, false);
+  CenterDisplay (gviolation->v->x, gviolation->v->y, false);
 }
 
 static void
@@ -160,16 +138,16 @@ row_activated_cb (GtkTreeView *view, GtkTreePath *path,
 {
   GtkTreeModel *model = gtk_tree_view_get_model (view);
   GtkTreeIter iter;
-  GhidDrcViolation *violation;
+  GhidDrcViolation *gviolation;
 
   gtk_tree_model_get_iter (model, &iter, path);
 
-  gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &violation, -1);
+  gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &gviolation, -1);
 
-  if (violation == NULL)
+  if (gviolation == NULL)
     return;
 
-  CenterDisplay (violation->x_coord, violation->y_coord, true);
+  CenterDisplay (gviolation->v->x, gviolation->v->y, true);
   gtk_window_present (GTK_WINDOW (gport->top_window));
 }
 
@@ -202,24 +180,22 @@ static GObjectClass *ghid_drc_violation_parent_class = NULL;
 static void
 ghid_drc_violation_finalize (GObject * object)
 {
-  GhidDrcViolation *violation = GHID_DRC_VIOLATION (object);
+  GhidDrcViolation *gviolation = GHID_DRC_VIOLATION (object);
 
-  g_free (violation->title);
-  g_free (violation->explanation);
-  g_free (violation->object_id_list);
-  g_free (violation->object_type_list);
-  if (violation->pixmap != NULL)
-    g_object_unref (violation->pixmap);
+  pcb_drc_violation_free(gviolation->v);
+
+  if (gviolation->pixmap != NULL)
+    g_object_unref (gviolation->pixmap);
 
   G_OBJECT_CLASS (ghid_drc_violation_parent_class)->finalize (object);
 }
 
-typedef struct object_list
+typedef struct ghid_drc_object_list
 {
   int count;
   long int *id_list;
   int *type_list;
-} object_list;
+} ghid_drc_object_list;
 
 /*! \brief GObject property setter function
  *
@@ -237,54 +213,45 @@ static void
 ghid_drc_violation_set_property (GObject * object, guint property_id,
 				  const GValue * value, GParamSpec * pspec)
 {
-  GhidDrcViolation *violation = GHID_DRC_VIOLATION (object);
+  GhidDrcViolation *gviolation = GHID_DRC_VIOLATION (object);
   object_list *obj_list;
 
   switch (property_id)
     {
     case PROP_TITLE:
-      g_free (violation->title);
-      violation->title = g_value_dup_string (value);
+      if (gviolation->v->title) g_free (gviolation->v->title);
+      gviolation->v->title = g_value_dup_string (value);
       break;
     case PROP_EXPLANATION:
-      g_free (violation->explanation);
-      violation->explanation = g_value_dup_string (value);
+      if (gviolation->v->explanation) g_free (gviolation->v->explanation);
+      gviolation->v->explanation = g_value_dup_string (value);
       break;
     case PROP_X_COORD:
-      violation->x_coord = g_value_get_int (value);
+      gviolation->v->x = g_value_get_int (value);
       break;
     case PROP_Y_COORD:
-      violation->y_coord = g_value_get_int (value);
+      gviolation->v->y = g_value_get_int (value);
       break;
     case PROP_ANGLE:
-      violation->angle = g_value_get_double (value);
+      gviolation->v->angle = g_value_get_double (value);
       break;
     case PROP_HAVE_MEASURED:
-      violation->have_measured = g_value_get_boolean (value);
+      gviolation->v->have_measured = g_value_get_boolean (value);
       break;
     case PROP_MEASURED_VALUE:
-      violation->measured_value = g_value_get_int (value);
+      gviolation->v->measured_value = g_value_get_int (value);
       break;
     case PROP_REQUIRED_VALUE:
-      violation->required_value = g_value_get_int (value);
+      gviolation->v->required_value = g_value_get_int (value);
       break;
     case PROP_OBJECT_LIST:
-      /* Copy the passed data to make new lists */
-      g_free (violation->object_id_list);
-      g_free (violation->object_type_list);
+      if (gviolation->v->objects) object_list_delete(gviolation->v->objects);
       obj_list = (object_list *)g_value_get_pointer (value);
-      violation->object_count = obj_list->count;
-      violation->object_id_list   = g_new (long int, obj_list->count);
-      violation->object_type_list = g_new (int,      obj_list->count);
-      memcpy (violation->object_id_list, obj_list->id_list,
-              sizeof (long int) * obj_list->count);
-      memcpy (violation->object_type_list, obj_list->type_list,
-              sizeof (int)      * obj_list->count);
       break;
     case PROP_PIXMAP:
-      if (violation->pixmap)
-	g_object_unref (violation->pixmap);           /* Frees our old reference */
-      violation->pixmap = (GdkDrawable *)g_value_dup_object (value); /* Takes a new reference */
+      if (gviolation->pixmap)
+        g_object_unref (gviolation->pixmap); /* Frees our old reference */
+      gviolation->pixmap = (GdkDrawable *)g_value_dup_object (value); /* Takes a new reference */
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -450,24 +417,24 @@ ghid_drc_violation_get_type ()
 GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
 					  GdkDrawable *pixmap)
 {
-  object_list obj_list;
 
-  obj_list.count = violation->object_count;
-  obj_list.id_list = violation->object_id_list;
-  obj_list.type_list = violation->object_type_list;
-
-  return (GhidDrcViolation *)g_object_new (GHID_TYPE_DRC_VIOLATION,
-		       "title",            violation->title,
-		       "explanation",      violation->explanation,
-		       "x-coord",          violation->x,
-		       "y-coord",          violation->y,
-		       "angle",            violation->angle,
-		       "have-measured",    violation->have_measured,
-		       "measured-value",   violation->measured_value,
-		       "required-value",   violation->required_value,
-		       "object-list",      &obj_list,
-		       "pixmap",           pixmap,
-		       NULL);
+  GhidDrcViolation * gv = 
+   (GhidDrcViolation *)g_object_new (GHID_TYPE_DRC_VIOLATION, NULL);
+ 
+  gv->v = (DrcViolationType*) malloc(sizeof(DrcViolationType));
+  g_object_set (gv,
+               "title",            violation->title,
+               "explanation",      violation->explanation,
+               "x-coord",          violation->x,
+               "y-coord",          violation->y,
+               "angle",            violation->angle,
+               "have-measured",    violation->have_measured,
+               "measured-value",   violation->measured_value,
+               "required-value",   violation->required_value,
+               "object-list",      violation->objects,
+               "pixmap",           pixmap,
+               NULL);
+  return gv;
 }
 
 enum
@@ -533,7 +500,7 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
   if (renderer->violation == NULL)
     return;
 
-  if (renderer->violation->have_measured)
+  if (renderer->violation->v->have_measured)
     {
       markup = pcb_g_strdup_printf (_("%m+<b>%s (%$mS)</b>\n"
 				"<span size='1024'> </span>\n"
@@ -543,10 +510,10 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
 				  "Required: %$mS"
 				"</small>"),
                                 Settings.grid_unit->allow,
-				renderer->violation->title,
-				renderer->violation->measured_value,
-				renderer->violation->explanation,
-				renderer->violation->required_value);
+				renderer->violation->v->title,
+				renderer->violation->v->measured_value,
+				renderer->violation->v->explanation,
+				renderer->violation->v->required_value);
     }
   else
     {
@@ -558,9 +525,9 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
 				  "Required: %$mS"
 				"</small>"),
                                 Settings.grid_unit->allow,
-				renderer->violation->title,
-				renderer->violation->explanation,
-				renderer->violation->required_value);
+				renderer->violation->v->title,
+				renderer->violation->v->explanation,
+				renderer->violation->v->required_value);
     }
 
   g_object_set (object, "markup", markup, NULL);
@@ -626,7 +593,7 @@ ghid_violation_renderer_render (GtkCellRenderer      *cell,
   GdkDrawable *mydrawable;
   GtkStyle *style = gtk_widget_get_style (widget);
   GhidViolationRenderer *renderer = GHID_VIOLATION_RENDERER (cell);
-  GhidDrcViolation *violation = renderer->violation;
+  GhidDrcViolation *gviolation = renderer->violation;
   int pixmap_size = VIOLATION_PIXMAP_PIXEL_SIZE - 2 * VIOLATION_PIXMAP_PIXEL_BORDER;
 
   cell_area->width -= VIOLATION_PIXMAP_PIXEL_SIZE;
@@ -638,24 +605,24 @@ ghid_violation_renderer_render (GtkCellRenderer      *cell,
 									  expose_area,
 									  flags);
 
-  if (violation == NULL)
+  if (gviolation == NULL)
     return;
 
-  if (violation->pixmap == NULL)
+  if (gviolation->pixmap == NULL)
     {
-      GdkPixmap *pixmap = ghid_render_pixmap (violation->x_coord,
-					      violation->y_coord,
+      GdkPixmap *pixmap = ghid_render_pixmap (gviolation->v->x,
+					      gviolation->v->y,
 					      VIOLATION_PIXMAP_PCB_SIZE / pixmap_size,
 					      pixmap_size, pixmap_size,
 					      gdk_drawable_get_depth (window));
-      g_object_set (violation, "pixmap", pixmap, NULL);
+      g_object_set (gviolation, "pixmap", pixmap, NULL);
       g_object_unref (pixmap);
     }
 
-  if (violation->pixmap == NULL)
+  if (gviolation->pixmap == NULL)
     return;
 
-  mydrawable = GDK_DRAWABLE (violation->pixmap);
+  mydrawable = GDK_DRAWABLE (gviolation->pixmap);
 
   gdk_draw_drawable (window, style->fg_gc[gtk_widget_get_state (widget)],
 		     mydrawable, 0, 0,

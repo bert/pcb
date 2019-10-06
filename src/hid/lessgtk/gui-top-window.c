@@ -214,7 +214,8 @@ info_bar_response_cb (GtkInfoBar *info_bar,
   _gui->info_bar = NULL;
 
   if (response_id == GTK_RESPONSE_ACCEPT)
-    RevertPCB ();
+    hid_parse_command ("LoadFrom(Revert,ignored)");
+    //RevertPCB ();
 }
 
 static void

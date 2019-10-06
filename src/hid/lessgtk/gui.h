@@ -486,6 +486,7 @@ void ghid_set_color (hidGC gc, const char *name);
 void ghid_set_line_cap (hidGC gc, EndCapStyle style);
 void ghid_set_line_width (hidGC gc, Coord width);
 void ghid_set_draw_xor (hidGC gc, int _xor);
+void ghid_draw_grid (BoxType * region);
 void ghid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 void ghid_draw_arc (hidGC gc, Coord cx, Coord cy, Coord xradius, Coord yradius,
                     Angle start_angle, Angle delta_angle);
@@ -493,7 +494,7 @@ void ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 void ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
 void ghid_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
 void ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-void ghid_invalidate_lr (int left, int right, int top, int bottom);
+void ghid_invalidate_lr (Coord left, Coord right, Coord top, Coord bottom);
 void ghid_invalidate_all ();
 void ghid_notify_crosshair_change (bool changes_complete);
 void ghid_notify_mark_change (bool changes_complete);
