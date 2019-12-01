@@ -1225,7 +1225,7 @@ png_do_export (HID_Attr_Val * options)
 #endif
   else if (strcmp (fmt, FMT_jpg) == 0)
 #ifdef HAVE_GDIMAGEJPEG
-    gdImageJpeg (im, f, -1);
+    gdImageJpeg (im, f, 95);
     /* void gdImageJpeg (gdImagePtr im, FILE * outFile, int quality)
      *
      * If quality is negative, the default IJG JPEG quality value
