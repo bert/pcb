@@ -1226,6 +1226,15 @@ png_do_export (HID_Attr_Val * options)
   else if (strcmp (fmt, FMT_jpg) == 0)
 #ifdef HAVE_GDIMAGEJPEG
     gdImageJpeg (im, f, -1);
+    /* void gdImageJpeg (gdImagePtr im, FILE * outFile, int quality)
+     *
+     * If quality is negative, the default IJG JPEG quality value
+     * (which should yield a good general quality / size tradeoff for
+     * most situations) is used.
+     * Otherwise, for practical purposes, quality should be a value in
+     * the range 0-95, higher quality values usually implying both
+     * higher quality and larger image sizes.
+     */
 #else
     format_error = true;
 #endif
