@@ -1,4 +1,85 @@
 ========================================================================
+Release notes for pcb-4.2.1
+========================================================================
+
+Dear Users,
+
+This is a new features and bugfixes release (no pcb file format change).
+
+This release introduces a TinyCAD schematics import option.
+This feature is not fully tested in a production environment and is
+considered to have an "alpha" status.
+User feedback on this feature is most welcome.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to this release:
+- Charles Parker
+- Milan Prochac
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- Import of TinyCAD schematics (alpha).
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- none
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- more regression tests added.
+
+
+Notes for packagers
+-------------------
+- For building packages with a GTK UI or a Lesstif UI, configure with
+  the --with-gui=gtk or --with-gui=lesstif option (as usual).
+
+
+Changed dependencies
+--------------------
+- none
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#700607   Import translation files into Launchpad translations.
+#812429   [PATCH] make toporouter more visible.
+#1496603  The accel key for the settings menu clashes with the
+          accel to increase drill size.
+#1589612  sudo make install gives core_lists.h root privs.
+#1665862  [new feature] TinyCAD Import.
+#1782997  gsvit and nelma HIDs tests should be combined.
+#1814547  Unit tests fail on i386.
+#1816262  Instructions to build win64 release under windows.
+#1820261  Brazillian Translation.
+#1838203  Brazillian translation has wrong encoding.
+#1838205  No rule to build test files.
+
+
+========================================================================
 Release notes for pcb-4.2.0
 ========================================================================
 
