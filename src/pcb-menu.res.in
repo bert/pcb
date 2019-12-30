@@ -32,7 +32,11 @@ MainMenu =
    {"Save layout" Save(Layout) m=S a={"Ctrl-S" "Ctrl<Key>s"}}
    {"Save layout as..." Save(LayoutAs) m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    {"Revert" Load(Revert,none)}
-   {"Import Schematics" Import() }
+   -
+   {"Import Schematics"
+     {"gschem" Import() }
+     {"TinyCAD" ImportTinyCAD() }
+   }
    {"Load layout" Load(Layout)}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
