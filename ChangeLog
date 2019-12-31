@@ -1,6 +1,305 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated NEWS for pcb-4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated appdata for pcb-4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Update the User Manual for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb.dox: Update pcb.dox for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac: Update configure.ac for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added a comment about usage of gdImageJpeg().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-10-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Corrections in indentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-menu.res.in: Updated the lesstiff menu with a TinyCAD
+	Import menu option.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-18   Milan Prochac * milan AT prochac dot sk *
+
+	* src/action.c, src/gpcb-menu.res.in: TinyCAD Import  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tests.list: Outcommented some new png tests.  Tests hid_png8, -9, -108, -109, -208 and -209 are out- commented in
+	this commit because of them failing on a 64-bit platform.  The
+	Golden files were generated with a 32-bit platform.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to rgb.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to subtract.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.h: Added a doxygen file header.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added a doxygen file header.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to add.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to blend.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to multiply.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Added doxygen comments to clip.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tests.list: Mentioned new options as remarks.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	with non default colors for jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	with non default colors for gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	with non default colors for png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --photo-mode
+	png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --use-alpha
+	jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --use-alpha
+	gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for --use-alpha
+	png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for only-visible
+	i.c.w. screen-layer-order jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for only-visible
+	i.c.w. screen-layer-order gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/inputs/only_visible.pcb,
+	tests/tests.list: Added a test for only-visible i.c.w.
+	screen-layer-order png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for
+	screen-layer-order jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for
+	screen-layer-order gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/inputs/screen_layer_order.pcb,
+	tests/tests.list: Added a test for screen-layer-order png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for monochrome
+	jpg.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for monochrome
+	gif.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-06-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for monochrome
+	png.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-05-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added another test for JPEG
+	format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-05-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added another test for the
+	GIF format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added another test for JPEG
+	format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added another test for the
+	GIF format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for JPEG format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-04-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/tests.list: Added a test for GIF format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-08-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tests.list: Correction of a comment.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-07-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* Makefile.am, tests/Makefile.am: Remove old files from tests
+	Makefile Also, add a temp file to DISTCLEANFILES.
+
+2019-07-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* po/pt_BR.po: Fix Brazilian translation encoding.
+
+2019-05-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* po/pt_BR.po: Update Brazilian translation.
+
+2019-05-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/golden/hid_gsvit1/gsvit_board.xem,
+	tests/golden/hid_gsvit4/gsvit_board.xem,
+	tests/golden/hid_nelma1/nelma_board.em,
+	tests/golden/hid_nelma4/nelma_board.em, tests/tests.list: Combine
+	the nelma and gsvit tests.  All four tests produced the same output, but tested different files.
+	Each test should produce a unique set of outputs and all necessary
+	checks executed as part of one test.
+
+2019-05-26   Charles Parker * parker dot charles AT gmail dot com *
+
+	* : Build instructions using MSYS2 on win64 platforms.
+
+2019-04-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/gpcb-menu.res.in: Reassign alt-modifier keyboard shortcuts This remaps the alt-a, alt-shift-a (select/unselect all), alt-s,
+	alt-shift-s (change drill size) and alt-v, alt-shift-v (new via hole
+	size) shortcuts.  The only one left is alt-r, which there wasn't really a better
+	option for.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* README.win64: LP1816262: Win64 build instructions -- apply patch
+	from LP
+
+2019-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/change.c, src/const.h, src/polygon.c,
+	src/thermal.c, src/thermal.h: Revert "Apply and update patch from
+	LaunchPad." This reverts commit 8d5be23068d2310610ffc854e764f1ce844427e2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/change.c, src/thermal.c: Revert "Edited doxygen comments." This reverts commit 7ba4a86cb7fe70b192b47b5bcd51e465dd5af9e5.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/change.c, src/thermal.c: Edited doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/change.c, src/const.h, src/polygon.c,
+	src/thermal.c, src/thermal.h: Apply and update patch from LaunchPad.  This patch adds support for thermals on SMD pads. It appears to
+	work, only requiring a little bit of work to overcome bitrot. Not
+	thoroughly tested.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/drc/drc_violation.c: [drc_violation.c] Make compiler warnings
+	go away by casting.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/misc.c: [misc.c] Make compiler warnings go away by casting.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/object_list.c, src/object_list.h: Doxygenation of object_list.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-04   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/object_list.c: [object_list] Use a temp variable when removing
+	items On 32-bit platforms, object_list_remove_item fails when for some
+	reason when copying the data to cover up the removed item. Using a
+	temp location solves this.
+
+2019-01-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/Makefile.am: Remove temp files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated the User Manual.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-01-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/Makefile.am, src/gpcb-menu.res.in, src/pcb-menu.res.in: Make
+	toporouter visible in the menu.   Reported-by: Stanislav Brabec * sbrabec AT suse dot cz *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-02-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog: Updated the ChangeLog for pcb-4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2019-02-01   bert * bert dot timmerman AT xs4all dot nl *
 
 	* data/pcb.appdata.xml.in: Updated appdata for pcb-4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
@@ -12,14 +311,6 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2019-01-02   bert * bert dot timmerman AT xs4all dot nl *
 
 	* doc/pcb.texi: Update the User Manual for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2019-01-02   bert * bert dot timmerman AT xs4all dot nl *
-
-	* doc/doxygen/pcb.dox: Update pcb.dox for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2019-01-04   bert * bert dot timmerman AT xs4all dot nl *
-
-	* configure.ac: Update configure.ac for release 4.2.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2019-01-30   bert * bert dot timmerman AT xs4all dot nl *
 
