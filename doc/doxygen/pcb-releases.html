@@ -105,11 +105,6 @@ If needed you can obtain the number of commits with commands like:</p>
   git rev-list &lt;first SHA-1 hash&gt;..&lt;last SHA-1 hash&gt; --count
 </pre>
 <li>
-<p>Update the ChangeLog with:</p>
-<pre>
-  ./utils/git2cl -O > ChangeLog
-</pre>
-<li>
 <p>Update the <b>&lt;releases&gt;</b> section of the application data in:
 data/pcb.appdata.xml.in<br>
 Add a section similar to the example below, in <u>reverse</u> order
@@ -123,15 +118,30 @@ release and description.</p>
 ​    &lt;/release&gt;
 ​​</pre>
 <li>
-<p>Commit and push data/pcb.appdata.xml.in, doc/pcb-texi, NEWS and
-ChangeLog:</p>
+<p>Update the ChangeLog with:</p>
 <pre>
-  git add data/pcb.appdata.xml.in doc/pcb.texi NEWS ChangeLog
+  ./utils/git2cl -O > ChangeLog
+</pre>
+<li>
+<p>Commit and push data/pcb.appdata.xml.in, doc/pcb-texi, NEWS and
+ChangeLog in separate commits:</p>
+<pre>
+  git add data/pcb.appdata.xml.in
+  git commit -m &lt;message&gt;
+  git push origin pcb-4.0.1
+
+  git add doc/pcb.texi
+  git commit -m &lt;message&gt;
+  git push origin pcb-4.0.1
+
+  git add NEWS
+  git commit -m &lt;message&gt;
+  git push origin pcb-4.0.1
+
+  git add ChangeLog
   git commit -m &lt;message&gt;
   git push origin pcb-4.0.1
 </pre>
-Please note that these files can be committed in seperate commits as
-well.
 <li>
 <p>Create the release tarball with:</p>
 <pre>
@@ -140,7 +150,6 @@ well.
   ./configure --disable-update-desktop-database --disable-update-mime-database
   make
   make distcheck
-  make distclean
 </pre>
 <li>
 <p>Create checksums:</p>
@@ -177,20 +186,23 @@ well.
   the tick boxes, and click "Save".
 </ol>
 <li>
-<p>Update the web pages.<br>
+<p>Update the pcb.geda-project.org web pages.<br>
 In particular, update news.shtml and index.shtml and then rebuild the
-corresponding .html files.</p>
+corresponding .html files using "make".<br>
+Copy all required pictures (png), User manual and RefCard (pdf) from the
+"doc" directory to a newly made "pcb-4.0.1" directory inside the
+"pcbhtdocs" repository.</p>
 <li>
-<p>Do an update on the geda-project wiki page 
+<p>Do an update on the geda-project wiki "download" page 
 <a href="http://wiki.geda-project.org/geda:download">
 "Download"</a>
 <li>
-<p>Do an update ("release now") on the status of the
+<p>Do an update ("release now") on the status of the Launchpad
 <a href="https://launchpad.net/pcb/+milestones">"milestone"</a>
 for this release.
 <li>
 <p>Do an update on the status of all bug reports of this "milestone" to
-"Fix Released".
+"Fix Released", except for bug reports marked "Invalid".
 <li>
 <p>Do an announcement on the pcb project page on
 <a href="https://launchpad.net/pcb">LaunchPad</a>.
@@ -204,14 +216,16 @@ for this release.
 <p>Return to your regularly scheduled trunk development and add a tag at
 the branch point:</p>
 <pre>
+  make distclean
+
   git checkout master
   git tag -a -m &lt;msg&gt; &lt;tagname&gt; &lt;SHA1 hash&gt;
   git push origin --tags
 </pre>
 <li>
 <p>If this is a bug fix release, then simply make desired changes to the
-master branch by cherry picking the commit(s) with the ChangeLog, NEWS and
-doc/pcb.texi additions for the release.</p>
+master branch by cherry picking the commit(s) with the ChangeLog, NEWS,
+data/pcb.appdata.xml.in and doc/pcb.texi additions for the release.</p>
 <pre>
   git cherry-pick &lt;SHA1 hash&gt;
   ./autogen.sh
