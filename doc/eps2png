@@ -1,10 +1,12 @@
 #!/usr/bin/perl
 
+my $RCS_Id = '$Id: eps2png.pl,v 2.7 2009/05/20 13:33:19 jv Exp $ ';
+
 # Author          : Johan Vromans
 # Created On      : Tue Sep 15 15:59:04 1992
 # Last Modified By: Johan Vromans
-# Last Modified On: Sun Jun 24 17:07:29 2001
-# Update Count    : 155
+# Last Modified On: Wed May 20 15:55:08 2009
+# Update Count    : 175
 # Status          : Okay
 
 ################ Common stuff ################
@@ -12,13 +14,19 @@
 use strict;
 use Getopt::Long 2.1;
 
+my $my_package = "Sciurix";
+my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
+$my_version .= '*' if length('$Locker:  $ ') > 12;
+
+use vars qw($VERSION);
+( $VERSION ) = '$Revision: 2.7 $ ' =~ /\$Revision:\s+([^\s]+)/;
+
 ################ Program parameters ################
 
-### CONFIG
 # Some GhostScript programs can produce GIF directly.
 # If not, we need the PBM package for the conversion.
-my $use_pbm = 1;		# GhostScript can not produce GIF
-### END CONFIG
+# NOTE: This will be changed upon install.
+my $use_pbm = 0;
 
 my $res = 82;			# default resolution
 my $scale = 1;			# default scaling
@@ -52,6 +60,7 @@ $verbose |= $trace;
 my $eps_file;
 my $err = 0;
 
+FILE:
 foreach $eps_file ( @ARGV ) {
 
     unless ( open (EPS, $eps_file) ) {
@@ -70,12 +79,17 @@ foreach $eps_file ( @ARGV ) {
     my $ps = "";		# PostScript input data
     my $xscale;
     my $yscale;
+    my $gotbb;
+
+    # Prevent derived values from propagating.
+    my $width = $width;
+    my $height = $height;
 
     while ( $line = <EPS> ) {
 
 	# Search for BoundingBox.
 	if ( $line =~ /^%%BoundingBox:\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/i ) {
-
+	    $gotbb++;
 	    print STDERR ("$eps_file: x0=$1, y0=$2, w=", $3-$1, ", h=", $4-$2)
 		if $verbose;
 
@@ -87,7 +101,7 @@ foreach $eps_file ( @ARGV ) {
 		}
 		else {
 		    $yscale = $xscale;
-		    $height = ($4 - $2) * $yscale;
+		    $height = int( ($4 - $2) * $yscale + 0.5 );
 		}
 	    }
 	    elsif ( defined $height ) {
@@ -98,7 +112,7 @@ foreach $eps_file ( @ARGV ) {
 		}
 		else {
 		    $xscale = $yscale;
-		    $width = ($3 - $1) * $xscale;
+		    $width = int( ($3 - $1) * $xscale + 0.5 );
 		}
 	    }
 	    unless ( defined $xscale ) {
@@ -131,12 +145,16 @@ foreach $eps_file ( @ARGV ) {
 	    last;
 	}
 	elsif ( $line =~ /^%%EndComments/i ) {
-	    print STDERR ("No bounding box in $eps_file\n");
-	    $err++;
 	    last;
 	}
     }
     close (EPS);
+
+    unless ( $gotbb ) {
+	print STDERR ("No bounding box in $eps_file\n");
+	$err++;
+	next FILE;
+    }
 
     my $out_file;		# output file
     my $pbm_file;		# temporary file for PBM conversion
@@ -221,7 +239,7 @@ sub mysystem {
 
 sub set_out_type {
     my ($opt) = lc (shift (@_));
-    if ( $opt =~ /^png(mono|gray|16|256|16m)?$/ ) {
+    if ( $opt =~ /^png(mono|gray|16|256|16m|alpha)?$/ ) {
 	$format = 'png';
 	$gs_format = $format.(defined $1 ? $1 : '16m');
     }
@@ -241,11 +259,13 @@ sub set_out_type {
 
 sub handle_options {
     my  ($help) = 0;		# handled locally
+    my ($ident) = 0;		# handled locally
 
     # Process options.
     if ( @ARGV > 0 && $ARGV[0] =~ /^[-+]/ ) {
 	usage () 
-	  unless GetOptions ('verbose'	   => \$verbose,
+	  unless GetOptions ('ident'	   => \$ident,
+			     'verbose'	   => \$verbose,
 			     'antialias|aa=i'   => \$antialias,
 			     'noantialias|noaa' => sub { $antialias = 0 },
 			     'scale=f'     => \$scale,
@@ -258,6 +278,7 @@ sub handle_options {
 			     'png16'	   => \&set_out_type,
 			     'png256'	   => \&set_out_type,
 			     'png16m'	   => \&set_out_type,
+			     'pngalpha'	   => \&set_out_type,
 			     'jpg'	   => \&set_out_type,
 			     'jpggray'	   => \&set_out_type,
 			     'jpeg'	   => \&set_out_type,
@@ -272,6 +293,8 @@ sub handle_options {
 			     'debug'	   => \$debug)
 	    && !$help;
     }
+    print STDERR ("This is $my_package [$my_name $my_version]\n")
+	if $ident;
     die ("Only one file argument is allowed when -output is used\n")
       if @ARGV > 1 && defined $output;
     die ("At least one input file name must be specified\n")
@@ -282,9 +305,10 @@ sub handle_options {
 
 sub usage {
     print STDERR <<EndOfUsage;
+This is $my_package [$my_name $my_version]
 Usage: $0 [options] file [...]
 
-    -png -pngmono -pnggray -png16 -png256 -png16m
+    -png -pngmono -pnggray -png16 -png256 -png16m -pngalpha
                         produce PNG image
     -jpg -jpggray -jpeg -jpeggray
                         produce JPG image
@@ -299,6 +323,7 @@ Usage: $0 [options] file [...]
     -[no]pbm		GIF only: [do not] convert via pbm format
     -output XXX		output to this file (only one input file)
     -help		this message
+    -ident		show identification
     -verbose		verbose information
 EndOfUsage
     exit 1;
@@ -313,7 +338,7 @@ __END__
 
 =head1 NAME
 
-epf2png - convert EPS files to PNG, JPG or GIF images
+eps2png - convert EPS files to PNG, JPG or GIF images
 
 =head1 SYNOPSIS
 
@@ -347,7 +372,7 @@ so on.
 
 =over 4
 
-=item B<-png -pngmono -pnggray -png16 -png256 -png16m>
+=item B<-png -pngmono -pnggray -png16 -png256 -png16m -pngalpha>
 
 Each of these options will instruct Ghostscript to use the
 corresponding bitmap generator, and supply a C<.png> default
@@ -435,6 +460,10 @@ this option is specified.
 
 Prints a help message and exits.
 
+=item B<-ident>
+
+Prints the program version before doing anything else.
+
 =item B<-verbose>
 
 Provides more verbose information.
@@ -457,7 +486,7 @@ The EPS should be well-behaving.
 
 =head1 COPYRIGHT AND DISCLAIMER
 
-This program is Copyright 1994,2001 by Johan Vromans.
+This program is Copyright 1994,2008 by Johan Vromans.
 This program is free software; you can redistribute it and/or
 modify it under the terms of the Perl Artistic License or the
 GNU General Public License as published by the Free Software
@@ -469,8 +498,9 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+If you do not have a copy of the GNU General Public License write to
+the Free Software Foundation, Inc., 675 Mass Ave, Cambridge,
+MA 02139, USA.
 
 =cut
+
