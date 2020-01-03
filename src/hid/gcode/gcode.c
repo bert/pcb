@@ -275,7 +275,7 @@ This feature eases and enhances accuracy of manual drilling.
 @end ftable
 %end-doc
 */
-  {"predrill", "Wether to pre-drill all drill spots with the isolation milling\n"
+  {"predrill", "Whether to pre-drill all drill spots with the isolation milling\n"
                "tool. Drill depth is iso-mill-depth here. This feature eases\n"
                "and enhances accuracy of manual drilling.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
@@ -313,7 +313,7 @@ changing the tool.
 @end ftable
 %end-doc
 */
-  {"drill-mill", "Wether to produce drill holes equal or bigger than the\n"
+  {"drill-mill", "Whether to produce drill holes equal or bigger than the\n"
                  "milling tool diameter with the milling tool.\n"
                  "With the milling tool bigger holes can be accurately sized\n"
                  "without changing the tool.",
@@ -379,7 +379,7 @@ hand-editing of the resulting files.
 @end ftable
 %end-doc
 */
-  {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
+  {"advanced-gcode", "Whether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files.",
