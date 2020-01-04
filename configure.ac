@@ -770,8 +770,8 @@ for e in $HIDLIST; do
 
       gtk )
 	# Check for pkg-config
-	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-	if test "$PKG_CONFIG" = "no"; then
+	PKG_PROG_PKG_CONFIG
+	if test -z "$PKG_CONFIG"; then
 		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
 	fi
 
