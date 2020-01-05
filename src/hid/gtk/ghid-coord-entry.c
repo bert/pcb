@@ -1,13 +1,15 @@
-/*! \file <gtk-pcb-coord-entry.c>
- *  \brief Implementation of GHidCoordEntry widget
- *  \par Description
- *  This widget is a modified spinbox for the user to enter
- *  pcb coords. It is assigned a default unit (for display),
- *  but this can be changed by the user by typing a new one
- *  or right-clicking on the box.
+/*!
+ * \file src/hid/gtk/ghid-coord-entry.c
  *
- *  Internally, it keeps track of its value in pcb coords.
- *  From the user's perspective, it uses natural human units.
+ * \brief Implementation of GHidCoordEntry widget.
+ *
+ * This widget is a modified spinbox for the user to enter
+ * pcb coords. It is assigned a default unit (for display),
+ * but this can be changed by the user by typing a new one
+ * or right-clicking on the box.
+ *
+ * Internally, it keeps track of its value in pcb coords.
+ * From the user's perspective, it uses natural human units.
  */
 
 #include <glib.h>
@@ -47,7 +49,10 @@ struct _GHidCoordEntryClass
 };
 
 /* SIGNAL HANDLERS */
-/*! \brief Callback for "Change Unit" menu click */
+
+/*!
+ * \brief Callback for "Change Unit" menu click.
+ */
 static void
 menu_item_activate_cb (GtkMenuItem *item, GHidCoordEntry *ce)
 {
@@ -57,7 +62,9 @@ menu_item_activate_cb (GtkMenuItem *item, GHidCoordEntry *ce)
   g_signal_emit (ce, ghid_coord_entry_signals[UNIT_CHANGE_SIGNAL], 0, unit);
 }
 
-/*! \brief Callback for context menu creation */
+/*!
+ * \brief Callback for context menu creation.
+ */
 static void
 ghid_coord_entry_popup_cb (GHidCoordEntry *ce, GtkMenu *menu, gpointer data)
 {
@@ -90,7 +97,9 @@ ghid_coord_entry_popup_cb (GHidCoordEntry *ce, GtkMenu *menu, gpointer data)
   gtk_widget_show (menu_item);
 }
 
-/*! \brief Callback for user output */
+/*!
+ * \brief Callback for user output.
+ */
 static gboolean
 ghid_coord_entry_output_cb (GHidCoordEntry *ce, gpointer data)
 {
@@ -105,7 +114,9 @@ ghid_coord_entry_output_cb (GHidCoordEntry *ce, gpointer data)
   return TRUE;
 }
 
-/*! \brief Callback for user input */
+/*!
+ * \brief Callback for user input.
+ */
 static gboolean
 ghid_coord_text_changed_cb (GHidCoordEntry *entry, gpointer data)
 {
@@ -127,7 +138,9 @@ ghid_coord_text_changed_cb (GHidCoordEntry *entry, gpointer data)
   return FALSE;
 }
 
-/*! \brief Callback for change in value (input or ^v clicks) */
+/*!
+ * \brief Callback for change in value (input or ^v clicks).
+ */
 static gboolean
 ghid_coord_value_changed_cb (GHidCoordEntry *ce, gpointer data)
 {
@@ -142,10 +155,10 @@ ghid_coord_value_changed_cb (GHidCoordEntry *ce, gpointer data)
   return FALSE;
 }
 
-/*! \brief Change the unit used by a coord entry
+/*! \brief Change the unit used by a coord entry.
  *
  *  \param [in] ce         The entry to be acted on
- *  \parin [in] new_unit   The new unit to be used
+ *  \param [in] new_unit   The new unit to be used
  */
 static void
 ghid_coord_entry_change_unit (GHidCoordEntry *ce, const Unit *new_unit)
@@ -236,15 +249,16 @@ ghid_coord_entry_get_type (void)
   return ce_type;
 }
 
-/*! \brief Create a new GHidCoordEntry
+/*!
+ * \brief Create a new GHidCoordEntry.
  *
- *  \param [in] min_val    The minimum allowed value, in pcb coords
- *  \param [in] max_val    The maximum allowed value, in pcb coords
- *  \param [in] value      The default value, in pcb coords
- *  \param [in] unit       The default unit
- *  \param [in] step_size  How large the default increments should be
+ * \param [in] min_val    The minimum allowed value, in pcb coords
+ * \param [in] max_val    The maximum allowed value, in pcb coords
+ * \param [in] value      The default value, in pcb coords
+ * \param [in] unit       The default unit
+ * \param [in] step_size  How large the default increments should be
  *
- *  \return a freshly-allocated GHidCoordEntry
+ * \return a freshly-allocated GHidCoordEntry
  */
 GtkWidget *
 ghid_coord_entry_new (Coord min_val, Coord max_val, Coord value,
@@ -295,14 +309,18 @@ ghid_coord_entry_new (Coord min_val, Coord max_val, Coord value,
   return GTK_WIDGET (ce);
 }
 
-/*! \brief Gets a GHidCoordEntry's value, in pcb coords */
+/*!
+ * \brief Gets a GHidCoordEntry's value, in pcb coords.
+ */
 Coord
 ghid_coord_entry_get_value (GHidCoordEntry *ce)
 {
   return ce->value;
 }
 
-/*! \brief Sets a GHidCoordEntry's value, in pcb coords */
+/*!
+ * \brief Sets a GHidCoordEntry's value, in pcb coords.
+ */
 void
 ghid_coord_entry_set_value (GHidCoordEntry *ce, Coord val)
 {
