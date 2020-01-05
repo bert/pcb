@@ -1,26 +1,31 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/hid/gtk/gui-utils.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief gui utilities.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * PCB, interactive printed circuit board design
  *
- */
-
-/* This module, gui-utils.c, was written by Bill Wilson and the functions
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This module, gui-utils.c, was written by Bill Wilson and the functions
  * here are Copyright (C) 2004 by Bill Wilson.  These functions are utility
  * functions which are taken from my other GPL'd projects gkrellm and
  * gstocks and are copied here for the Gtk PCB port.
@@ -37,7 +42,8 @@
 #include <dmalloc.h>
 #endif
 
-/* Not a gui function, but no better place to put it...
+/*!
+ * \brief Not a gui function, but no better place to put it...
  */
 gboolean
 dup_string (gchar ** dst, const gchar * src)
@@ -513,10 +519,13 @@ ghid_scrolled_vbox (GtkWidget * box, GtkWidget ** scr,
   return vbox;
 }
 
-/* frame_border_width - border around outside of frame.
-   |  vbox_pad - pad between widgets to be packed in returned vbox.
-   |  vbox_border_width - border between returned vbox and frame.
-*/
+/*!
+ * \brief .
+ *
+ * \param frame_border_width border around outside of frame.
+ * \param vbox_pad           pad between widgets to be packed in returned vbox.
+ * \param vbox_border_width  border between returned vbox and frame.
+ */
 GtkWidget *
 ghid_framed_vbox (GtkWidget * box, gchar * label, gint frame_border_width,
 		  gboolean frame_expand, gint vbox_pad,
@@ -534,6 +543,13 @@ ghid_framed_vbox (GtkWidget * box, gchar * label, gint frame_border_width,
   return vbox;
 }
 
+/*!
+ * \brief .
+ *
+ * \param frame_border_width border around outside of frame.
+ * \param vbox_pad           pad between widgets to be packed in returned vbox.
+ * \param vbox_border_width  border between returned vbox and frame.
+ */
 GtkWidget *
 ghid_framed_vbox_end (GtkWidget * box, gchar * label, gint frame_border_width,
 		      gboolean frame_expand, gint vbox_pad,
