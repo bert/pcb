@@ -1,4 +1,81 @@
 ========================================================================
+Release notes for pcb-4.2.2
+========================================================================
+
+Dear Users,
+
+This is a hot fix and bugfixes release (no pcb file format change).
+
+This release is required as the User Manual didn't build with
+ghostscript versions newer than 9.27, as these newer versions require an
+additional argument:
+
+  --permit-file-read
+
+for input files.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to this release:
+- Johan Vromans
+- Karl Hammar
+- Ahmed El-Mahmoudy
+- Charles Parker
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- none
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- none
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- Use PKG_PROG_PKG_CONFIG macro from pkg.m4 to detect pkg-config.
+
+
+Notes for packagers
+-------------------
+- For building packages with a GTK UI or a Lesstif UI, configure with
+  the --with-gui=gtk or --with-gui=lesstif option (as usual).
+
+
+Changed dependencies
+--------------------
+- Unrecoverable error with ghostscript versions after 9.27 fixed.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#1858009  Unrecoverable error building User Manual.
+#1858157  Fix a spelling mistake.
+#1858255  Use PKG_PROG_PKG_CONFIG macro from pkg.m4 to detect
+          pkg-config.
+
+========================================================================
 Release notes for pcb-4.2.1
 ========================================================================
 
