@@ -474,7 +474,10 @@ static const char *get_file_suffix(void)
   fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
 
   if (fmt == NULL)
-    ; /* Do nothing */
+    {
+      fprintf (stderr, "Error: Invalid graphic file format\n");
+      result=".???";
+    }
   else if (strcmp (fmt, FMT_gif) == 0)
     result=".gif";
   else if (strcmp (fmt, FMT_jpg) == 0)
@@ -482,11 +485,6 @@ static const char *get_file_suffix(void)
   else if (strcmp (fmt, FMT_png) == 0)
     result=".png";
 
-  if (result == NULL)
-    {
-      fprintf (stderr, "Error:  Invalid graphic file format\n");
-      result=".???";
-    }
   return result;
 }
 
