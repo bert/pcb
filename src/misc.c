@@ -2224,19 +2224,18 @@ LayerGroupsToString (LayerGroupType *lg)
   return buf;
 }
 
-char *
-pcb_author (void)
+char *pcb_author (void)
 {
 #if HAVE_GETPWUID
   static struct passwd *pwentry;
   static char *fab_author = 0;
 
-  if (!fab_author)
-    {
-      if (Settings.FabAuthor && Settings.FabAuthor[0])
+  if (!fab_author) {
+
+      if (Settings.FabAuthor && Settings.FabAuthor[0]) {
         fab_author = Settings.FabAuthor;
-      else
-        {
+      }
+      else {
           int len;
           char *comma, *gecos;
 
@@ -2248,19 +2247,26 @@ pcb_author (void)
             len = comma - gecos;
           else
             len = strlen (gecos);
+
           fab_author = (char *)malloc (len + 1);
-          if (!fab_author)
-            {
+
+          if (!fab_author) {
               perror ("pcb: out of memory.\n");
               exit (-1);
-            }
+          }
+
           memcpy (fab_author, gecos, len);
+
           fab_author[len] = 0;
         }
-    }
+  }
+
   return fab_author;
+
 #else
+
   return "Unknown";
+
 #endif
 }
 
