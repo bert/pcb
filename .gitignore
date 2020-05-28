@@ -16,4 +16,6 @@ stamp-*
 *.backup
 test-driver
 *-swp
+*~
+*#
 
