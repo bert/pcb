@@ -1,5 +1,5 @@
 
-Element["" "DO-204AL (DO-14) case diode, 34mil drill, pin1 is cathode" "D" "1N4001" 72500 67500 0 -15000 0 100 ""]
+Element["" "DO-204AL (DO-41) case diode, 34mil drill, pin1 is cathode" "D" "1N4001" 72500 67500 0 -15000 0 100 ""]
 (
 	Pin[0 0 7000 2000 7600 3400 "" "1" "square,edge2"]
 	Pin[40000 0 7000 2000 7600 3400 "" "2" "edge2"]
