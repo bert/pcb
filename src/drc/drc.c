@@ -774,7 +774,30 @@ DRCAll (void)
   }
   
   LockUndo(); /* Don't need to add all of these things */
-  
+ 
+  COPPERPOLYGON_LOOP (PCB->Data);
+  {
+    if ( TEST_FLAG(FULLPOLYFLAG, polygon) ) {
+      SetThing (1, POLYGON_TYPE, layer, polygon, polygon);
+      object_list_clear(vobjs);
+      object_list_append(vobjs, &thing1);
+      violation = pcb_drc_violation_new (
+        "Warning: Copper polygon with the \"fullpoly\" flag",
+        "This flag can cause PCB to entirely miss connections to parts of\n"
+        "the polygon in some cases.  Consider using separate polygons \n"
+        "without this flag instead.",
+        -1, -1, /* x, y, compute automatically */
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+        0,
+        0,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
+  }
+  ENDALL_LOOP;
+
   ELEMENT_LOOP (PCB->Data);
   {
     PIN_LOOP (element);
