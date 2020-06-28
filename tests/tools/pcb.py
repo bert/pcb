@@ -13,7 +13,7 @@ class pcb_pcb(object):
     self.flags = 'Flags("nameonpcb,clearnew,snappin")'
     self.groups = 'Groups("1,c:2:3:4:5:6,s:7:8")'
     self.styles = 'Styles["Signal,10.00mil,30.00mil,10.00mil,1.00mil:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,6.00mil,24.02mil,11.81mil,6.00mil"]'
- 
+
     self.layers = []
 
 
@@ -26,7 +26,7 @@ class pcb_pcb(object):
 
 
   def header(self):
-    s = 'PCB["{}" {}{} {}{}]\n'.format(self.name, self.x, self.units, 
+    s = 'PCB["{}" {}{} {}{}]\n'.format(self.name, self.x, self.units,
                                                   self.y, self.units)
     for item in [self.grid, self.poly_area, self.thermal, self.drc,
                  self.flags, self.groups, self.styles]:
@@ -55,7 +55,7 @@ class pcb_line(object):
 
   def __str__(self):
     s = "  Line["
-    for val in [self.x1, self.y1, 
+    for val in [self.x1, self.y1,
                 self.x2, self.y2,
                 self.thickness, self.clearance]:
       s += "{}{} ".format(val, self.units)
@@ -80,7 +80,7 @@ class pcb_arc(object):
 
   def __str__(self):
     s = "  Arc["
-    for val in [self.center_x, self.center_y, 
+    for val in [self.center_x, self.center_y,
                 self.radius, self.radius,
                 self.thickness, self.clearance]:
       s += "{}{} ".format(val, self.units)
@@ -195,7 +195,7 @@ class pcb_text(object):
 
   def __str__(self):
     s = '  Text[{}{} {}{} {} {} "{}" "{}"]\n'.format(
-            self.x, self.units, self.y, self.units, 
+            self.x, self.units, self.y, self.units,
             self.direction, self.scale, self.txt,
             ",".join(self.flags))
     return s
