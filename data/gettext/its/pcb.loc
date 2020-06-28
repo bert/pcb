@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<locatingRules>
+  <locatingRule name="pcb policy" pattern="*.policy">
+    <documentRule localName="policyconfig" target="pcb.its"/>
+  </locatingRule>
+</locatingRules>

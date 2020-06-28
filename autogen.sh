@@ -32,52 +32,6 @@ autopoint --force || exit 1
 
 ############################################################################
 #
-# intltoolize (intltool)
-#
-
-echo "Checking intltoolize version..."
-it_ver=`intltoolize --version | awk '{print $NF; exit}'`
-it_maj=`echo $it_ver | sed 's;\..*;;g'`
-it_min=`echo $it_ver | sed -e 's;^[0-9]*\.;;g'  -e 's;\..*$;;g'`
-it_teeny=`echo $it_ver | sed -e 's;^[0-9]*\.[0-9]*\.;;g'`
-echo "    $it_ver"
-
-case $it_maj in
-	0)
-		if test $it_min -lt 35 ; then
-			echo "You must have intltool >= 0.35.0 but you seem to have $it_ver"
-			exit 1
-		fi
-		;;
-esac
-echo "Running intltoolize..."
-echo "no" | intltoolize --force --copy --automake || exit 1
-
-echo "Patching some intltoolize output"
-
-# both intltoolize and autopoint create a po/Makefile.in.in, this can't be good...
-# but intltoolize seems to have some bugs in it.  In particular, XGETTEXT and MSGFMT
-# are set in the Makefile but not passed down when calling MSGMERGE or GENPOT.
-# This defeats specifying the path to xgettext and msgfmt.  Also
-# we don't have a ChangeLog in the po/ directory right now so don't let
-# intltool try to include it in the distfile.
-
-mv po/Makefile.in.in po/Makefile.in.in.orig
-sed \
-	-e 's/^MSGMERGE *=/MSGMERGE = XGETTEXT="\${XGETTEXT}" MSGFMT="\${MSGFMT}" /g' \
-	-e 's/^GENPOT *=/GENPOT = XGETTEXT="\${XGETTEXT}" MSGFMT="\${MSGFMT}" /g' \
-	-e 's/ChangeLog//g' \
-	po/Makefile.in.in.orig > po/Makefile.in.in
-
-# Menu i18n
-echo "
-%.res.h: %.res
-	\$(MAKE) -C ../src \$@" >> po/Makefile.in.in
-
-rm -f po/Makefile.in.in.orig
-
-############################################################################
-#
 # automake/autoconf stuff
 #
 

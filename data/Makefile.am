@@ -42,13 +42,9 @@ desktopdir=$(xdgdatadir)/applications
 desktop_in_files = pcb.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
-@INTLTOOL_XML_RULE@
 appdatadir = $(datadir)/metainfo
 appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 appdata_in_files = pcb.appdata.xml.in
-
-@INTLTOOL_DESKTOP_RULE@
-
 
 mimedir = $(xdgdatadir)/mime
 xmldir = $(mimedir)/packages
@@ -70,6 +66,18 @@ install_icon_exec = \
 	-b $(themedir) \
 	-m "$(mkinstalldirs)" \
 	-x "$(INSTALL_DATA)"
+
+itsdir = $(datadir)/gettext/its
+its_DATA = pcb.loc pcb.its
+
+pcb.appdata.xml: pcb.appdata.xml.in
+	$(AM_V_GEN) $(MSGFMT) --xml --template=$< -d $(top_srcdir)/po -o $@
+
+pcb.xml: pcb.xml.in
+	$(AM_V_GEN) $(MSGFMT) --xml --template=$< -d $(top_srcdir)/po -o $@
+
+pcb.desktop: pcb.desktop.in
+	$(AM_V_GEN) $(MSGFMT) --desktop --template=$< -d $(top_srcdir)/po -o $@
 
 install-data-local:
 	$(install_icon_exec) -i $(theme_icons)
@@ -99,5 +107,11 @@ EXTRA_DIST = $(mime_icon_files) $(mime_icon_sources) \
              $(application_in_files) \
              $(app_icon_files) \
              $(desktop_in_files) $(desktop_DATA) \
-	     regen_files pcb_icon.ico
+	     regen_files pcb_icon.ico \
+	     pcb.xml.in \
+	     pcb.appdata.in \
+	     pcb.destop.in \
+	     gettext/its/pcb.its \
+	     gettext/its/pcb.loc
+ 
 

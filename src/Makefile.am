@@ -302,7 +302,7 @@ gpcb-menu.h : gpcb-menu.res
 # feed into ../po/pcb.pot for translation.  This is the only place
 # these files are used.  When menu resources are parsed, the strings
 # are translated.  We likely should find a way to not try to copy
-# back to srcdir all the time but it is possible that the gettext/intltool
+# back to srcdir all the time but it is possible that the gettext
 # flow can't really deal with getting strings from built sources.
 %.res.h : %.res
 	$(INTLTOOL_EXTRACT) --type=gettext/quoted $^
