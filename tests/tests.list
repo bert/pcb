@@ -403,4 +403,5 @@ drc-polygonclearance-misc | drctest.script drctest-polygonclearance-misc.pcb | a
 drc-polygonclearance-pads | drctest.script drctest-polygonclearance-pads.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
 drc-polygonclearance-pins | drctest.script drctest-polygonclearance-pins.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
 drc-polygonclearance-vias | drctest.script drctest-polygonclearance-vias.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
+drc-fullpolyflag | drctest.script drctest-fullpoly_warning.pcb | action | | | ascii:drcreport.txt diff:flags-before.txt;flags-after.txt
 

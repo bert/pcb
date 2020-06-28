@@ -57,6 +57,7 @@ EXTRA_DIST = \
   inputs/drctest-clearance-vias-buriedvias.pcb \
   inputs/drctest-clearance-vias-lines.pcb \
   inputs/drctest-clearance-vias-vias.pcb \
+  inputs/drctest-fullpoly_warning.pcb \
   inputs/drctest-minsize-arcs.pcb \
   inputs/drctest-minsize-lines.pcb \
   inputs/drctest-minsize-pads.pcb \
@@ -137,6 +138,7 @@ EXTRA_DIST = \
   golden/drc-clearance-vias-buriedvias/drcreport.txt \
   golden/drc-clearance-vias-lines/drcreport.txt \
   golden/drc-clearance-vias-vias/drcreport.txt \
+  golden/drc-fullpolyflag/drcreport.txt \
   golden/drc-minsize-arcs/drcreport.txt \
   golden/drc-minsize-lines/drcreport.txt \
   golden/drc-minsize-pads/drcreport.txt \

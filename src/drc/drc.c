@@ -699,6 +699,49 @@ new_line_width_violation(DRCObject * obj)
 }
 
 /*!
+ * \brief Check for usage of the fullpoly flag
+ *
+ * The fullpoly flag creates lots of problems under the hood of pcb and is
+ * dangerous to use. It should be avoided when at all possible.
+ *
+ * See bug report LP1881485 for details on the badness.
+ *
+ * Note that these are warnings, so, the error count is not incremented.
+ */
+static int 
+drc_test_fullpolyflag(void)
+{
+  /* violating object list */
+  object_list * vobjs = object_list_new(2, sizeof(DRCObject));
+  /* violation pointer */
+  DrcViolationType *violation;
+
+  COPPERPOLYGON_LOOP (PCB->Data);
+  {
+    if ( TEST_FLAG(FULLPOLYFLAG, polygon) ) {
+      SetThing (1, POLYGON_TYPE, layer, polygon, polygon);
+      object_list_clear(vobjs);
+      object_list_append(vobjs, &thing1);
+      violation = pcb_drc_violation_new (
+        "Warning: Copper polygon with the \"fullpoly\" flag",
+        "This flag can cause PCB to entirely miss connections to parts of\n"
+        "the polygon in some cases.  Consider using separate polygons \n"
+        "without this flag instead.",
+        -1, -1, /* x, y, compute automatically */
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+        0,
+        0,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
+  }
+  ENDALL_LOOP;
+
+  object_list_delete(vobjs);
+}
+/*!
  * \brief Check for DRC violations.
  *
  * See if the connectivity changes when everything is bloated, or shrunk.
@@ -774,29 +817,25 @@ DRCAll (void)
   }
   
   LockUndo(); /* Don't need to add all of these things */
- 
-  COPPERPOLYGON_LOOP (PCB->Data);
-  {
-    if ( TEST_FLAG(FULLPOLYFLAG, polygon) ) {
-      SetThing (1, POLYGON_TYPE, layer, polygon, polygon);
-      object_list_clear(vobjs);
-      object_list_append(vobjs, &thing1);
-      violation = pcb_drc_violation_new (
-        "Warning: Copper polygon with the \"fullpoly\" flag",
-        "This flag can cause PCB to entirely miss connections to parts of\n"
-        "the polygon in some cases.  Consider using separate polygons \n"
-        "without this flag instead.",
-        -1, -1, /* x, y, compute automatically */
-        0,    /* ANGLE OF ERROR UNKNOWN */
-        FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
-        0,
-        0,
-        vobjs);
-      append_drc_violation (violation);
-      pcb_drc_violation_free (violation);
-    }
-  }
-  ENDALL_LOOP;
+
+  /*
+   * Developer note:
+   *   The end goal is to put all of these tests into different functions,
+   *   and create a DRCTest object to describe the test, including things
+   *   like the parameters that the test cares about, description of the
+   *   test, etc. All that stuff can be used to generate a control panel
+   *   interface. Then we'll add all of those objects to a list and running
+   *   a DRC will be reduced to iterating through the DRCTest objects. This
+   *   will also allow the DRC to be extended using plug-ins.
+   *
+   *   To facilitate this transition, new DRC checks should be implemented
+   *   in their own functions. It would also be helpful to have parameters
+   *   declared as variables up front, and descriptive text included in the
+   *   comments.
+   */
+
+  /* Check for usage of the fullpoly flag. */
+  drc_test_fullpolyflag();
 
   ELEMENT_LOOP (PCB->Data);
   {
