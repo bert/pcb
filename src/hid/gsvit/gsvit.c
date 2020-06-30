@@ -549,10 +549,10 @@ gsvit_write_xspace (void)
   XOUT_ELEMENT_ATTR ("resolution", "units", "mm", buff);
   XOUT_NEWLINE ();
 
-  sprintf (buff, "%d", w);
+  sprintf (buff, "%d", (int) w);
   XOUT_ELEMENT ("width", buff);
   XOUT_NEWLINE ();
-  sprintf (buff, "%d", h);
+  sprintf (buff, "%d", (int) h);
   XOUT_ELEMENT ("height", buff);
   XOUT_NEWLINE ();
   XOUT_ELEMENT_START ("layers");
