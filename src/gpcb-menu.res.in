@@ -226,6 +226,7 @@ MainMenu =
    {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
    {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
+   {"Hide polygons" checked=hidepoly Display(ToggleHidePoly)}
    {"Auto buried vias" checked=autoburiedvias Display(ToggleAutoBuriedVias)}
 
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}

@@ -215,6 +215,7 @@ typedef enum
   F_Zoom,
   F_ThroughHole,
   F_BuriedVias,
+  F_ToggleHidePoly,
   F_ToggleAutoBuriedVias
 }
 FunctionID;
@@ -437,6 +438,7 @@ static FunctionType Functions[] = {
   {"ToggleSnapPin", F_ToggleSnapPin},
   {"ToggleThindraw", F_ToggleThindraw},
   {"ToggleThindrawPoly", F_ToggleThindrawPoly},
+  {"ToggleHidePoly", F_ToggleHidePoly},
   {"ToggleLockNames", F_ToggleLockNames},
   {"ToggleOnlyNames", F_ToggleOnlyNames},
   {"ToggleHideNames", F_ToggleHideNames},
@@ -2751,6 +2753,11 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	case F_ToggleThindrawPoly:
 	  TOGGLE_FLAG (THINDRAWPOLYFLAG, PCB);
 	  Redraw ();
+	  break;
+
+	case F_ToggleHidePoly:
+	  TOGGLE_FLAG (HIDEPOLYFLAG, PCB);
+	  Redraw();
 	  break;
 
 	case F_ToggleLockNames:

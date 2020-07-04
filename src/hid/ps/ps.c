@@ -597,6 +597,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   CLEAR_FLAG(THINDRAWFLAG, PCB);
   CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
   CLEAR_FLAG(CHECKPLANESFLAG, PCB);
+  CLEAR_FLAG(HIDEPOLYFLAG, PCB);
 
   global.f = the_file;
   global.drill_helper = options[HA_drillhelper].int_value;

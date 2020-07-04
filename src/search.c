@@ -1309,7 +1309,8 @@ SearchObjectByLocation (unsigned Type,
     {
       Type &= (ELEMENTNAME_TYPE | TEXT_TYPE);
     }
-  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB) ||
+      TEST_FLAG (HIDEPOLYFLAG, PCB))
     {
       Type &= ~POLYGON_TYPE;
     }

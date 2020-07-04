@@ -356,6 +356,8 @@ When set, element names are not drawn.
 #define HIDENAMESFLAG           0x00200000
 #define AUTOBURIEDVIASFLAG      0x00400000
 
+#define HIDEPOLYFLAG            0x00800000
+
 /* ---------------------------------------------------------------------------
  * object types
  */

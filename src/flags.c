@@ -493,6 +493,7 @@ HID_Flag flags_flag_list[] = {
   {"orthomove",            FlagTESTFLAG,     GINT_TO_POINTER (ORTHOMOVEFLAG)},
   {"liveroute",            FlagTESTFLAG,     GINT_TO_POINTER (LIVEROUTEFLAG)},
   {"thindrawpoly",         FlagTESTFLAG,     GINT_TO_POINTER (THINDRAWPOLYFLAG)},
+  {"hidepoly",             FlagTESTFLAG,     GINT_TO_POINTER (HIDEPOLYFLAG)},
   {"locknames",            FlagTESTFLAG,     GINT_TO_POINTER (LOCKNAMESFLAG)},
   {"onlynames",            FlagTESTFLAG,     GINT_TO_POINTER (ONLYNAMESFLAG)},
   {"newfullpoly",          FlagTESTFLAG,     GINT_TO_POINTER (NEWFULLPOLYFLAG)},
