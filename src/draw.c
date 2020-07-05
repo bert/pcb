@@ -191,9 +191,9 @@ static void
 _draw_pv (PinType *pv, bool draw_hole)
 {
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
+    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false, 0);
   else if (!ViaIsOnAnyVisibleLayer (pv))
-    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, false, false);
+    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, false, false, 0);
   else
     {
       gui->graphics->fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
@@ -322,7 +322,7 @@ _draw_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 
   if (TEST_FLAG (THINDRAWFLAG, PCB) ||
       (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->graphics->thindraw_pcb_pad (gc, pad, clear, mask);
+    gui->graphics->thindraw_pcb_pad (gc, pad, clear, mask, 0);
   else
     gui->graphics->fill_pcb_pad (gc, pad, clear, mask);
 }
@@ -897,7 +897,7 @@ clearPin_callback (const BoxType * b, void *cl)
   if (do_clear)
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-        gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+        gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true, 0);
       else
         gui->graphics->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
    }

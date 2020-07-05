@@ -56,6 +56,8 @@
 #include <dmalloc.h>
 #endif
 
+#define CONTOUR_WIDTH 60000
+
 typedef struct
 {
   int x, y;
@@ -73,7 +75,7 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
   moved_pv.X += x;
   moved_pv.Y += y;
 
-  gui->graphics->thindraw_pcb_pv (gc, gc, &moved_pv, true, false);
+  gui->graphics->thindraw_pcb_pv (gc, gc, &moved_pv, true, false, CONTOUR_WIDTH);
 }
 
 /*!
@@ -307,7 +309,7 @@ XORDrawElement (hidGC gc, ElementType *Element, Coord DX, Coord DY)
         moved_pad.Point1.X += DX; moved_pad.Point1.Y += DY;
         moved_pad.Point2.X += DX; moved_pad.Point2.Y += DY;
 
-        gui->graphics->thindraw_pcb_pad (gc, &moved_pad, false, false);
+        gui->graphics->thindraw_pcb_pad (gc, &moved_pad, false, false, CONTOUR_WIDTH);
       }
   }
   END_LOOP;
@@ -596,7 +598,7 @@ DrawAttached (hidGC gc)
   gui->graphics->set_color (gc, Settings.CrosshairColor);
   gui->graphics->set_draw_xor (gc, 1);
   gui->graphics->set_line_cap (gc, Trace_Cap);
-  gui->graphics->set_line_width (gc, 1);
+  gui->graphics->set_line_width (gc, CONTOUR_WIDTH);
 
   switch (Settings.Mode)
     {
@@ -612,14 +614,14 @@ DrawAttached (hidGC gc)
         via.Mask = 0;
         via.Flags = NoFlags ();
 
-        gui->graphics->thindraw_pcb_pv (gc, gc, &via, true, false);
+        gui->graphics->thindraw_pcb_pv (gc, gc, &via, true, false, CONTOUR_WIDTH);
 
         if (TEST_FLAG (SHOWDRCFLAG, PCB))
           {
             Coord mask_r = Settings.ViaThickness / 2 + PCB->Bloat;
             gui->graphics->set_color (gc, Settings.CrossColor);
             gui->graphics->set_line_cap (gc, Round_Cap);
-            gui->graphics->set_line_width (gc, 0);
+            gui->graphics->set_line_width (gc, CONTOUR_WIDTH);
             gui->graphics->draw_arc (gc, via.X, via.Y, mask_r, mask_r, 0, 360);
             gui->graphics->set_color (gc, Settings.CrosshairColor);
           }
@@ -732,7 +734,7 @@ DrawMark (hidGC gc)
   gui->graphics->set_color (gc, Settings.CrosshairColor);
   gui->graphics->set_draw_xor (gc, 1);
   gui->graphics->set_line_cap (gc, Trace_Cap);
-  gui->graphics->set_line_width (gc, 1);
+  gui->graphics->set_line_width (gc, CONTOUR_WIDTH);
 
   /* Mark is not drawn when it is not set */
   if (!Marked.status)

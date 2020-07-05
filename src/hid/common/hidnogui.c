@@ -161,7 +161,7 @@ nogui_fill_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 }
 
 static void
-nogui_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
+nogui_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask, Coord line_width)
 {
   CRASH;
 }
@@ -173,7 +173,7 @@ nogui_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bool m
 }
 
 static void
-nogui_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bool mask)
+nogui_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bool mask, Coord line_width)
 {
   CRASH;
 }
