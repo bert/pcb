@@ -353,6 +353,10 @@ void ghid_install_accel_groups (GtkWindow *window, GhidGui *gui);
 void ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui);
 void make_route_style_buttons (GHidRouteStyleSelector *rss);
 void layer_process (gchar **color_string, char **text, int *set, int i);
+void ghid_sync_gui(void);
+
+/* In gui-top-toolbar.c */
+void ghid_make_top_toolbar(GtkWidget* parent);
 
 /* gui-utils.c
 */

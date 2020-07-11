@@ -339,6 +339,23 @@ top_window_enter_cb (GtkWidget *widget, GdkEvent  *event, GHidPort *port)
 }
 
 /*!
+ * \brief Synchronizes GUI elements with PCB state.
+ */
+void
+ghid_sync_gui(void)
+{
+  /* Sync gui widgets with pcb state */
+  ghid_update_toggle_flags ();
+  ghid_mode_buttons_update ();
+
+  /* Sync gui status display with pcb state */
+  AdjustAttachedObjects ();
+  ghid_invalidate_all ();
+  ghid_window_set_name_label (PCB->Name);
+  ghid_set_status_line_label ();
+}
+
+/*!
  * \brief Menu action callback function.
  *
  * This is the main menu callback function.  The callback receives
@@ -369,16 +386,7 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
 #endif
         hid_parse_actions (node->v[i].value);
       }
-
-  /* Sync gui widgets with pcb state */
-  ghid_update_toggle_flags ();
-  ghid_mode_buttons_update ();
-
-  /* Sync gui status display with pcb state */
-  AdjustAttachedObjects ();
-  ghid_invalidate_all ();
-  ghid_window_set_name_label (PCB->Name);
-  ghid_set_status_line_label ();
+  ghid_sync_gui();
 }
 
 /*!
@@ -1347,6 +1355,9 @@ ghid_build_pcb_top_window (void)
   ghidgui->menu_bar = ghid_load_menus ();
   gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
                       ghidgui->menu_bar, FALSE, FALSE, 0);
+
+  /* Build top toolbar */
+  ghid_make_top_toolbar(ghidgui->menubar_toolbar_vbox);
 
   make_mode_buttons_and_toolbar (&ghidgui->mode_buttons_frame,
                                  &ghidgui->mode_toolbar);

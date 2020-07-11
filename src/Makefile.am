@@ -366,6 +366,7 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-pinout-preview.h \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
+	hid/gtk/gui-top-toolbar.c \
 	hid/gtk/gui-utils.c
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
