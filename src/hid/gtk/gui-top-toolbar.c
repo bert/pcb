@@ -43,7 +43,6 @@
 
 #include "gui-icons-toolbar.data"
 
-
 static void
 top_tool_button_hide_poly_cb(GtkWidget* widget, gpointer data)
 {
@@ -116,12 +115,14 @@ top_tool_button_grid_50mil_cb (GtkWidget* widget, gpointer data)
  * \brief Add a single button to the toolbar.
  *
  */
-static void top_toolbar_add_button(
+static void
+top_toolbar_add_button(
 	GtkWidget* toolbar,
 	char ** pixels,
 	const gchar* label,
 	const gchar* tooltip,
-	GtkSignalFunc callback
+	GtkSignalFunc callback,
+	gboolean add_to_list
 )
 {
   GtkToolItem* button;
@@ -132,6 +133,71 @@ static void top_toolbar_add_button(
   gtk_tool_item_set_tooltip_text(button, tooltip);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar), button, -1);
   g_signal_connect(G_OBJECT(button), "clicked", callback, NULL);
+  
+  if (add_to_list) {
+    ghidgui->mode_toolbar.extra_list = g_list_prepend(ghidgui->mode_toolbar.extra_list, button);
+  }
+  
+}
+
+/*!
+ * \brief Add a single button to both toolbars.
+ *
+ */
+static void
+toolbar_add_buttons(
+	GtkWidget* toolbar1,
+	GtkWidget* toolbar2,
+	char ** pixels,
+	const gchar* label,
+	const gchar* tooltip,
+	GtkSignalFunc callback
+)
+{
+	top_toolbar_add_button(toolbar1, pixels, label, tooltip, callback, false);
+	top_toolbar_add_button(toolbar2, pixels, label, tooltip, callback, true);
+}
+
+/*!
+ * \brief Add a separator to both toolbars.
+ *
+ */
+static void
+toolbar_add_separators(
+	GtkWidget* toolbar1,
+	GtkWidget* toolbar2
+)
+{
+	GtkToolItem* item;
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar1), gtk_separator_tool_item_new(), -1);
+	
+	item = gtk_separator_tool_item_new();
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar2), item, -1);
+	ghidgui->mode_toolbar.extra_list = g_list_prepend(ghidgui->mode_toolbar.extra_list, item);
+}
+
+/*!
+ * \brief Show and hides toolbar icons on either main toolbar or extra toolbar
+ *  depending on the configuration state.
+ */
+void
+ghid_set_extra_toolbar_state(void)
+{
+
+  if (ghidgui->use_extra_toolbar) {
+     if (ghidgui->compact_vertical && ghidgui->compact_horizontal) {
+        ghid_hide_toolbar_list (ghidgui->mode_toolbar.extra_list);
+        gtk_widget_show_all (ghidgui->extra_toolbar);
+     }
+     else {
+        ghid_show_toolbar_list (ghidgui->mode_toolbar.extra_list);
+	    gtk_widget_hide (ghidgui->extra_toolbar);
+     }
+  }
+  else {
+     ghid_hide_toolbar_list(ghidgui->mode_toolbar.extra_list);
+     gtk_widget_hide (ghidgui->extra_toolbar);
+  }
 }
 
 /*!
@@ -139,30 +205,35 @@ static void top_toolbar_add_button(
  *
  */
 void
-ghid_make_top_toolbar(GtkWidget* parent)
+ghid_make_extra_toolbar(void)
 {
   GtkWidget *toolbar;
+  GtkWidget *toolbar2;
   
+  /* use 2 toolbars : one for vertical arangement and the other for horizontal
+  arangement. Only one will be visible at a time */
   toolbar = gtk_toolbar_new();
+  toolbar2 = ghidgui->mode_toolbar.toolbar; /* append icons into the mode toolbar */
+
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
   
-  top_toolbar_add_button(toolbar, grid_05mil_xpm, "grid_05_mil", "grid 5 mil", G_CALLBACK(top_tool_button_grid_05mil_cb));
-  top_toolbar_add_button(toolbar, grid_25mil_xpm, "grid_25_mil", "grid 25 mil", G_CALLBACK(top_tool_button_grid_25mil_cb));
-  top_toolbar_add_button(toolbar, grid_50mil_xpm, "grid_50_mil", "grid 50 mil", G_CALLBACK(top_tool_button_grid_50mil_cb));
+  toolbar_add_buttons(toolbar, toolbar2, grid_05mil_xpm, "", "grid 5 mil", G_CALLBACK(top_tool_button_grid_05mil_cb));
+  toolbar_add_buttons(toolbar, toolbar2, grid_25mil_xpm, "", "grid 25 mil", G_CALLBACK(top_tool_button_grid_25mil_cb));
+  toolbar_add_buttons(toolbar, toolbar2, grid_50mil_xpm, "", "grid 50 mil", G_CALLBACK(top_tool_button_grid_50mil_cb));
 
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
+  toolbar_add_separators(toolbar, toolbar2);
 
-  top_toolbar_add_button(toolbar, poly_thin_xpm, "poly_thin", "toggle draw thin polygons", G_CALLBACK(top_tool_button_thin_poly_cb));
-  top_toolbar_add_button(toolbar, poly_hide_xpm, "poly_hide", "toggle hide polygons", G_CALLBACK(top_tool_button_hide_poly_cb));
+  toolbar_add_buttons(toolbar, toolbar2, poly_thin_xpm, "", "toggle draw thin polygons", G_CALLBACK(top_tool_button_thin_poly_cb));
+  toolbar_add_buttons(toolbar, toolbar2, poly_hide_xpm, "", "toggle hide polygons", G_CALLBACK(top_tool_button_hide_poly_cb));
 
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), gtk_separator_tool_item_new(), -1);
+  toolbar_add_separators(toolbar, toolbar2);
 
-  top_toolbar_add_button(toolbar, pin_hi_xpm, "pin_hi", "pin size +10 mil", G_CALLBACK(top_tool_button_pin_hi_cb));
-  top_toolbar_add_button(toolbar, pin_lo_xpm, "pin_lo", "pin size -10 mil", G_CALLBACK(top_tool_button_pin_lo_cb));
+  toolbar_add_buttons(toolbar, toolbar2, pin_hi_xpm, "", "pin size +10 mil", G_CALLBACK(top_tool_button_pin_hi_cb));
+  toolbar_add_buttons(toolbar, toolbar2, pin_lo_xpm, "", "pin size -10 mil", G_CALLBACK(top_tool_button_pin_lo_cb));
 
-  top_toolbar_add_button(toolbar, text_hi_xpm, "text_hi", "text size +5 mil", G_CALLBACK(top_tool_button_text_hi_cb));
-  top_toolbar_add_button(toolbar, text_lo_xpm, "text_lo", "text size -5 mil", G_CALLBACK(top_tool_button_text_lo_cb));
+  toolbar_add_buttons(toolbar, toolbar2, text_hi_xpm, "", "text size +5 mil", G_CALLBACK(top_tool_button_text_hi_cb));
+  toolbar_add_buttons(toolbar, toolbar2, text_lo_xpm, "", "text size -5 mil", G_CALLBACK(top_tool_button_text_lo_cb));
 
-  
-  gtk_box_pack_start(GTK_BOX(parent), toolbar, FALSE, FALSE, 0);   
+  ghidgui->extra_toolbar = toolbar;
+
 }

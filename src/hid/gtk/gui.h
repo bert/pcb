@@ -94,6 +94,13 @@
 
 typedef struct
 {
+	GtkWidget *toolbar;
+	GList *mode_list; /* mode buttons */
+	GList *extra_list; /* extra_buttons */
+} GhidToolbar;
+
+typedef struct
+{
   GtkActionGroup *main_actions,
     *change_selected_actions, *displayed_name_actions;
 
@@ -112,8 +119,9 @@ typedef struct
   GtkWidget *left_toolbar;
   GtkWidget *grid_units_button;
   GtkWidget *menu_bar, *layer_selector, *route_style_selector;
-  GtkWidget *mode_toolbar;
+  GhidToolbar mode_toolbar;
   GtkWidget *vbox_middle;
+  GtkWidget *extra_toolbar;
 
   GtkWidget *info_bar;
   GTimeVal our_mtime;
@@ -134,6 +142,7 @@ typedef struct
     small_label_markup,
     compact_horizontal,
     compact_vertical,
+    use_extra_toolbar,
     use_command_window,
     creating;
 
@@ -354,9 +363,12 @@ void ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui);
 void make_route_style_buttons (GHidRouteStyleSelector *rss);
 void layer_process (gchar **color_string, char **text, int *set, int i);
 void ghid_sync_gui(void);
+void ghid_show_toolbar_list(GList* list);
+void ghid_hide_toolbar_list(GList* list);
 
 /* In gui-top-toolbar.c */
-void ghid_make_top_toolbar(GtkWidget* parent);
+void ghid_make_extra_toolbar(void);
+void ghid_set_extra_toolbar_state(void);
 
 /* gui-utils.c
 */

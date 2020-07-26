@@ -119,6 +119,7 @@ static gchar *config_dir, *color_dir;
 static ConfigAttribute config_attributes[] = {
   {"gui-compact-horizontal", CONFIG_Boolean, &_ghidgui.compact_horizontal},
   {"gui-compact-vertical", CONFIG_Boolean, &_ghidgui.compact_vertical},
+  {"use-extra-toolbar", CONFIG_Boolean, &_ghidgui.use_extra_toolbar},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
   {"save-metric-only", CONFIG_Unused, NULL},
@@ -880,6 +881,7 @@ config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 
   ghidgui->compact_horizontal = active;
   ghid_set_status_line_label ();
+  ghid_set_extra_toolbar_state();
   ghidgui->config_modified = TRUE;
 }
 
@@ -890,8 +892,20 @@ config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
 
   ghidgui->compact_vertical = active;
   ghid_pack_mode_buttons();
+  ghid_set_extra_toolbar_state();
   ghidgui->config_modified = TRUE;
 }
+
+static void
+config_extra_toolbar_toggle_cb (GtkToggleButton * button, gpointer data)
+{
+  gboolean active = gtk_toggle_button_get_active (button);
+ 
+  ghidgui->use_extra_toolbar = active;
+  ghid_set_extra_toolbar_state();
+  ghidgui->config_modified = TRUE;
+}
+
 
 static void
 config_general_toggle_cb (GtkToggleButton * button, void * setting)
@@ -938,6 +952,11 @@ config_general_tab_create (GtkWidget * tab_vbox)
 			       TRUE, FALSE, FALSE, 2,
 			       config_compact_vertical_toggle_cb, NULL,
 			       _("Alternate window layout to allow smaller vertical size"));
+
+  ghid_check_button_connected (vbox, NULL, ghidgui->use_extra_toolbar,
+			       TRUE, FALSE, FALSE, 2,
+			       config_extra_toolbar_toggle_cb, NULL,
+			       _("Display tool icons on toolbar"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Backups"), 4, 2, TRUE, TRUE);
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,

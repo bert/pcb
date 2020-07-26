@@ -1088,16 +1088,36 @@ ghid_mode_buttons_update (void)
 }
 
 void
+ghid_show_toolbar_list(GList* list)
+{
+  GList* l;
+  for (l = list; l != NULL; l = l->next)
+    {
+	  gtk_widget_show_all (GTK_WIDGET(l->data));
+    }	
+}
+
+void
+ghid_hide_toolbar_list(GList* list)
+{
+  GList* l;
+  for (l = list; l != NULL; l = l->next)
+    {
+	  gtk_widget_hide (GTK_WIDGET(l->data));
+    }	
+}
+
+void
 ghid_pack_mode_buttons (void)
 {
   if (ghidgui->compact_vertical)
     {
       gtk_widget_hide (ghidgui->mode_buttons_frame);
-      gtk_widget_show_all (ghidgui->mode_toolbar);
+      ghid_show_toolbar_list(ghidgui->mode_toolbar.mode_list);
     }
   else
     {
-      gtk_widget_hide (ghidgui->mode_toolbar);
+      ghid_hide_toolbar_list(ghidgui->mode_toolbar.mode_list);
       gtk_widget_show_all (ghidgui->mode_buttons_frame);
     }
 }
@@ -1114,9 +1134,10 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
   GSList *toolbar_group = NULL;
   ModeButton *mb;
   int i;
+  GList* list = ghidgui->mode_toolbar.mode_list;
+
 
   *mode_toolbar = gtk_toolbar_new ();
-
   *mode_frame = gtk_frame_new (NULL);
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (*mode_frame), vbox);
@@ -1151,6 +1172,8 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
       tool_item = gtk_tool_item_new ();
       gtk_container_add (GTK_CONTAINER (tool_item), mb->toolbar_button);
       gtk_toolbar_insert (GTK_TOOLBAR (*mode_toolbar), tool_item, -1);
+      /* add the toolbar item to the mode list */
+      list = g_list_prepend(list, tool_item);
 
       /* Load the image for the button, create GtkImage widgets for both
        * the grid button and the toolbar button, then pack into the buttons
@@ -1175,6 +1198,7 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
         g_signal_connect (mb->toolbar_button, "toggled",
                           G_CALLBACK (mode_toolbar_button_toggled_cb), mb);
     }
+    ghidgui->mode_toolbar.mode_list = list;
 }
 
 
@@ -1215,7 +1239,7 @@ get_widget_styles (GtkStyle **menu_bar_style,
 
   /* Build a tool item to extract the theme's styling for a toolbar button with text */
   tool_item = gtk_tool_item_new ();
-  gtk_toolbar_insert (GTK_TOOLBAR (ghidgui->mode_toolbar), tool_item, 0);
+  gtk_toolbar_insert (GTK_TOOLBAR (ghidgui->mode_toolbar.toolbar), tool_item, 0);
   tool_button = gtk_button_new ();
   gtk_container_add (GTK_CONTAINER (tool_item), tool_button);
   tool_button_label = gtk_label_new ("");
@@ -1332,11 +1356,11 @@ ghid_build_pcb_top_window (void)
    */
   ghidgui->menu_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (ghidgui->top_hbox), ghidgui->menu_hbox,
-		      FALSE, FALSE, 0);
+		      TRUE, TRUE, 0);
 
   ghidgui->menubar_toolbar_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (ghidgui->menu_hbox),
-                      ghidgui->menubar_toolbar_vbox, FALSE, FALSE, 0);
+                      ghidgui->menubar_toolbar_vbox, TRUE, TRUE, 0);
 
   /* Build layer menus */
   ghidgui->layer_selector = ghid_layer_selector_new ();
@@ -1356,18 +1380,20 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
                       ghidgui->menu_bar, FALSE, FALSE, 0);
 
-  /* Build top toolbar */
-  ghid_make_top_toolbar(ghidgui->menubar_toolbar_vbox);
-
   make_mode_buttons_and_toolbar (&ghidgui->mode_buttons_frame,
-                                 &ghidgui->mode_toolbar);
-  gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
-                      ghidgui->mode_toolbar, FALSE, FALSE, 0);
+                                 &ghidgui->mode_toolbar.toolbar);
 
+  /* build extra toolbar */
+  ghid_make_extra_toolbar();
+  gtk_box_pack_end(GTK_BOX(ghidgui->menubar_toolbar_vbox),
+                      ghidgui->extra_toolbar, FALSE, FALSE, 0);
+
+  gtk_box_pack_end(GTK_BOX (ghidgui->menubar_toolbar_vbox),
+                      ghidgui->mode_toolbar.toolbar, FALSE, FALSE, 0);
 
   ghidgui->position_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_end (GTK_BOX(ghidgui->top_hbox),
-                    ghidgui->position_hbox, TRUE, TRUE, 0);
+                    ghidgui->position_hbox, FALSE, FALSE, 0);
 
   make_cursor_position_labels (ghidgui->position_hbox, port);
 
@@ -1525,6 +1551,7 @@ ghid_build_pcb_top_window (void)
   gdk_window_set_back_pixmap (gtk_widget_get_window (gport->drawing_area),
                               NULL, FALSE);
 
+  ghid_set_extra_toolbar_state();
   port->tooltip_update_timeout_id = 0;
 }
 
