@@ -909,6 +909,11 @@ WritePCB (FILE * FP)
     WriteLayerData (FP, i, &(PCB->Data->Layer[i]));
   WritePCBNetlistData (FP);
 
+  if (ferror (FP))
+    Message (_("Error writing PCB file\n"));
+  else
+    Message (_("PCB file saved\n"));
+
   return (STATUS_OK);
 }
 
