@@ -932,7 +932,12 @@ WritePCBFile (char *Filename)
       return (STATUS_ERROR);
     }
   result = WritePCB (fp);
+
+  if (ferror (fp))
+    Message (_("Error writing PCB backup file %s\n"), Filename);
+
   fclose (fp);
+  Message (_("PCB backup file %s saved\n"), Filename);
   return (result);
 }
 
