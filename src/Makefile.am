@@ -14,7 +14,7 @@ EXTRA_LIBRARIES = \
 	libdrc.a \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a libipcd356.a libgsvit.a
+	libgcode.a libipcd356.a libgsvit.a libbboard.a
 
 pcblib_DATA= \
 	default_font \
@@ -252,6 +252,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/gsvit/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
+	$(srcdir)/hid/bboard/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
@@ -454,6 +455,11 @@ libipcd356_a_CPPFLAGS = -I$(top_srcdir)
 libipcd356_a_SOURCES = \
 	hid/hidint.h \
 	hid/ipcd356/ipcd356.c
+
+libbboard_a_CPPFLAGS = -I$(top_srcdir)
+libbboard_a_SOURCES = \
+	hid/hidint.h \
+	hid/bboard/bboard.c
 
 libps_a_CPPFLAGS = -I$(top_srcdir) -I./hid/ps
 LIBPS_SRCS = \
