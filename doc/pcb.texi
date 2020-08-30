@@ -4362,6 +4362,11 @@ the masks used in board manufacturing.  In fact, older mask making
 equipment created lines in precisely this fashion.  A physical aperture was
 used to pass light through onto a photosensitive film.
 
+There is an alternate representation of the pad - a pad can be specified as
+coordinates of its centerpoint and pad size. The pad is internally stored
+in traditional format. This format significantly simplifies the manual design
+of elements.
+
 @node Layout File
 @section Layout File Format
 @cindex layout files, format of

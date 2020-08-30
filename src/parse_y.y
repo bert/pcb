@@ -1690,7 +1690,9 @@ relementdef
 		: pin_1.7_format
 		| pin_hi_format
 		| pad_1.7_format
+		| pad_1.7c_format
 		| pad_hi_format
+		| pad_hic_format
 			/* x1, y1, x2, y2, thickness */
 		| T_ELEMENTLINE '[' measure measure measure measure measure ']'
 			{
@@ -1835,6 +1837,7 @@ Current syntax:
 
 @syntax
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" SFlags]
+Pad [cX cY sX sY Clearance Mask "Name" "Number" SFlags]
 @end syntax
 
 @noindent
@@ -1842,6 +1845,7 @@ Legacy syntax:
 
 @syntax
 Pad (rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" NFlags)
+Pad (cX cY sX sY Clearance Mask "Name" "Number" NFlags)
 Pad (aX1 aY1 aX2 aY2 Thickness "Name" "Number" NFlags)
 Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
 @end syntax
@@ -1854,6 +1858,8 @@ the thickness.  To make a square or round pad, specify the same
 coordinate twice.
 @item aX1 aY1 aX2 aY2
 Same, but absolute coordinates of the endpoints of the pad.
+@item cX cY sX sY
+Coordinates of the pad centerpoint (cX, cY) and pad size (sX, sY).
 @item Thickness
 width of the pad.
 @item Clearance
@@ -1886,6 +1892,32 @@ pad_hi_format
 			}
 		;
 
+pad_hic_format
+			/* x, y, w, h, clearance, mask, name , pad number, flags */
+		: T_PAD '[' measure measure measure measure measure measure STRING STRING flags ']'
+			{
+				Coord tx = NU ($3),
+				      ty = NU ($4),
+				      tw = NU ($5),
+				      th = NU ($6),
+				      thk,
+				      dx,
+				      dy;
+
+				thk = (tw > th)?th:tw;
+				dx = (tw > th)?((tw - th)/2):0;
+				dy = (tw > th)?0:((th - tw)/2);
+
+				CreateNewPad(yyElement, tx - dx + yyElement->MarkX,
+					ty - dy + yyElement->MarkY,
+					tx + dx + yyElement->MarkX,
+					ty + dy + yyElement->MarkY, thk, NU ($7), NU ($8),
+					$9, $10, $11);
+				free ($9);
+				free ($10);
+			}
+		;
+
 pad_1.7_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
 		: T_PAD '(' measure measure measure measure measure measure measure STRING STRING INTEGER ')'
@@ -1896,6 +1928,31 @@ pad_1.7_format
 					$10, $11, OldFlags($12));
 				free ($10);
 				free ($11);
+			}
+		;
+
+pad_1.7c_format
+			/* x, y, w, h, clearance, mask, name , pad number, flags */
+		: T_PAD '(' measure measure measure measure measure measure STRING STRING INTEGER ')'
+			{
+				Coord tx = OU ($3),
+				      ty = OU ($4),
+				      tw = OU ($5),
+				      th = OU ($6),
+				      thk,
+				      dx,
+				      dy;
+
+				thk = (tw > th)?th:tw;
+				dx = (tw > th)?((tw - th)/2):0;
+				dy = (tw > th)?0:((th - tw)/2);
+
+				CreateNewPad(yyElement, tx - dx + yyElement->MarkX,
+					ty - dy + yyElement->MarkY, tx + dx + yyElement->MarkX,
+					ty + dy + yyElement->MarkY, thk, OU ($7), OU ($8),
+					$9, $10, OldFlags($11));
+				free ($9);
+				free ($10);
 			}
 		;
 
