@@ -16,6 +16,7 @@ src/file.c
 src/find.c
 src/gpcb-menu.res.h
 src/hid/batch/batch.c
+src/hid/bom_md/bom_md.c
 src/hid/common/actions.c
 src/hid/common/hidnogui.c
 src/hid/gerber/gerber.c

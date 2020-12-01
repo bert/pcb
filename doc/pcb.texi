@@ -1977,6 +1977,7 @@ select the desired exporter.
 
 @menu
 * bom::                Bill of materials.
+* bom_md::             Bill of materials in MarkDown format.
 * gcode::              G-code.
 * gerber::             Gerber.
 * ps::                 Postscript.
@@ -1993,6 +1994,13 @@ select the desired exporter.
 @cindex bill of materials
 
 Produces a bill of materials (BOM) file and a centroid (XY) file.
+
+@node bom_md
+@subsection Bill Of Materials in MarkDown format (bom_md)
+@cindex bom_md
+@cindex bill of materials in MarkDown format
+
+Produces a bill of materials (BOM) file in MarkDown format.
 
 @node gcode
 @subsection G-code (gcode)
