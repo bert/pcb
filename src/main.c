@@ -869,7 +869,7 @@ Color of the mask layer. Default value is @code{"#ff0000"}
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 All parameters should be given with an unit. If no unit is given, 1/100 mil
 (cmil) will be used. Write units without space to the
 number like @code{3mm}, not @code{3 mm}.
@@ -904,7 +904,7 @@ Default diameter of vias. Default value is @code{60mil}.
   CSET (ViaThickness, MIL_TO_COORD(60), "via-thickness",
   "default diameter of vias in 1/100 mil"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --via-drilling-hole <num>
 Default diameter of holes. Default value is @code{28mil}.
@@ -914,7 +914,7 @@ Default diameter of holes. Default value is @code{28mil}.
   CSET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole",
   "default diameter of holes"),
   
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --via-solder-mask-clerance <num>
 Default soldermask clearance around vias. Default value is @code{0mil}.
@@ -924,7 +924,7 @@ Default soldermask clearance around vias. Default value is @code{0mil}.
   CSET (ViaMaskAperture, MIL_TO_COORD(0), "via-solder-mask-aperture",
         "default solder mask aperture for vias"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --line-thickness <num>
 Default thickness of new lines. Default value is @code{10mil}.
@@ -934,7 +934,7 @@ Default thickness of new lines. Default value is @code{10mil}.
   CSET (LineThickness, MIL_TO_COORD(10), "line-thickness",
 	"initial thickness of new lines"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --rat-thickness <num><unit>
 Thickness of rats. If no unit is given, PCB units are assumed (i.e. 100 
@@ -947,7 +947,7 @@ Default value is @code{10mil}.
 */
   CSET (RatThickness, MIL_TO_COORD(10), "rat-thickness", "thickness of rat lines"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --keepaway <num>
 Default minimum distance between a track and adjacent copper.
@@ -957,7 +957,7 @@ Default value is @code{10mil}.
 */
   CSET (Keepaway, MIL_TO_COORD(10), "keepaway", "minimum distance between adjacent copper"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --default-PCB-width <num>
 Default width of the canvas. Default value is @code{6000mil}.
@@ -967,7 +967,7 @@ Default width of the canvas. Default value is @code{6000mil}.
   CSET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width",
   "default width of the canvas"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --default-PCB-height <num>
 Default height of the canvas. Default value is @code{5000mil}.
@@ -977,7 +977,7 @@ Default height of the canvas. Default value is @code{5000mil}.
   CSET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height",
   "default height of the canvas"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --text-scale <num>
 Default text scale. This value is in percent. Default value is @code{100}.
@@ -986,7 +986,7 @@ Default text scale. This value is in percent. Default value is @code{100}.
 */
   ISET (TextScale, 100, "text-scale", "default text scale in percent"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --alignment-distance <num>
 Specifies the distance between the board outline and alignment targets.
@@ -997,7 +997,7 @@ Default value is @code{2mil}.
   CSET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance",
   "distance between the boards outline and alignment targets"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 All parameters should be given with an unit. If no unit is given, 1/100 mil
 (cmil) will be used for backward compability. Valid units are given in section
 @ref{Sizes}.
@@ -1005,7 +1005,7 @@ All parameters should be given with an unit. If no unit is given, 1/100 mil
 */
 
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --bloat <num>
 Minimum spacing. Default value is @code{10mil}.
@@ -1014,7 +1014,7 @@ Minimum spacing. Default value is @code{10mil}.
 */
   CSET (Bloat, MIL_TO_COORD(10), "bloat", "DRC minimum spacing in 1/100 mil"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --shrink <num>
 Minimum touching overlap. Default value is @code{10mil}.
@@ -1023,7 +1023,7 @@ Minimum touching overlap. Default value is @code{10mil}.
 */
   CSET (Shrink, MIL_TO_COORD(10), "shrink", "DRC minimum overlap in 1/100 mils"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --min-width <num>
 Minimum width of copper. Default value is @code{10mil}.
@@ -1032,7 +1032,7 @@ Minimum width of copper. Default value is @code{10mil}.
 */
   CSET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --min-silk <num>
 Minimum width of lines in silk. Default value is @code{10mil}.
@@ -1041,7 +1041,7 @@ Minimum width of lines in silk. Default value is @code{10mil}.
 */
   CSET (minSlk, MIL_TO_COORD(10), "min-silk", "DRC minimum silk width"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --min-drill <num>
 Minimum diameter of holes. Default value is @code{15mil}.
@@ -1050,7 +1050,7 @@ Minimum diameter of holes. Default value is @code{15mil}.
 */
   CSET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
 
-/* %start-doc options "7 DRC Options"
+/* %start-doc options "8 DRC Options"
 @ftable @code
 @item --min-ring <num>
 Minimum width of annular ring. Default value is @code{10mil}.
@@ -1060,7 +1060,7 @@ Minimum width of annular ring. Default value is @code{10mil}.
   CSET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
 
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --grid <num>
 Initial grid size. Default value is @code{10mil}.
@@ -1069,7 +1069,7 @@ Initial grid size. Default value is @code{10mil}.
 */
   CSET (Grid, MIL_TO_COORD(10), "grid", "Initial grid size in 1/100 mil"),
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --minimum polygon area <num>
 Minimum polygon area.
@@ -1079,7 +1079,7 @@ Minimum polygon area.
   RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
 
 
-/* %start-doc options "5 Sizes"
+/* %start-doc options "6 Sizes"
 @ftable @code
 @item --paste-adjust <num>
 Adjust pad thickness in paste layer. Default value is @code{0}.
@@ -1188,7 +1188,7 @@ Layer group string. Defaults to @code{"1,c:2:3:4:5:6,s:7:8"}.
   SSET (Groups, "1,c:2:3:4:5:6,s:7:8", "groups", "Layer group string"),
 
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 pcb uses external commands for input output operations. These commands can be
 configured at start-up to meet local requirements. The command string may include
 special sequences @code{%f}, @code{%p} or @code{%a}. These are replaced when the
@@ -1197,7 +1197,7 @@ command is called. The sequence @code{%f} is replaced by the file name,
 %end-doc
 */
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --font-command <string>
 Command to load a font.
@@ -1206,7 +1206,7 @@ Command to load a font.
 */
   SSET (FontCommand, "", "font-command", "Command to load a font"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --file-command <string>
 Command to read a file.
@@ -1215,7 +1215,7 @@ Command to read a file.
 */
   SSET (FileCommand, "", "file-command", "Command to read a file"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --element-command <string>
 Command to read a footprint. @*
@@ -1227,7 +1227,7 @@ Defaults to @code{"M4PATH='%p';export M4PATH;echo 'include(%f)' | m4"}
 	"M4PATH='%p';export M4PATH;echo 'include(%f)' | " GNUM4,
 	"element-command", "Command to read a footprint"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --print-file <string>
 Command to print to a file.
@@ -1236,7 +1236,7 @@ Command to print to a file.
 */
   SSET (PrintFile, "%f.output", "print-file", "Command to print to a file"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --lib-command-dir <string>
 Path to the command that queries the library.
@@ -1246,7 +1246,7 @@ Path to the command that queries the library.
   SSET (LibraryCommandDir, PCBLIBDIR, "lib-command-dir",
        "Path to the command that queries the library"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --lib-command <string>
 Command to query the library. @*
@@ -1257,7 +1257,7 @@ Defaults to @code{"QueryLibrary.sh '%p' '%f' %a"}
   SSET (LibraryCommand, "QueryLibrary.sh '%p' '%f' %a",
        "lib-command", "Command to query the library"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --lib-contents-command <string>
 Command to query the contents of the library. @*
@@ -1284,7 +1284,7 @@ Top level directory for the newlib style library.
   SSET (LibraryTree, PCBTREEPATH, "lib-newlib",
 	"Top level directory for the newlib style library"),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --save-command <string>
 Command to save to a file.
@@ -1339,7 +1339,7 @@ filename.
 */
   SSET (FilePath, "", "file-path", 0),
 
-/* %start-doc options "6 Commands"
+/* %start-doc options "7 Commands"
 @ftable @code
 @item --rat-command <string>
 Command for reading a netlist. Sequence @code{%f} is replaced by the netlist filename.
