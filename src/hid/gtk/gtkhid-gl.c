@@ -587,10 +587,26 @@ void
 ghid_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   USE_GC (gc);
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+    ghid_set_alpha_mult (gc, 0.25);
 
   hidgl_fill_pcb_polygon (poly, clip_box, gport->view.coord_per_px);
+  ghid_set_alpha_mult (gc, 1.0);
 }
 
+/* 
+ * TODO: remove at next major revision
+ * This funciton was initially used to override the common function so that the
+ * hidgl HID would fill the thin-drawn polygons using transparency. Due to the
+ * implementation of opengl, all opaque objects must be drawn before transparent
+ * ones. As a result, in order to correctly draw objects in thin-draw mode, the
+ * drawing of objects and polygon outlines must be done first, prior to drawing
+ * the fill.
+ * 
+ * The call to the common thindraw_pcb_polygon has been restored, and a second
+ * polygon draw phase has been added. The first phase only draws the outlines of
+ * the polygons and the second phase now draws the fill.
+ */
 void
 ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
@@ -800,7 +816,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   /* Setup HID function pointers specific to the GL renderer*/
   ghid_hid.end_layer = ghid_end_layer;
   ghid_graphics.fill_pcb_polygon = ghid_fill_pcb_polygon;
-  ghid_graphics.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
+  /*ghid_graphics.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;*/
 }
 
 void
