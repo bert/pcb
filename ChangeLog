@@ -1,6 +1,151 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Update appdata for release 4.3.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Update NEWS for release 4.3.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Update the User Manual for release 4.3.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb.dox: Update pcb.dox for release 4.3.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac: Update configure.ac for release 4.3.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* : commit 75be3eb61691093f0f5bff4ebebf4ce664fd1879  Author: bert *
+	bert dot timmerman AT xs4all dot nl * Date:   Sun Feb 28 19:15:59
+	2021 +0100
+
+2021-02-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* : commit a3dd6d8e0d7a8c27c95f59a24922e1c99591448e  Author: Charles
+	Parker * parker dot charles AT gmail dot com * Date:   Sun Feb 7
+	13:24:10 2021 -0500
+
+2020-12-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/pcb.texi, po/POTFILES.in, src/Makefile.am,
+	src/hid/bom_md/bom_md.c, src/hid/bom_md/hid.conf: Added a MarkDown
+	format Bill of Materials exporter.  Requires some more work on exporting user added attribs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-08-30   Milan Prochac * milan AT prochac dot sk *
+
+	* doc/pcb.texi, src/parse_y.y: Center/size format for Pad
+	specification in file format.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-08-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c: Added an error message about saving a PCB backup file
+	successful or not.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-08-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c: Added an error message about saving a PCB file
+	successful or not.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c: Trying to
+	clarify that Zoom() works on default units.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-06-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gsvit/gsvit.c: [gsvit] cast uint32 to int in sprintf width
+	and height.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2010-06-26   Gareth Edwards * gareth AT edwardsfamily dot org dot uk *
+
+	* configure.ac, tools/Makefile.am: Add --with-gaf-datadir configure
+	option Allow the installation of new scheme files for gaf into a directory
+	that isn't the same one that PCB is installed to. Added the
+	GAFDATADIR variable to the autotools setup and changed the
+	Makefile.am template to use that instead of ${datadir}  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-06-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/tools/pcb.py: Removed trailing whitespace.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-route-style-selector.c,
+	src/hid/gtk/ghid-route-style-selector.h: Adeed a copyright notice to
+	ghid-route-style-selector.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-cell-renderer-visibility.c,
+	src/hid/gtk/ghid-cell-renderer-visibility.h: Added a copyright
+	notice to ghid-cell-renderer-visibility.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-coord-entry.c, src/hid/gtk/ghid-coord-entry.h,
+	src/hid/gtk/ghid-layer-selector.c,
+	src/hid/gtk/ghid-layer-selector.h, src/hid/gtk/ghid-main-menu.h: 
+	Added copyright notices.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-coord-entry.c: Corrections in doxygen comments in
+	ghid-coord-entry.c  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-utils.c: Doxygenation of gui-utils.c.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Update appdata for release 4.2.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Update NEWS for release 4.2.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Update the User Manual for release 4.2.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-04   أحمد المحمودي (Ahmed El-Mahmoudy) * aelmahmoudy AT users dot sourceforge dot net *
+
+	* configure.ac: Use PKG_PROG_PKG_CONFIG macro to check for
+	pkg-config.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/eps2png: Updated the eps2png script updated to version 2.9.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/eps2png: Updated the eps2png script.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2020-01-03   أحمد المحمودي (Ahmed El-Mahmoudy) * aelmahmoudy AT sabily dot org *
+
+	* src/hid/gcode/gcode.c: fixed spelling.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb-releases.html: Corrections in the pcb-releases
+	developer documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated the NEWS for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2019-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog: Updated the ChangeLog for pcb-4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
 
 	* NEWS: Updated NEWS for pcb-4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
@@ -12,14 +157,6 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
 
 	* doc/pcb.texi: Update the User Manual for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
-
-	* doc/doxygen/pcb.dox: Update pcb.dox for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2019-12-30   bert * bert dot timmerman AT xs4all dot nl *
-
-	* configure.ac: Update configure.ac for release 4.2.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2019-12-01   bert * bert dot timmerman AT xs4all dot nl *
 
@@ -218,11 +355,9 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2019-05-26   Charles Parker * parker dot charles AT gmail dot com *
 
-	* tests/golden/hid_gsvit1/gsvit_board.xem,
-	tests/golden/hid_gsvit4/gsvit_board.xem,
-	tests/golden/hid_nelma1/nelma_board.em,
-	tests/golden/hid_nelma4/nelma_board.em, tests/tests.list: Combine
-	the nelma and gsvit tests.  All four tests produced the same output, but tested different files.
+	* tests/golden/{hid_gsvit4 => hid_gsvit1}/gsvit_board.xem,
+	tests/golden/{hid_nelma4 => hid_nelma1}/nelma_board.em,
+	tests/tests.list: Combine the nelma and gsvit tests.  All four tests produced the same output, but tested different files.
 	Each test should produce a unique set of outputs and all necessary
 	checks executed as part of one test.
 
@@ -323,29 +458,28 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2019-01-29   Charles Parker * parker dot charles AT gmail dot com *
 
-	* tests/Makefile.am,
-	tests/golden/drc-clearance-arcs-buriedvias/drcreport.txt,
-	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
-	tests/golden/drc-clearance-buriedvias-buriedvias/drcreport.txt,
-	tests/golden/drc-clearance-burriedvias-burriedvias/drcreport.txt,
-	tests/golden/drc-clearance-lines-buriedvias/drcreport.txt,
-	tests/golden/drc-clearance-lines-burriedvias/drcreport.txt,
-	tests/golden/drc-clearance-pads-buriedvias/drcreport.txt,
-	tests/golden/drc-clearance-pads-burriedvias/drcreport.txt,
-	tests/golden/drc-clearance-vias-buriedvias/drcreport.txt,
-	tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
-	tests/inputs/drctest-clearance-arcs-buriedvias.pcb,
-	tests/inputs/drctest-clearance-arcs-burriedvias.pcb,
+	* tests/Makefile.am, tests/golden/{drc-clearance-arcs-burriedvias
+	=> drc-clearance-arcs-buriedvias}/drcreport.txt,
+	tests/golden/{drc-clearance-burriedvias-burriedvias =>
+	drc-clearance-buriedvias-buriedvias}/drcreport.txt,
+	tests/golden/{drc-clearance-lines-burriedvias =>
+	drc-clearance-lines-buriedvias}/drcreport.txt,
+	tests/golden/{drc-clearance-pads-burriedvias =>
+	drc-clearance-pads-buriedvias}/drcreport.txt,
+	tests/golden/{drc-clearance-vias-burriedvias =>
+	drc-clearance-vias-buriedvias}/drcreport.txt,
+	tests/inputs/{drctest-clearance-arcs-burriedvias.pcb =>
+	drctest-clearance-arcs-buriedvias.pcb},
 	tests/inputs/drctest-clearance-arcs-vias.pcb,
-	tests/inputs/drctest-clearance-buriedvias-buriedvias.pcb,
-	tests/inputs/drctest-clearance-burriedvias-burriedvias.pcb,
-	tests/inputs/drctest-clearance-lines-buriedvias.pcb,
-	tests/inputs/drctest-clearance-lines-burriedvias.pcb,
-	tests/inputs/drctest-clearance-pads-buriedvias.pcb,
-	tests/inputs/drctest-clearance-pads-burriedvias.pcb,
-	tests/inputs/drctest-clearance-vias-buriedvias.pcb,
-	tests/inputs/drctest-clearance-vias-burriedvias.pcb: [bugfix]
-	Correct spelling errors.  It's buried, not burried.
+	tests/inputs/{drctest-clearance-burriedvias-burriedvias.pcb =>
+	drctest-clearance-buriedvias-buriedvias.pcb},
+	tests/inputs/{drctest-clearance-lines-burriedvias.pcb =>
+	drctest-clearance-lines-buriedvias.pcb},
+	tests/inputs/{drctest-clearance-pads-burriedvias.pcb =>
+	drctest-clearance-pads-buriedvias.pcb},
+	tests/inputs/{drctest-clearance-vias-burriedvias.pcb =>
+	drctest-clearance-vias-buriedvias.pcb}: [bugfix] Correct spelling
+	errors.  It's buried, not burried.
 
 2019-01-27   Charles Parker * parker dot charles AT gmail dot com *
 
@@ -459,24 +593,12 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* tests/Makefile.am,
 	tests/golden/DRCTests/drctest-clearance-arcs.txt,
-	tests/golden/DRCTests/drctest-clearance-lines.txt,
 	tests/golden/DRCTests/drctest-clearance-pads.txt,
 	tests/golden/DRCTests/drctest-clearance-vias.txt,
-	tests/golden/DRCTests/drctest-minsize-arcs.txt,
-	tests/golden/DRCTests/drctest-minsize-lines.txt,
-	tests/golden/DRCTests/drctest-minsize-pads.txt,
-	tests/golden/DRCTests/drctest-minsize-pins.txt,
-	tests/golden/DRCTests/drctest-minsize-polygons.txt,
-	tests/golden/DRCTests/drctest-minsize-vias.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-arcs.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-lines.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-misc.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-pads.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-pins.txt,
-	tests/golden/DRCTests/drctest-polygonclearance-vias.txt,
 	tests/golden/drc-clearance-arcs-arcs/drcreport.txt,
 	tests/golden/drc-clearance-arcs-burriedvias/drcreport.txt,
-	tests/golden/drc-clearance-arcs-lines/drcreport.txt,
+	tests/golden/{DRCTests/drctest-minsize-polygons.txt =>
+	drc-clearance-arcs-lines/drcreport.txt},
 	tests/golden/drc-clearance-arcs-pads/drcreport.txt,
 	tests/golden/drc-clearance-arcs-vias/drcreport.txt,
 	tests/golden/drc-clearance-burriedvias-burriedvias/drcreport.txt,
@@ -492,21 +614,33 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	tests/golden/drc-clearance-pads-pads/drcreport.txt,
 	tests/golden/drc-clearance-pads-vias/drcreport.txt,
 	tests/golden/drc-clearance-vias-arcs/drcreport.txt,
-	tests/golden/drc-clearance-vias-burriedvias/drcreport.txt,
+	tests/golden/{DRCTests/drctest-clearance-lines.txt =>
+	drc-clearance-vias-burriedvias/drcreport.txt},
 	tests/golden/drc-clearance-vias-lines/drcreport.txt,
 	tests/golden/drc-clearance-vias-vias/drcreport.txt,
-	tests/golden/drc-minsize-arcs/drcreport.txt,
-	tests/golden/drc-minsize-lines/drcreport.txt,
-	tests/golden/drc-minsize-pads/drcreport.txt,
-	tests/golden/drc-minsize-pins/drcreport.txt,
+	tests/golden/{DRCTests/drctest-minsize-arcs.txt =>
+	drc-minsize-arcs/drcreport.txt},
+	tests/golden/{DRCTests/drctest-minsize-lines.txt =>
+	drc-minsize-lines/drcreport.txt},
+	tests/golden/{DRCTests/drctest-minsize-pads.txt =>
+	drc-minsize-pads/drcreport.txt},
+	tests/golden/{DRCTests/drctest-minsize-pins.txt =>
+	drc-minsize-pins/drcreport.txt},
 	tests/golden/drc-minsize-polygons/drcreport.txt,
-	tests/golden/drc-minsize-vias/drcreport.txt,
-	tests/golden/drc-polygonclearance-arcs/drcreport.txt,
-	tests/golden/drc-polygonclearance-lines/drcreport.txt,
-	tests/golden/drc-polygonclearance-misc/drcreport.txt,
-	tests/golden/drc-polygonclearance-pads/drcreport.txt,
-	tests/golden/drc-polygonclearance-pins/drcreport.txt,
-	tests/golden/drc-polygonclearance-vias/drcreport.txt,
+	tests/golden/{DRCTests/drctest-minsize-vias.txt =>
+	drc-minsize-vias/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-arcs.txt =>
+	drc-polygonclearance-arcs/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-lines.txt =>
+	drc-polygonclearance-lines/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-misc.txt =>
+	drc-polygonclearance-misc/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-pads.txt =>
+	drc-polygonclearance-pads/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-pins.txt =>
+	drc-polygonclearance-pins/drcreport.txt},
+	tests/golden/{DRCTests/drctest-polygonclearance-vias.txt =>
+	drc-polygonclearance-vias/drcreport.txt},
 	tests/inputs/drctest-clearance-arcs-arcs.pcb,
 	tests/inputs/drctest-clearance-arcs-burriedvias.pcb,
 	tests/inputs/drctest-clearance-arcs-lines.pcb,
@@ -519,18 +653,18 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	tests/inputs/drctest-clearance-lines-lines.pcb,
 	tests/inputs/drctest-clearance-lines-pads.pcb,
 	tests/inputs/drctest-clearance-lines-vias.pcb,
-	tests/inputs/drctest-clearance-lines.pcb,
 	tests/inputs/drctest-clearance-pads-arcs.pcb,
 	tests/inputs/drctest-clearance-pads-burriedvias.pcb,
-	tests/inputs/drctest-clearance-pads-lines.pcb,
+	tests/inputs/{drctest-clearance-lines.pcb =>
+	drctest-clearance-pads-lines.pcb},
 	tests/inputs/drctest-clearance-pads-pads.pcb,
 	tests/inputs/drctest-clearance-pads-vias.pcb,
 	tests/inputs/drctest-clearance-pads.pcb,
 	tests/inputs/drctest-clearance-vias-arcs.pcb,
-	tests/inputs/drctest-clearance-vias-burriedvias.pcb,
+	tests/inputs/{drctest-clearance-vias.pcb =>
+	drctest-clearance-vias-burriedvias.pcb},
 	tests/inputs/drctest-clearance-vias-lines.pcb,
 	tests/inputs/drctest-clearance-vias-vias.pcb,
-	tests/inputs/drctest-clearance-vias.pcb,
 	tests/inputs/drctest.script, tests/tests.list,
 	tests/tools/regen_drctest.sh: [tests] Split the DRC tests into
 	pieces.  One benefit of this is that the object IDs listed in the DRC report
@@ -686,15 +820,15 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2018-12-31   Charles Parker * parker dot charles AT gmail dot com *
 
 	* src/hid/bom/bom.c, tests/Makefile.am,
-	tests/golden/hid_bom3/bom_general.bom, tests/golden/hid_bom3/mm.xy,
-	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom3/bom_general.bom,
+	tests/golden/{hid_bom4/bom_general.xy => hid_bom3/mm.xy},
 	tests/golden/hid_bom4/bom_general.bom,
-	tests/golden/hid_bom4/bom_general.xy,
-	tests/golden/hid_bom4/inches.xy, tests/golden/hid_bom5/mil.xy,
-	tests/golden/hid_bom6/dmil.xy, tests/golden/hid_bom7/cmil.xy,
-	tests/golden/hid_bom8/cm.xy, tests/golden/hid_bom9/um.xy,
-	tests/inputs/bom_general.pcb, tests/tests.list: [bom] Fix dmil
-	output, add tests for some other output units.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+	tests/golden/hid_bom4/inches.xy, tests/golden/{hid_bom3/test.xy =>
+	hid_bom5/mil.xy}, tests/golden/hid_bom6/dmil.xy,
+	tests/golden/hid_bom7/cmil.xy, tests/golden/hid_bom8/cm.xy,
+	tests/golden/hid_bom9/um.xy, tests/inputs/bom_general.pcb,
+	tests/tests.list: [bom] Fix dmil output, add tests for some other
+	output units.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2019-01-01   Charles Parker * parker dot charles AT gmail dot com *
 
@@ -868,10 +1002,11 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2018-11-22   Charles Parker * parker dot charles AT gmail dot com *
 
-	* po/POTFILES.in, src/Makefile.am, src/action.c, src/drc.c,
-	src/drc.h, src/drc/drc.c, src/drc/drc.h, src/drc/drc_object.h,
-	src/drc/drc_violation.c, src/drc/drc_violation.h, src/find.c,
-	src/find.h, src/hid.h: [DRC] Remove DRC functions from find.c They're exploding into files in the drc/ directory so that different
+	* po/POTFILES.in, src/Makefile.am, src/action.c, src/drc/drc.c,
+	src/drc/drc.h, src/drc/drc_object.h, src/{drc.c =>
+	drc/drc_violation.c}, src/{drc.h => drc/drc_violation.h},
+	src/find.c, src/find.h, src/hid.h: [DRC] Remove DRC functions from
+	find.c They're exploding into files in the drc/ directory so that different
 	functions can be better isolated.  DRCObject.h was created primarily to avoid a circular dependency,
 	but it could also form the basis for a more generic "pcb object".  This also contains a number of whitespace/readability updates.
 
@@ -921,7 +1056,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2018-08-26   Charles Parker * parker dot charles AT gmail dot com *
 
-	* src/find.c: [DRC] Add lots of comments and update white space.  # Conflicts: #	src/find.c
+	* src/find.c: [DRC] Add lots of comments and update white space.  # Conflicts: #       src/find.c
 
 2017-02-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
 
@@ -1979,7 +2114,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
 
-	* README.ppa, doc/doxygen/README.ppa: README.ppa: moved to
+	* README.ppa => doc/doxygen/README.ppa: README.ppa: moved to
 	doc/doxygen.  Added corrections and changes.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
@@ -2693,8 +2828,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2017-01-14   Dan McMahill * dan AT mcmahill dot net *
 
-	* : commit ee863b2779d9b1035eac4e250c3580bde03694b3 Merge: 4560ac3
-	f08393f  Author: Dan McMahill * dan AT mcmahill dot net * Date:
+	* : commit ee863b2779d9b1035eac4e250c3580bde03694b3 Merge: 4560ac38
+	f08393f8  Author: Dan McMahill * dan AT mcmahill dot net * Date:
 	Sat Jan 14 13:26:41 2017 -0500
 
 2017-01-14   Dan McMahill * dan AT mcmahill dot net *
@@ -3721,7 +3856,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2015-10-15   bert * bert dot timmerman AT xs4all dot nl *
 
-	* doc/td_ex1.pcb, doc/td_ex1_.pcb: Changed name of teardrop example
+	* doc/{td_ex1.pcb => td_ex1_.pcb}: Changed name of teardrop example
 	pcb file as to avoid make interference.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2015-10-12   bert * bert dot timmerman AT xs4all dot nl *
@@ -3735,7 +3870,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2015-10-11   bert * bert dot timmerman AT xs4all dot nl *
 
-	* po/POTFILES.in, src/Makefile.am, src/teardrop.c, src/teardrops.c: 
+	* po/POTFILES.in, src/Makefile.am, src/{teardrop.c => teardrops.c}: 
 	Renamed to teardrops.c.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2015-10-11   bert * bert dot timmerman AT xs4all dot nl *
@@ -5504,7 +5639,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2014-01-25   bert * bert dot timmerman AT xs4all dot nl *
 
-	* data/Makefile.am, data/pcb.appdata.xml, data/pcb.appdata.xml.in,
+	* data/Makefile.am, data/{pcb.appdata.xml => pcb.appdata.xml.in},
 	po/POTFILES.in: Let appdata have translatable strings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2014-01-12   bert * bert dot timmerman AT xs4all dot nl *
@@ -5645,7 +5780,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	it breaks the building process.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
 	*
 
-2013-06-18   Leo Bärring * leo dot barring AT gmail dot com *
+2013-06-18   Leo B�rring * leo dot barring AT gmail dot com *
 
 	* configure.ac, doc/extract-docs, doc/pcb.texi, gts/Makefile.am,
 	src/Makefile.am, src/hid/lesstif/main.c: Patch to resolve archlinux
@@ -5768,12 +5903,12 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	Styles["Signal,0.5000mm,1.0000mm,0.5000mm,0.2500mm:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,6.00mil,24.02mil,11.81mil,6.00mil"]Attribute("PCB::grid::unit" "mm") Attribute("PCB::grid::size"
 	"0.2500mm") Via[9.7500mm 7.2500mm 1.6000mm 0.5000mm 0.0000 0.5000mm "" ""]
 	Via[53.5000mm 7.2500mm 1.6000mm 0.5000mm 0.0000 0.5000mm "" ""]
-	Layer(1 "top") ( 	Line[9.7500mm 8.5000mm 28.0000mm 8.5000mm 0.5000mm 0.5000mm
-		"clearline"] Line[9.7500mm 7.2500mm 9.7500mm 8.5000mm 0.5000mm
-		0.5000mm "clearline"] Line[28.2500mm 8.5000mm 53.5000mm 8.5000mm
-		0.5000mm 0.5000mm "clearline"] Line[53.5000mm 7.2500mm 53.5000mm
-	8.5000mm 0.5000mm 0.5000mm "clearline"] ) Layer(2 "bottom") ( )
-	Layer(3 "silk") ( ) Layer(4 "silk") ( )
+	Layer(1 "top") (         Line[9.7500mm 8.5000mm 28.0000mm 8.5000mm 0.5000mm 0.5000mm
+	        "clearline"] Line[9.7500mm 7.2500mm 9.7500mm 8.5000mm
+	        0.5000mm 0.5000mm "clearline"] Line[28.2500mm 8.5000mm 53.5000mm
+	        8.5000mm 0.5000mm 0.5000mm "clearline"] Line[53.5000mm 7.2500mm
+	53.5000mm 8.5000mm 0.5000mm 0.5000mm "clearline"] ) Layer(2
+	"bottom") ( ) Layer(3 "silk") ( ) Layer(4 "silk") ( )
 
 2013-01-03   DJ Delorie * dj AT delorie dot com *
 
@@ -7887,29 +8022,29 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-11-13   Dima Kogan * dima AT secretsauce dot net *
 
-	* tests/golden/hid_gcode1/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode1/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode10/gcode_oneline-0.8890.drill.gcode,
-	tests/golden/hid_gcode10/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode11/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode2/out-0.0350.drill.gcode,
-	tests/golden/hid_gcode2/out-drill.gcode,
-	tests/golden/hid_gcode3/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode3/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode4/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode4/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode5/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode5/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode6/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode6/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode7/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode7/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode,
-	tests/golden/hid_gcode8/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-drill.gcode, tests/tests.list: 
-	gcode tests now look for the new size-specific drill files
+	* tests/golden/hid_gcode1/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode10/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.8890.drill.gcode},
+	tests/golden/hid_gcode11/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode2/{out-drill.gcode =>
+	out-0.0350.drill.gcode},
+	tests/golden/hid_gcode3/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode4/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode5/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode6/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode7/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode},
+	tests/golden/hid_gcode8/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.8890.drill.gcode},
+	tests/golden/hid_gcode9/{gcode_oneline-drill.gcode =>
+	gcode_oneline-0.0350.drill.gcode}, tests/tests.list: gcode tests now
+	look for the new size-specific drill files
 
 2011-11-13   Dima Kogan * dima AT secretsauce dot net *
 
@@ -7957,74 +8092,70 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-11-13   Dima Kogan * dima AT secretsauce dot net *
 
-	* tests/golden/hid_gcode1/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode1/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode1/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode10/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode10/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode10/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode11/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode11/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode11/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode2/out-bottom.gcode,
-	tests/golden/hid_gcode2/out-drill.gcode,
-	tests/golden/hid_gcode2/out-top.gcode,
-	tests/golden/hid_gcode2/out.bottom.cnc,
-	tests/golden/hid_gcode2/out.drill.cnc,
-	tests/golden/hid_gcode2/out.top.cnc,
-	tests/golden/hid_gcode3/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode3/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode3/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode4/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode5/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode5/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode5/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode6/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode6/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode7/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode7/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode7/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode8/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode8/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode8/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode9/gcode_oneline-bottom.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-drill.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-top.gcode,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.drill.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.top.cnc,
-	tests/tests.list: renamed golden test files to match new gcode
-	output filenames
+	* tests/golden/hid_gcode1/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode1/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode1/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode10/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode10/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode10/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode11/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode11/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode11/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode}, tests/golden/hid_gcode2/{out.bottom.cnc
+	=> out-bottom.gcode}, tests/golden/hid_gcode2/{out.drill.cnc =>
+	out-drill.gcode}, tests/golden/hid_gcode2/{out.top.cnc =>
+	out-top.gcode},
+	tests/golden/hid_gcode3/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode3/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode3/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode4/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode4/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode4/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode5/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode5/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode5/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode6/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode6/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode6/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode7/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode7/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode7/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode8/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode8/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode8/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode},
+	tests/golden/hid_gcode9/{gcode_oneline.gcode.bottom.cnc =>
+	gcode_oneline-bottom.gcode},
+	tests/golden/hid_gcode9/{gcode_oneline.gcode.drill.cnc =>
+	gcode_oneline-drill.gcode},
+	tests/golden/hid_gcode9/{gcode_oneline.gcode.top.cnc =>
+	gcode_oneline-top.gcode}, tests/tests.list: renamed golden test
+	files to match new gcode output filenames
 
 2011-11-16   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
 
@@ -9447,8 +9578,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/Makefile.am, src/hid/gtk/ghid-coord-entry.c,
-	src/hid/gtk/ghid-coord-entry.h, src/hid/gtk/gtk-pcb-coord-entry.c,
+	* src/Makefile.am, src/hid/gtk/{gtk-pcb-coord-entry.c =>
+	ghid-coord-entry.c}, src/hid/gtk/ghid-coord-entry.h,
 	src/hid/gtk/gtk-pcb-coord-entry.h, src/hid/gtk/gui-config.c,
 	src/hid/gtk/gui-dialog-print.c, src/hid/gtk/gui-dialog-size.c,
 	src/hid/gtk/gui-utils.c, src/hid/gtk/gui.h: Rename GtkPcbCoordEntry
@@ -9456,17 +9587,16 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/Makefile.am, src/hid/gtk/ghid-layer-selector.c,
-	src/hid/gtk/ghid-layer-selector.h,
-	src/hid/gtk/gtk-pcb-layer-selector.c,
+	* src/Makefile.am, src/hid/gtk/{gtk-pcb-layer-selector.c =>
+	ghid-layer-selector.c}, src/hid/gtk/ghid-layer-selector.h,
 	src/hid/gtk/gtk-pcb-layer-selector.h, src/hid/gtk/gui-top-window.c: 
 	Rename GtkPcbLayerSelector to GHidLayerSelector
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/Makefile.am, src/hid/gtk/ghid-cell-renderer-visibility.c,
+	* src/Makefile.am, src/hid/gtk/{gtk-pcb-cell-renderer-visibility.c
+	=> ghid-cell-renderer-visibility.c},
 	src/hid/gtk/ghid-cell-renderer-visibility.h,
-	src/hid/gtk/gtk-pcb-cell-renderer-visibility.c,
 	src/hid/gtk/gtk-pcb-cell-renderer-visibility.h,
 	src/hid/gtk/gtk-pcb-layer-selector.c: Rename
 	GtkPcbCellRendererVisibility to GHidCellRendererVisibility
@@ -10556,9 +10686,9 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-07   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* po/POTFILES.in, src/Makefile.am, src/gpcb-menu.res,
-	src/gpcb-menu.res.in, src/pcb-menu.res, src/pcb-menu.res.in: 
-	Generate pcb-menu.res and gpcb-menu.res from ".in" files No functional changes here, just a preliminary cleaning before
+	* po/POTFILES.in, src/Makefile.am, src/{gpcb-menu.res =>
+	gpcb-menu.res.in}, src/{pcb-menu.res => pcb-menu.res.in}: Generate
+	pcb-menu.res and gpcb-menu.res from ".in" files No functional changes here, just a preliminary cleaning before
 	adding the topological autorouter to the menus. Doing so requies
 	conditional inclusion of certain lines, as the toporouter is not
 	always built.   Based on a patch by Stanislav Brabec * sbrabec AT suse dot cz * Affects-bug: lp-812429
@@ -12518,59 +12648,54 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-04-21   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* tests/golden/hid_gcode1/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode1/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode10/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode11/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode2/out.back.cnc,
-	tests/golden/hid_gcode2/out.bottom.cnc,
-	tests/golden/hid_gcode2/out.front.cnc,
-	tests/golden/hid_gcode2/out.top.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode3/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode4/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode5/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode6/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode7/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode8/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.back.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.bottom.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.front.cnc,
-	tests/golden/hid_gcode9/gcode_oneline.gcode.top.cnc,
-	tests/golden/hid_gerber1/gerber_oneline.back.gbr,
-	tests/golden/hid_gerber1/gerber_oneline.bottom.gbr,
-	tests/golden/hid_gerber1/gerber_oneline.front.gbr,
-	tests/golden/hid_gerber1/gerber_oneline.top.gbr,
-	tests/golden/hid_gerber2/out.back.gbr,
-	tests/golden/hid_gerber2/out.bottom.gbr,
-	tests/golden/hid_gerber2/out.front.gbr,
-	tests/golden/hid_gerber2/out.top.gbr, tests/tests.list: Fix
-	test-suite files to match component->front and solder->back rename Test-suite now passes again.
+	* tests/golden/hid_gcode1/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode1/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode10/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode10/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode11/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode11/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc}, tests/golden/hid_gcode2/{out.back.cnc
+	=> out.bottom.cnc}, tests/golden/hid_gcode2/{out.front.cnc =>
+	out.top.cnc}, tests/golden/hid_gcode3/{gcode_oneline.gcode.back.cnc
+	=> gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode3/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode4/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode4/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode5/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode5/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode6/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode6/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode7/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode7/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode8/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode8/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gcode9/{gcode_oneline.gcode.back.cnc =>
+	gcode_oneline.gcode.bottom.cnc},
+	tests/golden/hid_gcode9/{gcode_oneline.gcode.front.cnc =>
+	gcode_oneline.gcode.top.cnc},
+	tests/golden/hid_gerber1/{gerber_oneline.back.gbr =>
+	gerber_oneline.bottom.gbr},
+	tests/golden/hid_gerber1/{gerber_oneline.front.gbr =>
+	gerber_oneline.top.gbr}, tests/golden/hid_gerber2/{out.back.gbr =>
+	out.bottom.gbr}, tests/golden/hid_gerber2/{out.front.gbr =>
+	out.top.gbr}, tests/tests.list: Fix test-suite files to match
+	component->front and solder->back rename Test-suite now passes again.
 
 2011-04-20   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
@@ -13242,31 +13367,26 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-01-09   DJ Delorie * dj AT delorie dot com *
 
-	* Makefile.am, configure.ac, gts/.gitignore, gts/Makefile.am,
-	gts/NOTES, gts/bbtree.c, gts/boolean.c, gts/cdt.c, gts/container.c,
-	gts/curvature.c, gts/edge.c, gts/eheap.c, gts/face.c, gts/fifo.c,
-	gts/graph.c, gts/gts-private.h, gts/gts.h, gts/heap.c,
-	gts/hsurface.c, gts/iso.c, gts/isotetra.c, gts/kdtree.c,
-	gts/matrix.c, gts/misc.c, gts/named.c, gts/object.c, gts/oocs.c,
-	gts/partition.c, gts/pgraph.c, gts/point.c, gts/predicates.c,
-	gts/predicates.h, gts/psurface.c, gts/refine.c, gts/rounding.h,
-	gts/segment.c, gts/split.c, gts/stripe.c, gts/surface.c,
-	gts/triangle.c, gts/tribox3.c, gts/vertex.c, gts/vopt.c,
-	src/Makefile.am, src/gts/.gitignore, src/gts/NOTES,
-	src/gts/bbtree.c, src/gts/boolean.c, src/gts/cdt.c,
-	src/gts/container.c, src/gts/curvature.c, src/gts/edge.c,
-	src/gts/eheap.c, src/gts/face.c, src/gts/fifo.c, src/gts/graph.c,
-	src/gts/gts-private.h, src/gts/gts.h, src/gts/heap.c,
-	src/gts/hsurface.c, src/gts/iso.c, src/gts/isotetra.c,
-	src/gts/kdtree.c, src/gts/matrix.c, src/gts/misc.c,
-	src/gts/named.c, src/gts/object.c, src/gts/oocs.c,
-	src/gts/partition.c, src/gts/pgraph.c, src/gts/point.c,
-	src/gts/predicates.c, src/gts/predicates.h, src/gts/psurface.c,
-	src/gts/refine.c, src/gts/rounding.h, src/gts/segment.c,
-	src/gts/split.c, src/gts/stripe.c, src/gts/surface.c,
-	src/gts/triangle.c, src/gts/tribox3.c, src/gts/vertex.c,
-	src/gts/vopt.c: Add top-level build changes to enable C++
-	compilation This patch moves GTS (gts.sourceforce.net) out of the src/ tree and
+	* Makefile.am, configure.ac, {src/gts => gts}/.gitignore,
+	gts/Makefile.am, {src/gts => gts}/NOTES, {src/gts => gts}/bbtree.c,
+	{src/gts => gts}/boolean.c, {src/gts => gts}/cdt.c, {src/gts =>
+	gts}/container.c, {src/gts => gts}/curvature.c, {src/gts =>
+	gts}/edge.c, {src/gts => gts}/eheap.c, {src/gts => gts}/face.c,
+	{src/gts => gts}/fifo.c, {src/gts => gts}/graph.c, {src/gts =>
+	gts}/gts-private.h, {src/gts => gts}/gts.h, {src/gts =>
+	gts}/heap.c, {src/gts => gts}/hsurface.c, {src/gts => gts}/iso.c,
+	{src/gts => gts}/isotetra.c, {src/gts => gts}/kdtree.c, {src/gts =>
+	gts}/matrix.c, {src/gts => gts}/misc.c, {src/gts => gts}/named.c,
+	{src/gts => gts}/object.c, {src/gts => gts}/oocs.c, {src/gts =>
+	gts}/partition.c, {src/gts => gts}/pgraph.c, {src/gts =>
+	gts}/point.c, {src/gts => gts}/predicates.c, {src/gts =>
+	gts}/predicates.h, {src/gts => gts}/psurface.c, {src/gts =>
+	gts}/refine.c, {src/gts => gts}/rounding.h, {src/gts =>
+	gts}/segment.c, {src/gts => gts}/split.c, {src/gts =>
+	gts}/stripe.c, {src/gts => gts}/surface.c, {src/gts =>
+	gts}/triangle.c, {src/gts => gts}/tribox3.c, {src/gts =>
+	gts}/vertex.c, {src/gts => gts}/vopt.c, src/Makefile.am: Add
+	top-level build changes to enable C++ compilation This patch moves GTS (gts.sourceforce.net) out of the src/ tree and
 	gives it its own Makefile, and changes src/Makefile.am so that C++
 	compilation is used if configure requests it.  ./configure --enable-build-with-cxx ./configure
 	--disable-build-with-cxx (the default is disable at the moment) Makefiles with these lines will use C++ if the user requests it:  CC = @CC_OR_CXX@  CFLAGS = @CC_OR_CXX_FLAGS@
@@ -14351,7 +14471,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	instances of it to bool.  If you've come across this commit because it's causing you issues
 	when rebasing on mainline pcb, then you should find the following
 	script useful.  You can use it to rewrite all of your local commits
-	to use bool instead of Boolean like so: 	git filter-branch --tree-filter rename-bool.sh HEAD...${HASH} Replacing ${HASH} with the latest commit that's in mainline.  if [ ! -f src/autoplace.c ]     then     echo "This doesn't look like the PCB source directory."     echo "Cowardly exiting to avoid causing misery!"     exit fi chg_bool () {     FNAME=$1     ADDR=$2     sed -i -e "${ADDR}s/\bBoolean\b/bool/g" "$FNAME"     sed -i -e "${ADDR}s/\bTrue\b/true/g" "$FNAME"     sed -i -e "${ADDR}s/\bFalse\b/false/g" "$FNAME" } find -name '*.[ch]' | while read f do     chg_bool "$f" done find -name '*.[yl]' | while read f do     # Replace first '%%' line with __TMP_MARKER_     sed -i -e '0,/^%%/s/^%%/__TMP_MARKER_/' "$f"     # Replace in section before the first '%%'     chg_bool "$f" "0,/^__TMP_MARKER_/"     # Replace in section after the last '%%'     chg_bool "$f" "/^%%/,$"     # Remove the temporary marker:     sed -i -e 's/^__TMP_MARKER_/%%/' "$f" done
+	to use bool instead of Boolean like so:         git filter-branch --tree-filter rename-bool.sh
+	        HEAD...${HASH} Replacing ${HASH} with the latest commit that's in mainline.  if [ ! -f src/autoplace.c ]     then     echo "This doesn't look like the PCB source directory."     echo "Cowardly exiting to avoid causing misery!"     exit fi chg_bool () {     FNAME=$1     ADDR=$2     sed -i -e "${ADDR}s/\bBoolean\b/bool/g" "$FNAME"     sed -i -e "${ADDR}s/\bTrue\b/true/g" "$FNAME"     sed -i -e "${ADDR}s/\bFalse\b/false/g" "$FNAME" } find -name '*.[ch]' | while read f do     chg_bool "$f" done find -name '*.[yl]' | while read f do     # Replace first '%%' line with __TMP_MARKER_     sed -i -e '0,/^%%/s/^%%/__TMP_MARKER_/' "$f"     # Replace in section before the first '%%'     chg_bool "$f" "0,/^__TMP_MARKER_/"     # Replace in section after the last '%%'     chg_bool "$f" "/^%%/,$"     # Remove the temporary marker:     sed -i -e 's/^__TMP_MARKER_/%%/' "$f" done
 
 2010-06-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
@@ -15235,8 +15356,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2010-01-31   DJ Delorie * dj AT delorie dot com *
 
 	* src/action.c, src/data.h, src/hid.h, src/misc.h, src/netlist.c,
-	src/rats.c, src/undo.c, tools/Makefile.am, tools/gnet-pcbfwd.scm,
-	tools/gnet-pcblf.scm: Changed element/netlist syntax as follows: ElementList(start) ElementList(need,...) ElementList(done) Netlist(freeze) Netlist(add,...) Netlist(thaw) Hooked all NetlistChanged() actions into a wrapper that checks for
+	src/rats.c, src/undo.c, tools/Makefile.am, tools/{gnet-pcblf.scm =>
+	gnet-pcbfwd.scm}: Changed element/netlist syntax as follows: ElementList(start) ElementList(need,...) ElementList(done) Netlist(freeze) Netlist(add,...) Netlist(thaw) Hooked all NetlistChanged() actions into a wrapper that checks for
 	frozen.
 
 2010-01-29   DJ Delorie * dj AT delorie dot com *
@@ -15663,8 +15784,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2009-11-07   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* example/LED, example/LED.NET, example/LED.net, example/LED.pcb,
-	example/LED2, example/LED2.pcb, example/Makefile.am: examples: Add
+	* example/{LED.NET => LED.net}, example/{LED => LED.pcb},
+	example/{LED2 => LED2.pcb}, example/Makefile.am: examples: Add
 	".pcb" extension to "PCB(2)", move "LED.NET" to "LED.net"  ".pcb" change suggested by Chitlesh GOORAH * chitlesh dot goorah AT
 	gmail dot com * ".net" change was my doing, to match our registered
 	mime-types
@@ -16430,32 +16551,29 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2009-04-24   Anthony Blake * tonyb33 AT gmail dot com *
 
-	* gts/Makefile.am, gts/NOTES, gts/bbtree.c, gts/boolean.c,
-	gts/cdt.c, gts/config.h.win32, gts/container.c, gts/curvature.c,
-	gts/edge.c, gts/eheap.c, gts/face.c, gts/fifo.c, gts/graph.c,
-	gts/gts-config.in, gts/gts-private.h, gts/gts.def, gts/gts.h,
-	gts/gts.m4, gts/gtsconfig.h, gts/heap.c, gts/hsurface.c, gts/iso.c,
-	gts/isotetra.c, gts/kdtree.c, gts/makefile.msc, gts/matrix.c,
-	gts/misc.c, gts/named.c, gts/object.c, gts/oocs.c, gts/partition.c,
-	gts/pgraph.c, gts/point.c, gts/predicates.c, gts/predicates.h,
-	gts/predicates_init.c, gts/psurface.c, gts/refine.c,
-	gts/rounding.h, gts/segment.c, gts/split.c, gts/stripe.c,
-	gts/surface.c, gts/triangle.c, gts/tribox3.c, gts/vertex.c,
-	gts/vopt.c, src/Makefile.am, src/gts/NOTES, src/gts/bbtree.c,
-	src/gts/boolean.c, src/gts/cdt.c, src/gts/container.c,
-	src/gts/curvature.c, src/gts/edge.c, src/gts/eheap.c,
-	src/gts/face.c, src/gts/fifo.c, src/gts/graph.c,
-	src/gts/gts-private.h, src/gts/gts.h, src/gts/heap.c,
-	src/gts/hsurface.c, src/gts/iso.c, src/gts/isotetra.c,
-	src/gts/kdtree.c, src/gts/matrix.c, src/gts/misc.c,
-	src/gts/named.c, src/gts/object.c, src/gts/oocs.c,
-	src/gts/partition.c, src/gts/pgraph.c, src/gts/point.c,
-	src/gts/predicates.c, src/gts/predicates.h,
-	src/gts/predicates_init.c, src/gts/psurface.c, src/gts/refine.c,
-	src/gts/rounding.h, src/gts/segment.c, src/gts/split.c,
-	src/gts/stripe.c, src/gts/surface.c, src/gts/triangle.c,
-	src/gts/tribox3.c, src/gts/vertex.c, src/gts/vopt.c,
-	src/toporouter.c, src/toporouter.h: GTS build script changes Changed build scripts to include GTS.
+	* gts/Makefile.am, gts/config.h.win32, gts/gts-config.in,
+	gts/gts.def, gts/gts.m4, gts/gtsconfig.h, gts/makefile.msc,
+	src/Makefile.am, {gts => src/gts}/NOTES, {gts => src/gts}/bbtree.c,
+	{gts => src/gts}/boolean.c, {gts => src/gts}/cdt.c, {gts =>
+	src/gts}/container.c, {gts => src/gts}/curvature.c, {gts =>
+	src/gts}/edge.c, {gts => src/gts}/eheap.c, {gts => src/gts}/face.c,
+	{gts => src/gts}/fifo.c, {gts => src/gts}/graph.c, {gts =>
+	src/gts}/gts-private.h, {gts => src/gts}/gts.h, {gts =>
+	src/gts}/heap.c, {gts => src/gts}/hsurface.c, {gts =>
+	src/gts}/iso.c, {gts => src/gts}/isotetra.c, {gts =>
+	src/gts}/kdtree.c, {gts => src/gts}/matrix.c, {gts =>
+	src/gts}/misc.c, {gts => src/gts}/named.c, {gts =>
+	src/gts}/object.c, {gts => src/gts}/oocs.c, {gts =>
+	src/gts}/partition.c, {gts => src/gts}/pgraph.c, {gts =>
+	src/gts}/point.c, {gts => src/gts}/predicates.c, {gts =>
+	src/gts}/predicates.h, {gts => src/gts}/predicates_init.c, {gts =>
+	src/gts}/psurface.c, {gts => src/gts}/refine.c, {gts =>
+	src/gts}/rounding.h, {gts => src/gts}/segment.c, {gts =>
+	src/gts}/split.c, {gts => src/gts}/stripe.c, {gts =>
+	src/gts}/surface.c, {gts => src/gts}/triangle.c, {gts =>
+	src/gts}/tribox3.c, {gts => src/gts}/vertex.c, {gts =>
+	src/gts}/vopt.c, src/toporouter.c, src/toporouter.h: GTS build
+	script changes Changed build scripts to include GTS.
 
 2009-04-22   Anthony Blake * tonyb33 AT gmail dot com *
 
@@ -16903,7 +17021,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2008-12-12   Dan McMahill * dan AT mcmahill dot net *
 
 	* doc/Makefile.am, doc/version.texi, lib/Makefile.am,
-	lib/m4lib_to_newlib.sh.in: use if FOO  stuff endif instead of 	 @FOOTRUE@ stuff as the latter prevents automake from properly understanding some
+	lib/m4lib_to_newlib.sh.in: use if FOO  stuff endif instead of          @FOOTRUE@ stuff as the latter prevents automake from properly understanding some
 	dependencies.
 
 2008-12-05   Dan McMahill * dan AT mcmahill dot net *
@@ -17397,7 +17515,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2008-02-01   Dan McMahill * dan AT mcmahill dot net *
 
-	* po/LINGUAS, po/fr.po, po/fr_FR.po: move fr_FR to fr as the latter
+	* po/LINGUAS, po/{fr_FR.po => fr.po}: move fr_FR to fr as the latter
 	seems to be recommended these days
 
 2008-02-01   Dan McMahill * dan AT mcmahill dot net *
@@ -17964,7 +18082,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2008-01-03   Dan McMahill * dan AT mcmahill dot net *
 
 	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c: apply
-	patch 1852864  	  GTK HID: scrolled layer preferences To enable a
+	patch 1852864       GTK HID: scrolled layer preferences To enable a
 	scroll window for the layers.  This is needed if the user uses more
 	than 8 or so layers.
 
@@ -20311,9 +20429,9 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/autoroute.c, src/buffer.c, src/buffer.h, src/change.c,
 	src/change.h, src/command.c, src/compat.c, src/const.h, src/copy.c,
 	src/copy.h, src/create.c, src/crosshair.c, src/dev_ps.c,
-	src/dev_ps.h, src/dev_rs274x.c, src/dev_rs274x.h, src/djopt.c,
-	src/draw.c, src/drill.c, src/file.c, src/find.c, src/fontmode.c,
-	src/global.h, src/hid.h, src/hid/batch/batch.c, src/hid/bom/bom.c,
+	src/dev_ps.h, src/dev_rs274x.c, src/djopt.c, src/draw.c,
+	src/drill.c, src/file.c, src/find.c, src/fontmode.c, src/global.h,
+	src/hid.h, src/hid/batch/batch.c, src/hid/bom/bom.c,
 	src/hid/common/extents.c, src/hid/common/hidnogui.c,
 	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
 	src/hid/gtk/gui-pinout-window.c, src/hid/lesstif/main.c,
@@ -20324,9 +20442,9 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/polygon.c, src/polygon.h, src/polygon1.c, src/print.c,
 	src/puller.c, src/rats.c, src/remove.c, src/report.c, src/rotate.c,
 	src/rtree.c, src/rubberband.c, src/search.c, src/search.h,
-	src/select.c, src/strflags.c, src/thermal.c, src/thermal.h,
-	src/undo.c, src/undo.h, src/vendor.c: Merge clipper branch back to
-	the trunk.
+	src/select.c, src/strflags.c, src/thermal.c, src/{dev_rs274x.h =>
+	thermal.h}, src/undo.c, src/undo.h, src/vendor.c: Merge clipper
+	branch back to the trunk.
 
 2006-10-08   DJ Delorie * dj AT delorie dot com *
 
@@ -21570,10 +21688,10 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-04-12   Dan McMahill * dan AT mcmahill dot net *
 
-	* doc/database.txt, doc/ideas/database.txt, doc/ideas/keepouts.txt,
-	doc/keepouts.txt: move these to an ideas subdirectory to hopefully
-	more clearly indicate that not only are these not implemented yet
-	but that they are not even certain to ever be implemented.
+	* doc/{ => ideas}/database.txt, doc/{ => ideas}/keepouts.txt: move
+	these to an ideas subdirectory to hopefully more clearly indicate
+	that not only are these not implemented yet but that they are not
+	even certain to ever be implemented.
 
 2006-04-12   DJ Delorie * dj AT delorie dot com *
 
@@ -22095,8 +22213,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-03-24   Dan McMahill * dan AT mcmahill dot net *
 
-	* configure, configure.ac, lib/ListLibraryContents.sh,
-	lib/ListLibraryContents.sh.in: move ListLibraryContents.sh to being
+	* configure, configure.ac, lib/{ListLibraryContents.sh =>
+	ListLibraryContents.sh.in}: move ListLibraryContents.sh to being
 	something created at configure time like the rest of the m4lib
 	stuff.  This puts it in the build directory and allows you to run
 	pcb out of the build directory prior to installation even in the
@@ -22506,51 +22624,48 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/dialog.h, src/djopt.c, src/djopt.h, src/dolists.h, src/draw.c,
 	src/draw.h, src/error.c, src/file.c, src/fileselect.c,
 	src/fileselect.h, src/find.c, src/find.h, src/flags.c,
-	src/global.h, src/gui-command-window.c, src/gui-config.c,
-	src/gui-dialog-print.c, src/gui-dialog-size.c, src/gui-dialog.c,
-	src/gui-icons-misc.data, src/gui-icons-mode-buttons.data,
-	src/gui-keyref-window.c, src/gui-library-window.c,
-	src/gui-log-window.c, src/gui-misc.c, src/gui-netlist-window.c,
-	src/gui-output-events.c, src/gui-pinout-window.c,
-	src/gui-top-window.c, src/gui-utils.c, src/gui.c, src/gui.h,
-	src/heap.c, src/hid.h, src/hid/bom/bom.c, src/hid/bom/hid.conf,
-	src/hid/common/actions.c, src/hid/common/extents.c,
-	src/hid/common/flags.c, src/hid/common/hidinit.c,
-	src/hid/common/hidnogui.c, src/hid/gerber/gerber.c,
-	src/hid/gerber/hid.conf, src/hid/gtk/gtkhid-main.c,
-	src/hid/gtk/gtkhid.h, src/hid/gtk/gui-command-window.c,
-	src/hid/gtk/gui-config.c, src/hid/gtk/gui-dialog-print.c,
-	src/hid/gtk/gui-dialog-size.c, src/hid/gtk/gui-dialog.c,
-	src/hid/gtk/gui-icons-misc.data,
-	src/hid/gtk/gui-icons-mode-buttons.data,
-	src/hid/gtk/gui-keyref-window.c, src/hid/gtk/gui-library-window.c,
-	src/hid/gtk/gui-log-window.c, src/hid/gtk/gui-misc.c,
+	src/global.h, src/gui-dialog-print.c, src/gui-dialog.c,
+	src/gui-library-window.c, src/gui-log-window.c,
+	src/gui-netlist-window.c, src/gui-output-events.c, src/gui-utils.c,
+	src/gui.c, src/gui.h, src/heap.c, src/hid.h, src/hid/bom/bom.c,
+	src/hid/bom/hid.conf, src/hid/common/actions.c,
+	src/hid/common/extents.c, src/hid/common/flags.c,
+	src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	src/hid/gerber/gerber.c, src/hid/gerber/hid.conf,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gtkhid.h, src/{ =>
+	hid/gtk}/gui-command-window.c, src/{ => hid/gtk}/gui-config.c,
+	src/hid/gtk/gui-dialog-print.c, src/{ =>
+	hid/gtk}/gui-dialog-size.c, src/hid/gtk/gui-dialog.c, src/{ =>
+	hid/gtk}/gui-icons-misc.data, src/{ =>
+	hid/gtk}/gui-icons-mode-buttons.data, src/{ =>
+	hid/gtk}/gui-keyref-window.c, src/hid/gtk/gui-library-window.c,
+	src/hid/gtk/gui-log-window.c, src/{ => hid/gtk}/gui-misc.c,
 	src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-output-events.c,
-	src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c,
-	src/hid/gtk/gui-utils.c, src/hid/gtk/gui.h, src/hid/gtk/hid.conf,
-	src/hid/hidint.h, src/hid/lesstif/dialogs.c,
-	src/hid/lesstif/hid.conf, src/hid/lesstif/lesstif.h,
-	src/hid/lesstif/library.c, src/hid/lesstif/main.c,
-	src/hid/lesstif/menu.c, src/hid/lesstif/netlist.c,
-	src/hid/lesstif/styles.c, src/hid/lpr/hid.conf, src/hid/lpr/lpr.c,
-	src/hid/png/hid.conf, src/hid/png/png.c, src/hid/png/png.h,
-	src/hid/ps/eps.c, src/hid/ps/hid.conf, src/hid/ps/ps.c,
-	src/hid/ps/ps.h, src/insert.c, src/intersect.c, src/lgdialog.c,
-	src/lgdialog.h, src/library.c, src/library.h, src/line.c,
-	src/log.c, src/log.h, src/macro.h, src/main.c, src/menu.c,
-	src/menu.h, src/misc.c, src/misc.h, src/move.c, src/mtspace.c,
-	src/mymem.c, src/mymem.h, src/netlist.c, src/netlist.h,
-	src/output.c, src/output.h, src/parse_l.l, src/parse_y.y,
-	src/pcb-menu.res, src/pcbtest.sh.in, src/pinout.c, src/pinout.h,
-	src/polygon.c, src/print.c, src/print.h, src/printdialog.c,
-	src/printdialog.h, src/printpanner.c, src/printpanner.h,
-	src/puller.c, src/rats.c, src/report.c, src/report.h,
-	src/res_lex.l, src/res_parse.y, src/resmenu.c, src/resmenu.h,
-	src/rotate.c, src/rtree.c, src/search.c, src/select.c,
-	src/selector.c, src/selector.h, src/set.c, src/set.h,
-	src/sizedialog.c, src/sizedialog.h, src/strflags.c, src/todo,
-	src/undo.c, src/undo.h, src/vector.c, src/vendor.c, src/vendor.h: 
-	HID merge.
+	src/{ => hid/gtk}/gui-pinout-window.c, src/{ =>
+	hid/gtk}/gui-top-window.c, src/hid/gtk/gui-utils.c,
+	src/hid/gtk/gui.h, src/hid/gtk/hid.conf, src/hid/hidint.h,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/hid.conf,
+	src/hid/lesstif/lesstif.h, src/hid/lesstif/library.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/lesstif/netlist.c, src/hid/lesstif/styles.c,
+	src/hid/lpr/hid.conf, src/hid/lpr/lpr.c, src/hid/png/hid.conf,
+	src/hid/png/png.c, src/hid/png/png.h, src/hid/ps/eps.c,
+	src/hid/ps/hid.conf, src/hid/ps/ps.c, src/hid/ps/ps.h,
+	src/insert.c, src/intersect.c, src/lgdialog.c, src/lgdialog.h,
+	src/library.c, src/library.h, src/line.c, src/log.c, src/log.h,
+	src/macro.h, src/main.c, src/menu.c, src/menu.h, src/misc.c,
+	src/misc.h, src/move.c, src/mtspace.c, src/mymem.c, src/mymem.h,
+	src/netlist.c, src/netlist.h, src/output.c, src/output.h,
+	src/parse_l.l, src/parse_y.y, src/pcb-menu.res, src/pcbtest.sh.in,
+	src/pinout.c, src/pinout.h, src/polygon.c, src/print.c,
+	src/print.h, src/printdialog.c, src/printdialog.h,
+	src/printpanner.c, src/printpanner.h, src/puller.c, src/rats.c,
+	src/report.c, src/report.h, src/res_lex.l, src/res_parse.y,
+	src/resmenu.c, src/resmenu.h, src/rotate.c, src/rtree.c,
+	src/search.c, src/select.c, src/selector.c, src/selector.h,
+	src/set.c, src/set.h, src/sizedialog.c, src/sizedialog.h,
+	src/strflags.c, src/todo, src/undo.c, src/undo.h, src/vector.c,
+	src/vendor.c, src/vendor.h: HID merge.
 
 2006-03-21   Dan McMahill * dan AT mcmahill dot net *
 
@@ -25704,10 +25819,10 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2003-11-08   Dan McMahill * dan AT mcmahill dot net *
 
-	* configure.ac, src/Makefile.am, src/pcb.in,
-	src/script/Makefile.am, src/script/pcb.in: move the pcb script to a
-	subdirectory to avoid name conflicts with the Pcb application
-	default file on systems such as cygwin that are not case sensitive.
+	* configure.ac, src/Makefile.am, src/script/Makefile.am, src/{ =>
+	script}/pcb.in: move the pcb script to a subdirectory to avoid name
+	conflicts with the Pcb application default file on systems such as
+	cygwin that are not case sensitive.
 
 2003-11-08   Dan McMahill * dan AT mcmahill dot net *
 
