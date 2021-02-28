@@ -1,4 +1,80 @@
 ========================================================================
+Release notes for pcb-4.3.0
+========================================================================
+
+Dear Users,
+
+This is a feature release (no pcb file format change).
+
+This is a feature release as the footprint file format now allows for
+stating the pad center and length, width parameters. This is in addition
+to the existing footprint format. pcb parses both definitions.  
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to this release:
+- Charles Parker
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- the gtk hid no longer hides "clearline" lines, arcs, text under polygons in
+  "thin draw" mode.
+- Updated zoom action comments.
+- Pads can now be defined by centerpoint coordinates and length, width parameters.
+- Pcb is no longer quiet when a save operation fails.
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- added an exporter for a BOM in MarkDown format.
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- none
+
+
+Notes for package builders
+--------------------------
+- For building packages with a GTK UI or a Lesstif UI, configure with
+  the --with-gui=gtk or --with-gui=lesstif option (as usual).
+- Added a --with-gaf-datadir configure option.
+
+
+Changed dependencies
+--------------------
+- none
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#699485   Add --with-gaf-datadir configure option.
+#1072500  gtk: Thin drawn polygons hide "clearline" lines, arcs, text.
+#1535183  pcb is silent when Save fails.
+#1747216  Update zoom action comments in gtk and lesstif hids.
+#1896403  pad defined by center point.
+#1906451  BOM in MarkDown format.
+
+========================================================================
 Release notes for pcb-4.2.2
 ========================================================================
 
