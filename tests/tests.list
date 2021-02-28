@@ -59,6 +59,10 @@
 #    bom -- PCB bill of materials file
 #    xy  -- PCB centroid file
 #
+# BOM_MD
+#
+#    md  -- PCB bill of materials file in MarkDown format
+#
 # GCODE
 #
 #    gcode -- G-Code file.  Note that these typically have .cnc as the 
@@ -124,7 +128,19 @@ hid_bom7 | bom_general.pcb | bom | --xy-unit cmil --xyfile cmil.xy    | | xy:cmi
 hid_bom8 | bom_general.pcb | bom | --xy-unit cm   --xyfile cm.xy      | | xy:cm.xy
 hid_bom9 | bom_general.pcb | bom | --xy-unit um   --xyfile um.xy      | | xy:um.xy
 hid_bom10 | bom_attribs.pcb bom.attrs | bom | --attrs bom.attrs --bomfile bom_attribs.bom | | bom:bom_attribs.bom
-
+######################################################################
+# ---------------------------------------------
+# BOM export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#  --bom_md_file <string>         BOM MarkDown format output file
+#
+#
+# Produces a bill of materials (BOM) file in MarkDown format
+#
+hid_bom_md1 | bom_general.pcb | bom_md |                             | | md:bom_general.bom.md
 #
 ######################################################################
 # ---------------------------------------------

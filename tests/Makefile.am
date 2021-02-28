@@ -164,6 +164,7 @@ EXTRA_DIST = \
   golden/hid_bom8/cm.xy \
   golden/hid_bom9/um.xy \
   golden/hid_bom10/bom_attribs.bom \
+  golden/hid_bom_md1/bom_general.bom.md \
   golden/hid_gerber1/gerber_oneline.top.gbr \
   golden/hid_gerber1/gerber_oneline.fab.gbr \
   golden/hid_gerber1/gerber_oneline.bottom.gbr \

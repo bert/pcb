@@ -447,6 +447,53 @@ compare_xy() {
 
 ##########################################################################
 #
+# BOM_MD comparison routines
+#
+
+# used to remove things like creation date from BOM_MD files
+normalize_bom_md() {
+    local f1="$1"
+    local f2="$2"
+    $AWK '
+	/^Date:/ {print "Date: today"; next}
+	/^Author:/ {print "Author: PCB"; next}
+	{print}' \
+	$f1 > $f2
+}
+
+# top level function to compare BOM_MD output
+compare_bom_md() {
+    local f1="$1"
+    local f2="$2"
+    compare_check "compare_bom_md" "$f1" "$f2" || return 1
+
+    # an example BOM_MD file is:
+
+    #  # PCB Bill Of Materials MarkDown Version 1.0
+
+    #  Date: zo 28 feb 2021 12:13:41 GMT UTC
+
+    #  Author: Bert Timmerman
+
+    #  Title: Basic BOM/XY Test
+
+    #  | Quantity | Description | Value | RefDes |
+    #  |----------|-------------|-------|--------|
+    #  | 8 | Standard SMT resistor, capacitor etc | RESC3216N | R0_BOT R90_BOT R180_BOT R270_BOT R0_TOP R270_TOP R180_TOP R90_TOP |
+    #  | 8 | Small outline package, narrow (150mil) | SO8 | USO0_BOT USO90_BOT USO180_BOT USO270_BOT USO0_TOP USO270_TOP USO180_TOP USO90_TOP |
+    #  | 8 | Dual in-line package, narrow (300 mil) | DIP8 | UDIP0_BOT UDIP90_BOT UDIP180_BOT UDIP270_BOT UDIP0_TOP UDIP270_TOP UDIP180_TOP UDIP90_TOP |
+
+    #  For comparison, we need to ignore changes in the Date and Author lines.
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
+
+    normalize_bom_md $f1 $cf1
+    normalize_bom_md $f2 $cf2
+    run_diff $cf1 $cf2 || test_failed=yes
+}
+
+##########################################################################
+#
 # GCODE comparison routines
 #
 
@@ -890,6 +937,11 @@ for t in $all_tests ; do
 
 	        xy)
 		    compare_xy ${refdir}/${fn} ${rundir}/${fn}
+		    ;;
+
+		# BOM_MD HID
+		md)
+		    compare_bom_md ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
 
 		# GCODE HID
