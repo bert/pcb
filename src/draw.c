@@ -907,6 +907,7 @@ clearPin_callback (const BoxType * b, void *cl)
 struct poly_info {
   const BoxType *drawn_area;
   LayerType *layer;
+  int fill;
 };
 
 static int
@@ -916,8 +917,10 @@ poly_callback (const BoxType * b, void *cl)
   PolygonType *polygon = (PolygonType *)b;
 
   set_layer_object_color (i->layer, (AnyObjectType *) polygon);
-
-  gui->graphics->draw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+  if(i->fill)
+    gui->graphics->fill_pcb_polygon(Output.fgGC, polygon, i->drawn_area);
+  else
+    gui->graphics->draw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
 
   return 1;
 }
@@ -1098,36 +1101,41 @@ text_callback (const BoxType * b, void *cl)
 void
 DrawLayer (LayerType *Layer, const BoxType *screen)
 {
-  struct poly_info info = {screen, Layer};
+  struct poly_info info = {screen, Layer, 0};
 
-  /* print the non-clearing polys */
+  /* draw the poly outlines */
   r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return;
+  if (!TEST_FLAG (CHECKPLANESFLAG, PCB))
+  {
+    /* draw all visible lines this layer */
+    r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
 
-  /* draw all visible lines this layer */
-  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
+    /* draw the layer arcs on screen */
+    r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
 
-  /* draw the layer arcs on screen */
-  r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
+    /* draw the layer text on screen */
+    r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
 
-  /* draw the layer text on screen */
-  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+    /* We should check for gui->gui here, but it's kinda cool seeing the
+      auto-outline magically disappear when you first add something to
+      the "outline" layer.  */
+    if (IsLayerEmpty (Layer)
+        && (strcmp (Layer->Name, "outline") == 0
+      || strcmp (Layer->Name, "route") == 0))
+      {
+        gui->graphics->set_color (Output.fgGC, Layer->Color);
+        gui->graphics->set_line_width (Output.fgGC, PCB->minWid);
+        gui->graphics->draw_rect (Output.fgGC,
+                                  0, 0,
+                                  PCB->MaxWidth, PCB->MaxHeight);
+      }
+  }
+  info.fill = 1;
 
-  /* We should check for gui->gui here, but it's kinda cool seeing the
-     auto-outline magically disappear when you first add something to
-     the "outline" layer.  */
-  if (IsLayerEmpty (Layer)
-      && (strcmp (Layer->Name, "outline") == 0
-	  || strcmp (Layer->Name, "route") == 0))
-    {
-      gui->graphics->set_color (Output.fgGC, Layer->Color);
-      gui->graphics->set_line_width (Output.fgGC, PCB->minWid);
-      gui->graphics->draw_rect (Output.fgGC,
-                                0, 0,
-                                PCB->MaxWidth, PCB->MaxHeight);
-    }
+  /* fill the polys */
+  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
+
 }
 
 /*!
