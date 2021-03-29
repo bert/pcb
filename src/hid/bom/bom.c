@@ -192,7 +192,7 @@ CleanBOMString (char *in)
 
   if ((out = (char *)malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
     {
-      fprintf (stderr, "Error:  CleanBOMString() malloc() failed\n");
+      fprintf (stderr, (_("Error:  CleanBOMString() malloc() failed\n")));
       exit (1);
     }
 
@@ -267,7 +267,7 @@ string_insert (char *str, StringList * list)
 
   if ((newlist = (StringList *) malloc (sizeof (StringList))) == NULL)
     {
-      fprintf (stderr, "malloc() failed in string_insert()\n");
+      fprintf (stderr, (_("malloc() failed in string_insert()\n")));
       exit (1);
     }
 
@@ -326,7 +326,7 @@ bom_insert (char *refdes, char *descr, char *value, ElementType *e, BomList * bo
 
   if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
     {
-      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      fprintf (stderr, (_("malloc() failed in bom_insert()\n")));
       exit (1);
     }
 
@@ -341,7 +341,7 @@ bom_insert (char *refdes, char *descr, char *value, ElementType *e, BomList * bo
 
   if ((newlist->attrs = (char **) malloc (attr_count * sizeof (char *))) == NULL)
     {
-      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      fprintf (stderr, (_("malloc() failed in bom_insert()\n")));
       exit (1);
     }
 
@@ -425,7 +425,7 @@ fetch_attr_list ()
   if (!fname)
     fname = (char *)bom_options[HA_attrs].default_val.str_value;
 
-  printf("reading attrs from %s\n", fname);
+  printf((_("reading attrs from %s\n")), fname);
   f = fopen (fname, "r");
   if (f == NULL)
     return;
@@ -509,14 +509,14 @@ PrintBOM (void)
     const char *fmt = "%c UTC";
     strftime (utcTime, sizeof (utcTime), fmt, gmtime (&currenttime));
   }
-  fprintf (fp, "# PcbXY Version 1.0\n");
-  fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", pcb_author ());
-  fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
-  fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
+  fprintf (fp, (_("# PcbXY Version 1.0\n")));
+  fprintf (fp, (_("# Date: %s\n")), utcTime);
+  fprintf (fp, (_("# Author: %s\n")), pcb_author ());
+  fprintf (fp, (_("# Title: %s - PCB X-Y\n")), UNKNOWN (PCB->Name));
+  fprintf (fp, (_("# RefDes, Description, Value, X, Y, rotation, top/bottom\n")));
   /* don't use localized xy_unit->in_suffix here since */
   /* the line itself is not localized and not for GUI  */
-  fprintf (fp, "# X,Y in %s.  rotation in degrees.\n", xy_unit->suffix);
+  fprintf (fp, (_("# X,Y in %s.  rotation in degrees.\n")), xy_unit->suffix);
   fprintf (fp, "# --------------------------------------------\n");
 
   /*
@@ -697,16 +697,16 @@ PrintBOM (void)
   fp = fopen (bom_filename, "wb");
   if (!fp)
     {
-      gui->log ("Cannot open file %s for writing\n", bom_filename);
+      gui->log ((_("Cannot open file %s for writing\n")), bom_filename);
       print_and_free (NULL, bom);
       return 1;
     }
 
-  fprintf (fp, "# PcbBOM Version 1.0\n");
-  fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", pcb_author ());
-  fprintf (fp, "# Title: %s - PCB BOM\n", UNKNOWN (PCB->Name));
-  fprintf (fp, "# Quantity, Description, Value, RefDes");
+  fprintf (fp, (_("# PcbBOM Version 1.0\n")));
+  fprintf (fp, (_("# Date: %s\n")), utcTime);
+  fprintf (fp, (_("# Author: %s\n")), pcb_author ());
+  fprintf (fp, (_("# Title: %s - PCB BOM\n")), UNKNOWN (PCB->Name));
+  fprintf (fp, (_("# Quantity, Description, Value, RefDes")));
   for (i=0; i<attr_count; i++)
     fprintf (fp, ", %s", attr_list[i]);
   fprintf (fp, "\n");
@@ -771,7 +771,7 @@ hid_bom_init ()
 
   bom_hid.struct_size         = sizeof (HID);
   bom_hid.name                = "bom";
-  bom_hid.description         = "Exports a Bill of Materials";
+  bom_hid.description         = (_("Exports a Bill of Materials"));
   bom_hid.exporter            = 1;
 
   bom_hid.get_export_options  = bom_get_export_options;
