@@ -266,6 +266,7 @@ can be set as high as needed.
 @item Postscript and Encapsulated Postscript output
 @item Nelma numerical analysis package export
 @item GSvit numerical analysis package export
+@item XML output
 @item Autorouter
 @item Toporouter
 @item Trace optimizer
@@ -1981,6 +1982,7 @@ select the desired exporter.
 @menu
 * bom::                Bill of materials.
 * bom_md::             Bill of materials in MarkDown format.
+* xml::                XML.
 * gcode::              G-code.
 * gerber::             Gerber.
 * ps::                 Postscript.
@@ -2004,6 +2006,17 @@ Produces a bill of materials (BOM) file and a centroid (XY) file.
 @cindex bill of materials in MarkDown format
 
 Produces a bill of materials (BOM) file in MarkDown format.
+
+@node xml
+@subsection eXtensible Markup Language (XML)
+@cindex xml
+@cindex eXtensible Markup Language
+
+Export pcb entities to an XML file for data exchange.
+
+XML was designed to store and transport data.
+
+XML was designed to be both human- and machine-readable.
 
 @node gcode
 @subsection G-code (gcode)
@@ -2172,7 +2185,6 @@ http://gsvit.net.
 @cindex ipc-d-356
 
 Produces an IPC-D-356 compliant netlist file for bare board testing.
-
 
 @node Connection Lists
 @section Connection Lists

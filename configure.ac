@@ -458,7 +458,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices: bom bom_md gerber gcode nelma png ps ipcd356 gsvit [[default=bom bom_md gerber gcode nelma png ps ipcd356 gsvit]]],
+[  --with-exporters=       Enable export devices: bom bom_md gerber gcode nelma png ps ipcd356 gsvit xml [[default=bom bom_md gerber gcode nelma png ps ipcd356 gsvit xml]]],
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
