@@ -4,10 +4,10 @@
 	               # 34 for SOT23, 24 for SOT25
 Element(0x00 "SMT transistor, 6 pins" "" "SC70_6" 100 0 3 100 0x00)
 (
-	ElementLine(0 0 0 119 5)
-	ElementLine(0 119 80 119 5)
-	ElementLine(80 119 80 0 5)
-	ElementLine(80 0 0 0 5)
+	ElementLine(-5  -5 -5 125 8)
+	ElementLine(-5 125 85 125 8)
+	ElementLine(85 125 85  -5 8)
+	ElementLine(85  -5 -5  -5 8)
 	# 1st side, 1st pin
 	Pad(14 84
 	       14 104
