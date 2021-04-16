@@ -17,9 +17,9 @@
 # for the top of the can and 209 to 230 mils
 # for the bottom edge of the can
 #
-        Pin[0 -5000 5500 3000 6100 3500 "1" "1" ""]
-        Pin[-5000 0 5500 3000 6100 3500 "2" "2" ""]
-        Pin[0 5000 5500 3000 6100 3500 "3" "3" ""]
+        Pin[0 -5000 5500 3000 6100 3150 "1" "1" ""]
+        Pin[-5000 0 5500 3000 6100 3150 "2" "2" ""]
+        Pin[0 5000 5500 3000 6100 3150 "3" "3" ""]
 # x, y, width, height, start angle, delta angle, thickness
         ElementArc [0 0 9800 9800 0 360 1000]
 # tab is 28 to 48 mils long, 36 to 46 wide
