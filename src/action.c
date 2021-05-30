@@ -1477,26 +1477,107 @@ NotifyMode (void)
 
     case POLYGONHOLE_MODE:
       {
-	switch (Crosshair.AttachedObject.State)
-	  {
-	    /* first notify, lookup object */
-	  case STATE_FIRST:
-	    Crosshair.AttachedObject.Type =
-	      SearchScreen (Note.X, Note.Y, POLYGON_TYPE,
-			    &Crosshair.AttachedObject.Ptr1,
-			    &Crosshair.AttachedObject.Ptr2,
-			    &Crosshair.AttachedObject.Ptr3);
+        switch (Crosshair.AttachedObject.State) {
 
-          if (Crosshair.AttachedObject.Type == NO_TYPE)
-            {
-              Message (_("The first point of a polygon hole must be on a polygon.\n"));
-              break; /* don't start doing anything if clicked outside of polys */
+          /* first notify, lookup object */
+          case STATE_FIRST:
+            Crosshair.AttachedObject.Type =
+            SearchScreen (Note.X, Note.Y, POLYGON_TYPE,
+                          &Crosshair.AttachedObject.Ptr1,
+                          &Crosshair.AttachedObject.Ptr2,
+                          &Crosshair.AttachedObject.Ptr3);
+
+            if (Crosshair.AttachedObject.Type != NO_TYPE) {
+
+              if (TEST_FLAG (LOCKFLAG, (PolygonType *)
+                Crosshair.AttachedObject.Ptr2))
+              {
+                Message (_("Sorry, the object is locked\n"));
+                Crosshair.AttachedObject.Type = NO_TYPE;
+                break;
+              }
+              else
+              {
+                /* get starting point of nearest segment */
+                if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
+                {
+                  fake.poly =
+                  (PolygonType *) Crosshair.AttachedObject.Ptr2;
+                  polyIndex =
+                  GetLowestDistancePolygonPoint (fake.poly, Note.X,
+                                                 Note.Y);
+                  fake.line.Point1 = fake.poly->Points[polyIndex];
+                  fake.line.Point2 = fake.poly->Points[
+                  prev_contour_point (fake.poly, polyIndex)];
+                  Crosshair.AttachedObject.Ptr2 = &fake.line;
+
+                }
+                Crosshair.AttachedObject.State = STATE_SECOND;
+                InsertedPoint = *AdjustInsertPoint ();
+              }
             }
 
           if (TEST_FLAG(LOCKFLAG, (PolygonType *) Crosshair.AttachedObject.Ptr2))
             {
-              Message (_("Sorry, the object is locked\n"));
-              Crosshair.AttachedObject.Type = NO_TYPE;
+              PointType *points = Crosshair.AttachedPolygon.Points;
+              Cardinal n = Crosshair.AttachedPolygon.PointN;
+              POLYAREA *original, *new_hole, *result;
+              FlagType Flags;
+
+              /* do update of position; use the 'LINE_MODE' mechanism */
+              NotifyLine ();
+
+              /* check if this is the last point of a polygon */
+              if (n >= 3 &&
+                points->X == Crosshair.AttachedLine.Point2.X &&
+                points->Y == Crosshair.AttachedLine.Point2.Y)
+              {
+                /* Create POLYAREAs from the original polygon
+                 * and the new hole polygon */
+                original = PolygonToPoly ((PolygonType *)Crosshair.AttachedObject.Ptr2);
+                new_hole = PolygonToPoly (&Crosshair.AttachedPolygon);
+
+                /* Subtract the hole from the original polygon shape */
+                poly_Boolean_free (original, new_hole, &result, PBO_SUB);
+
+                /* Convert the resulting polygon(s) into a new set of nodes
+                 * and place them on the page. Delete the original polygon.
+                 */
+                SaveUndoSerialNumber ();
+                Flags = ((PolygonType *)Crosshair.AttachedObject.Ptr2)->Flags;
+                PolyToPolygonsOnLayer (PCB->Data, (LayerType *)Crosshair.AttachedObject.Ptr1,
+                                       result, Flags);
+                RemoveObject (POLYGON_TYPE,
+                              Crosshair.AttachedObject.Ptr1,
+                              Crosshair.AttachedObject.Ptr2,
+                              Crosshair.AttachedObject.Ptr3);
+                RestoreUndoSerialNumber ();
+                IncrementUndoSerialNumber ();
+                Draw ();
+
+                /* reset state of attached line */
+                memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
+                Crosshair.AttachedObject.State = STATE_FIRST;
+                addedLines = 0;
+
+                break;
+              }
+
+              /* create new point if it's the first one or if it's
+               * different to the last one
+               */
+              if (!n ||
+                points[n - 1].X != Crosshair.AttachedLine.Point2.X ||
+                points[n - 1].Y != Crosshair.AttachedLine.Point2.Y)
+              {
+                CreateNewPointInPolygon (&Crosshair.AttachedPolygon,
+                                         Crosshair.AttachedLine.Point2.X,
+                                         Crosshair.AttachedLine.Point2.Y);
+
+                /* copy the coordinates */
+                Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
+                Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y;
+              }
               break;
             }
           else

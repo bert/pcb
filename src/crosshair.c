@@ -90,8 +90,8 @@ draw_dashed_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   int n;
   const int segs = 11; /* must be odd */
 
-  if (len_squared < 1000000)
-  {
+  if (len_squared < 1000000) {
+
     /*! \todo line too short, just draw it -> magic value;
      * with a proper geo lib this would be gone anyway. */
     gui->graphics->draw_line (gc, x1, y1, x2, y2);
@@ -99,12 +99,13 @@ draw_dashed_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   }
 
   /* first seg is drawn from x1, y1 with no rounding error due to n-1 == 0 */
-  for (n = 1; n < segs; n += 2)
+  for (n = 1; n < segs; n += 2) {
     gui->graphics->draw_line (gc,
                               x1 + (dx * (double) (n-1) / (double) segs),
                               y1 + (dy * (double) (n-1) / (double) segs),
                               x1 + (dx * (double) n / (double) segs),
                               y1 + (dy * (double) n / (double) segs));
+  }
 
   /* make sure the last segment is drawn properly to x2 and y2,
    * don't leave room for rounding errors. */
@@ -133,16 +134,25 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
                        * each other - with XOR it looks bad */
             continue;
 
-        if (dash_last)
-          {
-            draw_dashed_line (gc,
-                              polygon->Points[i].X + dx,
-                              polygon->Points[i].Y + dy,
-                              polygon->Points[next].X + dx,
-                              polygon->Points[next].Y + dy);
-            break; /* skip normal line draw below */
-          }
+      Cardinal next = next_contour_point (polygon, i);
+
+      if (next == 0) {
+
+        /* last line: sometimes the implicit closing line */
+        if (i == 1) /* corner case: don't draw two lines on top of
+          * each other - with XOR it looks bad */
+          continue;
+
+        if (dash_last) {
+
+          draw_dashed_line (gc,
+                            polygon->Points[i].X + dx,
+                            polygon->Points[i].Y + dy,
+                            polygon->Points[next].X + dx,
+                            polygon->Points[next].Y + dy);
+          break; /* skip normal line draw below */
         }
+      }
 
       /* normal contour line */
       gui->graphics->draw_line (gc,
