@@ -128,12 +128,15 @@ hidgl_set_depth (float depth)
  * \brief Draw the grid on the 3D canvas
  */
 void
-hidgl_draw_grid (BoxType *drawn_area)
+hidgl_draw_grid (BoxType *drawn_area, double coord_per_px)
 {
   static GLfloat *points = 0;
   static int npoints = 0;
   Coord x1, y1, x2, y2, n, i;
   double x, y;
+  double pixels;
+  double grid_px;
+  double point_size;
 
   if (!Settings.DrawGrid)
     return; /* grid hidden */
@@ -165,6 +168,22 @@ hidgl_draw_grid (BoxType *drawn_area)
       points = realloc (points, npoints * 3 * sizeof (GLfloat));
     }
 
+  pixels = (x2 - x1) / coord_per_px; /* visible grid area in pixels */
+  grid_px = pixels / n; /* distance between grid dots in pixels */
+  point_size = 1.0 + grid_px / 30.0;
+  /* limit the maximum and minimum size of the grid dot - these should really be taken from settings */
+  if (point_size > 4)
+    {
+      point_size = 4;
+    }
+  else if (point_size < 1)
+    {
+      point_size = 1;
+    }
+  /* ensure grid point size is an integer value to prevent moira artefacts */
+  point_size = (int)(point_size + 0.5);
+
+  glPointSize (point_size);
   glEnableClientState (GL_VERTEX_ARRAY);
   glVertexPointer (3, GL_FLOAT, 0, points);
 
@@ -184,6 +203,7 @@ hidgl_draw_grid (BoxType *drawn_area)
     }
 
   glDisableClientState (GL_VERTEX_ARRAY);
+  glPointSize (1);
 }
 
 #define MAX_PIXELS_ARC_TO_CHORD 0.5

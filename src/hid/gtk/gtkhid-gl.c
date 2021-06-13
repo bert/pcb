@@ -233,7 +233,7 @@ ghid_draw_grid (BoxType *drawn_area)
              gport->grid_color.green / 65535.,
              gport->grid_color.blue / 65535.);
 
-  hidgl_draw_grid (drawn_area);
+  hidgl_draw_grid (drawn_area, gport->view.coord_per_px);
 
   glDisable (GL_COLOR_LOGIC_OP);
 }
