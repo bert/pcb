@@ -12,7 +12,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@ libdrc.a
 EXTRA_LIBRARIES = \
 	libdrc.a \
-	libgtk.a liblesstif.a libbatch.a \
+	libgtk.a liblesstif.a libbatch.a libgtk3.a \
 	liblpr.a libgerber.a libbom.a libbom_md.a libpng.a libps.a libnelma.a \
 	libgcode.a libipcd356.a libgsvit.a
 
@@ -195,6 +195,7 @@ BUILT_SOURCES = \
 	core_lists.h \
 	gpcb-menu.h \
 	hid/gtk/gtk_lists.h \
+	hid/gtk3/gtk3_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
@@ -245,6 +246,9 @@ EXTRA_DIST= \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
 	$(srcdir)/hid/gtk/hid.conf \
+	$(srcdir)/hid/gtk3/gui-icons-misc.data \
+	$(srcdir)/hid/gtk3/gui-icons-mode-buttons.data \
+	$(srcdir)/hid/gtk3/hid.conf \
 	$(srcdir)/hid/gtk/pcb.rc \
 	$(srcdir)/hid/ipcd356/hid.conf \
 	$(srcdir)/hid/lesstif/hid.conf \
@@ -374,6 +378,62 @@ hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	true > $@
 	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+
+# GTK3 GUI  ############################################################
+
+LIBGTK3_GDK_SRCS= \
+	hid/gtk3/gtk3-gdk.c
+
+LIBGTK3_GL_SRCS= \
+	hid/gtk3/gtk3-gl.c \
+	hid/gtk3/gtk3-trackball.c \
+	hid/gtk3/gtk3-trackball.h
+
+
+libgtk3_a_CPPFLAGS = -I$(top_srcdir) -I./hid/gtk3
+LIBGTK3_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/gtk3/gtk3-cell-renderer-visibility.c \
+	hid/gtk3/gtk3-cell-renderer-visibility.h \
+	hid/gtk3/gtk3-coord-entry.c \
+	hid/gtk3/gtk3-coord-entry.h \
+	hid/gtk3/gtk3-layer-selector.c \
+	hid/gtk3/gtk3-layer-selector.h \
+	hid/gtk3/gtk3-main-menu.c \
+	hid/gtk3/gtk3-main-menu.h \
+	hid/gtk3/gtk3-route-style-selector.c \
+	hid/gtk3/gtk3-route-style-selector.h \
+	hid/gtk3/gtk3-main.c \
+	hid/gtk3/gtk3-hid.h \
+	hid/gtk3/gtk3-main.h \
+	hid/gtk3/gtk3-command-window.c \
+	hid/gtk3/gtk3-config.c \
+	hid/gtk3/gtk3-dialog-print.c \
+	hid/gtk3/gtk3-dialog.c \
+	hid/gtk3/gtk3-drc-window.c \
+	hid/gtk3/gtk3-drc-window.h \
+	hid/gtk3/gtk3-keyref-window.c \
+	hid/gtk3/gtk3-library-window.c \
+	hid/gtk3/gtk3-library-window.h \
+	hid/gtk3/gtk3-log-window.c \
+	hid/gtk3/gtk3-misc.c \
+	hid/gtk3/gtk3-netlist-window.c \
+	hid/gtk3/gtk3-output-events.c \
+	hid/gtk3/gtk3-pinout-preview.c \
+	hid/gtk3/gtk3-pinout-preview.h \
+	hid/gtk3/gtk3-pinout-window.c \
+	hid/gtk3/gtk3-top-window.c \
+	hid/gtk3/gtk3-utils.c
+libgtk3_a_SOURCES = ${LIBGTK3_SRCS} hid/gtk3/gtk3_lists.h
+
+hid/gtk3/gtk3_lists.h : ${LIBGTK3_SRCS} Makefile
+	$(MKDIR_P) hid/gtk3
+	true > $@
+	(for f in ${LIBGTK3_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
+# End of GTK3 GUI  #####################################################
 
 # If we are building with dbus support, we need some extra files
 if WITH_DBUS
@@ -549,6 +609,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
+	hid/gtk3/gtk3_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \

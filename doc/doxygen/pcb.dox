@@ -42,7 +42,7 @@ PROJECT_BRIEF          = "An interactive printed circuit board layout editor."
 # exceed 55 pixels and the maximum width should not exceed 200 pixels.
 # Doxygen will copy the logo to the output directory.
 
-PROJECT_LOGO           = pcb-logo-small.png
+PROJECT_LOGO           = ./pcb-logo-small.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.

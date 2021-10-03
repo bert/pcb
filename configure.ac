@@ -314,7 +314,7 @@ done
 
 AC_MSG_CHECKING([for which gui to use])
 AC_ARG_WITH([gui],
-[  --with-gui=	          Specify the GUI to use: batch gtk lesstif [[default=gtk]]],
+[  --with-gui=	          Specify the GUI to use: batch gtk gtk3 lesstif [[default=gtk]]],
 [],
 [with_gui=gtk]
 )
@@ -379,6 +379,7 @@ AC_ARG_ENABLE([dbus],
 [],[
 	case " $with_gui " in
 		*\ gtk\ *)     enable_dbus=yes ;;
+		*\ gtk3\ *)    enable_dbus=yes ;;
 		*\ lesstif\ *) enable_dbus=yes ;;
 		* )            enable_dbus=no ;;
 	esac
@@ -390,6 +391,7 @@ AM_CONDITIONAL(WITH_DBUS, test x$enable_dbus = xyes)
 if test "x$enable_dbus" = "xyes"; then
 	case " $with_gui " in
 		*\ gtk\ *) ;;
+		*\ gtk3\ *) ;;
 		*\ lesstif\ *) ;;
 		* ) AC_MSG_ERROR([DBUS enabled but only works with a mainloop capable GUI HID.
 Either do not use --enable-dbus or enable the gtk or lesstif GUI HID.])
@@ -418,6 +420,7 @@ AC_ARG_ENABLE([gl],
 [],[
 	case " $with_gui " in
 		*\ gtk\ *) enable_gl=yes;;
+		*\ gtk3\ *) enable_gl=yes;;
 		* ) enable_gl=no;;
 	esac
 ])
@@ -427,8 +430,9 @@ AM_CONDITIONAL(USE_GL, test x$enable_gl = xyes)
 if test "x$enable_gl" = "xyes"; then
 	case " $with_gui " in
 		*\ gtk\ *) ;;
-		* ) AC_MSG_ERROR([GL drawing enabled but only works with the GTK HID.
-Either do not use --enable-gl or enable the gtk HID.])
+		*\ gtk3\ *) ;;
+		* ) AC_MSG_ERROR([GL drawing enabled but only works with the GTK or GTK3 HID.
+Either do not use --enable-gl or enable the gtk or gtk3 HID.])
 	;;
 	esac
 
@@ -800,6 +804,33 @@ $GTK_PKG_ERRORS])]
 	if test "x$enable_gl" = "xyes"; then
 		# Check for GtkGLExt
 		PKG_CHECK_MODULES(GTKGLEXT, gtkglext-1.0 >= 1.0.0, , [AC_MSG_ERROR([
+*** Required version of gtkglext is not installed - please install first ***
+Please review the following errors:
+$GTKGLEXT_PKG_ERRORS])]
+		)
+	GTKGLEXT_VER=`$PKG_CONFIG gtkglext-1.0 --modversion`
+	fi
+
+	;;
+
+      gtk3 )
+	# Check for pkg-config
+	PKG_PROG_PKG_CONFIG
+	if test -z "$PKG_CONFIG"; then
+		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
+	fi
+
+	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.24.20, ,
+		[AC_MSG_ERROR([Cannot find gtk+-3.0 >= 3.24.20, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS])]
+	)
+	GTK_VERSION=`$PKG_CONFIG gtk+-3.0 --modversion`
+	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
+
+	if test "x$enable_gl" = "xyes"; then
+		# Check for GtkGLExt
+		PKG_CHECK_MODULES(GTKGLEXT, gtkglext-1.0 >= 1.0, , [AC_MSG_ERROR([
 *** Required version of gtkglext is not installed - please install first ***
 Please review the following errors:
 $GTKGLEXT_PKG_ERRORS])]
