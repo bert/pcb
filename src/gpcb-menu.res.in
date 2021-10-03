@@ -130,7 +130,7 @@ MainMenu =
 # View Menu
 #
   {"View" m=V
-   {"Enable visible grid" checked=drawgrid Display(Grid)}
+   {"Toggle visible grid" checked=drawgrid Display(Grid) a={"Ctrl-G" "Ctrl<Key>g"}}
    {"Grid units"
     {"mil" checked=grid_units_mil,1 SetUnits(mil)}
     {"mm"  checked=grid_units_mm,1 SetUnits(mm)}
