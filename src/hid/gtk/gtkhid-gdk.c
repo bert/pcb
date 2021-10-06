@@ -185,10 +185,9 @@ set_clip (render_priv *priv, GdkGC *gc)
 void
 ghid_draw_grid (BoxType * region)
 {
-  static GdkPoint *points = 0;
-  static int npoints = 0;
   Coord x1, y1, x2, y2, x, y;
-  int n, i;
+  double point_size;
+  unsigned int arc_size;
   render_priv *priv = gport->render_priv;
 
   if (!Settings.DrawGrid)
@@ -235,26 +234,28 @@ ghid_draw_grid (BoxType * region)
   if (Vx (x2) >= gport->width)    x2 -= PCB->Grid;
   if (Vy (y2) >= gport->height)    y2 -= PCB->Grid;
   
-  n = (x2 - x1) / PCB->Grid + 1; /* Number of points in one row */
-  if (n > npoints)
-    { /* [n]points are static, reallocate if we need more memory */
-      npoints = n + 10;
-      points = (GdkPoint *)realloc (points, npoints * sizeof (GdkPoint));
+  point_size = 1.0 + Vz (PCB->Grid) / 30.0;
+  /* limit the maximum and minimum size of the grid dot - these should really be taken from settings */
+  if (point_size > 4)
+    {
+      point_size = 4;
     }
-  n = 0;
+  else if (point_size < 1)
+    {
+      point_size = 1;
+    }
+
+  /* ensure grid point size is an integer value to prevent moira artefacts */
+  arc_size = (int)(point_size + 0.5);
+
   for (x = x1; x <= x2; x += PCB->Grid)
-    { /* compute all the x coordinates */
-      points[n].x = Vx (x);
-      n++;
-    }
-  if (n == 0)
-    return;
-  for (y = y1; y <= y2; y += PCB->Grid)
-    { /* reuse the row of points at each y */
-      for (i = 0; i < n; i++)   points[i].y = Vy (y);
-      /* draw all the points in a row for a given y */
-      gdk_draw_points (gport->drawable, priv->grid_gc, points, n);
-    }
+    for (y = y1; y <= y2; y += PCB->Grid)
+      gdk_draw_arc (gport->drawable, priv->grid_gc,
+                    1,
+                    Vx (x) - arc_size / 2, Vy (y) - arc_size / 2,
+                    arc_size, arc_size,
+                    0, 360 * 64);
+
 }
 
 /* ------------------------------------------------------------ */
