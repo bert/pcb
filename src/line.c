@@ -246,9 +246,22 @@ drcVia_callback (const BoxType * b, void *cl)
 {
   PinType *via = (PinType *) b;
   struct drc_info *i = (struct drc_info *) cl;
+  Cardinal current_group = GetLayerGroupNumberByNumber(INDEXOFCURRENT);
 
-  if (!TEST_FLAG (FOUNDFLAG, via) && PinLineIntersect (via, i->line))
+  if(TEST_FLAG(FOUNDFLAG, via)) {
+    return 1;
+  }
+
+  if(!ViaIsOnLayerGroup(via, current_group)) {
+    /* Via does not feature in the current layer group */
+    return 1;
+  }
+
+  /* Does this check that the via is on the same layer as the line? */
+  if (PinLineIntersect (via, i->line)) {
     longjmp (i->env, 1);
+  }
+
   return 1;
 }
 
