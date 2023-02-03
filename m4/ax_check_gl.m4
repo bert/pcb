@@ -56,7 +56,7 @@ AC_CHECK_HEADERS([windows.h])
 
 ax_save_CPPFLAGS=$CPPFLAGS
 CPPFLAGS="$GL_CFLAGS $CPPFLAGS"
-AC_CHECK_HEADERS([GL/gl.h OpenGL/gl.h], , , [
+AC_CHECK_HEADERS([GL/gl.h OpenGL/gl.h GL/glx.h OpenGL/glx.h], , , [
 # if defined(HAVE_WINDOWS_H) && defined(_WIN32)
 #   include <windows.h>
 # endif
@@ -82,12 +82,12 @@ m4_define([AX_CHECK_GL_GLX_PROGRAM],
 # if defined(HAVE_WINDOWS_H) && defined(_WIN32)
 #   include <windows.h>
 # endif
-# ifdef HAVE_GL_GL_H
-#   include <GL/gl.h>
-# elif defined(HAVE_OPENGL_GL_H)
-#   include <OpenGL/gl.h>
+# ifdef HAVE_GL_GLX_H
+#   include <GL/glx.h>
+# elif defined(HAVE_OPENGL_GLX_H)
+#   include <OpenGL/glx.h>
 # else
-#   error no gl.h
+#   error no glx.h
 # endif]],
                            [[glXQueryVersion(0, 0, 0)]])])
 
