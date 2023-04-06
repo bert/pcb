@@ -1685,6 +1685,13 @@ print_version ()
   exit (0);
 }
 
+static void
+print_libdir ()
+{
+  printf ("%s\n", lrealpath(pcblibdir));
+  exit (0);
+}
+
 /* ----------------------------------------------------------------------
  * Figure out the canonical name of the executed program
  * and fix up the defaults for various paths
@@ -2035,6 +2042,8 @@ main (int argc, char *argv[])
     usage ();
   if (argc > 1 && strcmp (argv[1], "-V") == 0)
     print_version ();
+  if (argc > 1 && strcmp (argv[1], "--show-libdir") == 0)
+    print_libdir ();
   /* Export pcb from command line if requested.  */
   if (argc > 1 && strcmp (argv[1], "-p") == 0)
     {
