@@ -41,6 +41,7 @@
 #endif
 
 
+#include "gtk3-main.h"
 #include "gtk3-hid.h"
 #include "global.h"
 #include "buffer.h"

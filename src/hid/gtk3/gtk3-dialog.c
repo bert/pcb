@@ -41,6 +41,7 @@
 
 
 #include "data.h"
+#include "gtk3-main.h"
 #include "gtk3-hid.h"
 
 

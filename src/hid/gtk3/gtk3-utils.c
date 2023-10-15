@@ -43,6 +43,7 @@
 #include "config.h"
 #endif
 
+#include "gtk3-main.h"
 #include "gui.h"
 #include <gdk/gdkkeysyms.h>
 
