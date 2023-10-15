@@ -39,7 +39,7 @@
 #endif
 
 #include "hid.h"
-#include "hidint.h"
+#include "../hidint.h"
 #include "gtk3-main.h"
 
 #include "global.h"

@@ -85,7 +85,7 @@
 #include "gtk3-hid.h"
 #include "gtk3-main.h"
 #include "hid.h"
-#include "hidint.h"
+#include "../hidint.h"
 #include "hid/common/hid_resource.h"
 #include "action.h"
 #include "autoplace.h"
