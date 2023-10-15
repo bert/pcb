@@ -41,7 +41,6 @@
 #include <gtk/gtk.h>
 
 
-#include "gtk3-hid.h"
 #include "gtk3-main.h"
 #include "pcb-printf.h"
 #include "gtk3-main-menu.h"

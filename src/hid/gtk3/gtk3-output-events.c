@@ -41,7 +41,6 @@
 
 
 #include "gtk3-main.h"
-#include "gtk3-hid.h"
 #include "hid/common/hid_resource.h"
 
 

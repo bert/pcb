@@ -38,7 +38,6 @@
 #include <stdlib.h>
 #endif
 
-#include "gtk3-hid.h"
 #include "hid.h"
 #include "hidint.h"
 #include "gtk3-main.h"

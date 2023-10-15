@@ -42,7 +42,6 @@
 
 #include "global.h"
 #include "gtk3-main.h"
-#include "gtk3-hid.h"
 #include "copy.h"
 #include "data.h"
 #include "draw.h"

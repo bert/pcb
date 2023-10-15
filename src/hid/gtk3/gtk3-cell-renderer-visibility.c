@@ -44,7 +44,6 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-#include "./gtk3-hid.h"
 #include "./gtk3-main.h"
 
 #include "./gtk3-cell-renderer-visibility.h"

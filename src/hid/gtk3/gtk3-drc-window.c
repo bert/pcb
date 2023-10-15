@@ -52,7 +52,6 @@
 #include "undo.h"
 #include "set.h"
 #include "gtk3-main.h"
-#include "gtk3-hid.h"
 #include "gtk3-drc-window.h"
 
 
