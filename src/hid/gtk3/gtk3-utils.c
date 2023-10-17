@@ -43,7 +43,7 @@
 #include "config.h"
 #endif
 
-#include "gui.h"
+#include "gtk3-main.h"
 #include <gdk/gdkkeysyms.h>
 
 #ifdef HAVE_LIBDMALLOC

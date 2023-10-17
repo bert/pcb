@@ -46,8 +46,8 @@
 
 #include "crosshair.h"
 #include "clip.h"
-#include "hidint.h"
-#include "gtk3-hid.h"
+#include "../hidint.h"
+#include "gtk3-main.h"
 #include "hid/common/draw_helpers.h"
 
 

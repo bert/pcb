@@ -80,12 +80,12 @@
 #include <unistd.h>
 
 
-#include "ghid-layer-selector.h"
-#include "ghid-route-style-selector.h"
+#include "gtk3-layer-selector.h"
+#include "gtk3-route-style-selector.h"
 #include "gtk3-hid.h"
 #include "gtk3-main.h"
 #include "hid.h"
-#include "hidint.h"
+#include "../hidint.h"
 #include "hid/common/hid_resource.h"
 #include "action.h"
 #include "autoplace.h"

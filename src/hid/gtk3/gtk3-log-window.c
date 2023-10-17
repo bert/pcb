@@ -40,7 +40,7 @@
 #endif
 
 
-#include "gtk3-hid.h"
+#include "gtk3-main.h"
 #include "pcb-printf.h"
 
 

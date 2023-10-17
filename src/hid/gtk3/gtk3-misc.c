@@ -36,7 +36,7 @@
 
 
 #ifdef HAVE_CONFIG_H
-include "config.h"
+#include "config.h"
 #endif
 
 
@@ -47,7 +47,7 @@ include "config.h"
 #include "action.h"
 #include "set.h"
 #include "pcb-printf.h"
-#include "gtk3-hid.h"
+#include "gtk3-main.h"
 
 
 #include <gdk/gdkkeysyms.h>
