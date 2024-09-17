@@ -1546,7 +1546,7 @@ static GtsVertex * edge_collapse (GtsEdge * e,
 	 faces (it should not happen unless duplicate triangles are present in
 	 the initial surface) */
       g_warning ("file %s: line %d (%s): probably duplicate triangle.",
-		 __FILE__, __LINE__, G_GNUC_PRETTY_FUNCTION);
+		 __FILE__, __LINE__, __PRETTY_FUNCTION__);
       HEAP_REMOVE_EDGE (heap, e1);
       gts_object_destroy (GTS_OBJECT (e1));
       if (i == NULL) /* mid has been destroyed */
