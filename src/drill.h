@@ -32,6 +32,11 @@
  * Thomas.Nau@rz.uni-ulm.de
  */
 
+#ifndef	PCB_DRILL_H
+#define	PCB_DRILL_H
+
 DrillInfoType * GetDrillInfo (DataType *);
 void FreeDrillInfo (DrillInfoType *);
 void RoundDrillInfo (DrillInfoType *, int);
+
+#endif
