@@ -126,8 +126,7 @@ static int autorouted_only = 1;
 
 static const char djopt_sao_syntax[] = "OptAutoOnly()";
 
-static const char djopt_sao_help[] =
-  "Toggles the optimize-only-autorouted flag.";
+static const char djopt_sao_help[] = N_("Toggles the optimize-only-autorouted flag.");
 
 /* %start-doc actions OptAutoOnly
 
