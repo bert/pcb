@@ -1103,10 +1103,10 @@ static const char drc_help[] = N_("Invoke the DRC check.");
 
 /* %start-doc actions DRC
  
- Note that the design rule check uses the current board rule settings,
- not the current style settings.
- 
- %end-doc */
+Note that the design rule check uses the current board rule settings,
+not the current style settings.
+
+%end-doc */
 
 static int
 ActionDRCheck (int argc, char **argv, Coord x, Coord y)
@@ -1137,8 +1137,7 @@ ActionDRCheck (int argc, char **argv, Coord x, Coord y)
 }
 
 static const char drc_report_syntax[] = N_("DRCReport([Output file])");
-static const char drc_report_help[] =
-N_("Write the DRC violation data from the last DRC to a file.");
+static const char drc_report_help[] = N_("Write the DRC violation data from the last DRC to a file.");
 
 static int
 ActionDRCReport (int argc, char **argv, Coord x, Coord y)
@@ -1171,8 +1170,7 @@ ActionDRCReport (int argc, char **argv, Coord x, Coord y)
 }
 
 static const char drc_review_syntax[] = N_("DRCReview()");
-static const char drc_review_help[] =
-N_("Iterate through the list of DRC violations and present them.");
+static const char drc_review_help[] = N_("Iterate through the list of DRC violations and present them.");
 
 static int
 ActionDRCReview (int argc, char **argv, Coord x, Coord y)
