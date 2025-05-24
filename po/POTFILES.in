@@ -13,6 +13,8 @@ src/drc/drc.c
 src/drc/drc_violation.c
 src/edif.y
 src/error.c
+src/fanout.c
+src/fanout.h
 src/file.c
 src/find.c
 src/gpcb-menu.res.h

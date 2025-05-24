@@ -65,6 +65,8 @@ PCB_SRCS = \
 	edif_parse.h \
 	error.c \
 	error.h \
+	fanout.c \
+	fanout.h \
 	file.c \
 	file.h \
 	find.c \
