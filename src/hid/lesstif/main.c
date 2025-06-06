@@ -1159,13 +1159,20 @@ LoadBackgroundImage (char *filename)
   fclose(f);
 }
 
+static unsigned long PickBgPixel(Pixel **bg,int rows,int cols,int r,int c)
+{
+  if((r<rows)&&(r>=0)&&(c<cols)&&(c>=0))
+    {
+      return bg[r][c];
+    }
+  else return bgcolor;
+}
+
 static void
 DrawBackgroundImage ()
 {
   int x, y, w, h;
   double xscale, yscale;
-  int pcbwidth = PCB->MaxWidth / view_zoom;
-  int pcbheight = PCB->MaxHeight / view_zoom;
 
   if (!window || !bg)
     return;
@@ -1173,18 +1180,18 @@ DrawBackgroundImage ()
   if (!bgi || view_width != bgi_w || view_height != bgi_h)
     {
       if (bgi)
-	XDestroyImage (bgi);
+        XDestroyImage (bgi);
       /* Cheat - get the image, which sets up the format too.  */
       bgi = XGetImage (XtDisplay(work_area),
-		       window,
-		       0, 0, view_width, view_height,
-		       -1, ZPixmap);
+                       window,
+                       0, 0, view_width, view_height,
+                       -1, ZPixmap);
       bgi_w = view_width;
       bgi_h = view_height;
     }
 
-  w = MIN (view_width, pcbwidth);
-  h = MIN (view_height, pcbheight);
+  w = view_width;
+  h = view_height;
 
   xscale = (double)bg_w / PCB->MaxWidth;
   yscale = (double)bg_h / PCB->MaxHeight;
@@ -1194,17 +1201,16 @@ DrawBackgroundImage ()
       int pr = Py(y);
       int ir = pr * yscale;
       for (x=0; x<w; x++)
-	{
-	  int pc = Px(x);
-	  int ic = pc * xscale;
-	  XPutPixel (bgi, x, y, bg[ir][ic]);
-	}
+        {
+          int pc = Px(x);
+          int ic = pc * xscale;
+          XPutPixel (bgi, x, y, PickBgPixel(bg,bg_h,bg_w,ir,ic));
+        }
     }
   XPutImage(display, main_pixmap, bg_gc,
-	    bgi,
-	    0, 0, 0, 0, w, h);
-}
-/* ---------------------------------------------------------------------- */
+            bgi,
+            0, 0, 0, 0, w, h);
+}/* ---------------------------------------------------------------------- */
 
 static HID_Attribute *
 lesstif_get_export_options (int *n)
